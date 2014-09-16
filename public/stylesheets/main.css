@@ -1,0 +1,11 @@
+.scrollable-menu {
+    height: auto;
+    max-height: 400px;
+    overflow-x: hidden;
+}
+/* for smaller devices */
+@media all and (max-height: 600px) {
+    .scrollable-menu {
+        max-height: 300px;
+    }
+}

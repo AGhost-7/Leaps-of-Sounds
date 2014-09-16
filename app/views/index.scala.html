@@ -1,0 +1,83 @@
+@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument])
+
+@main("Leaps!") {
+
+<div class="panel panel-warning">
+  
+	<div class="panel-body" id="fingerboard-input">
+    
+		<ul class="nav nav-pills nav-justified">
+			
+			<li class="dropdown">
+				<a id="instrument-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+					Instrument &nbsp;<span class="caret"></span>
+				</a>
+				<ul id="instrument-selector" class="dropdown-menu scrollable-menu" role="menu">
+					@instruments.map { instrument => 
+						<li><a href="#" value="@instrument.strings">@instrument.name</a></li> 
+					}
+				</ul>
+			</li>
+
+			<li class="dropdown">
+				<a id="tuning-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+					Tuning &nbsp;<span class="caret"></span>
+				</a>
+				<ul id="tuning-selector" class="dropdown-menu scrollable-menu" role="menu">
+					@tunings.map { tuning => 
+						<li><a href="#" value="@tuning.values">@tuning.name</a></li> 
+					}
+				</ul>
+			</li>
+		
+			<li class="dropdown">
+				<a id="scale-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+					Scale &nbsp;<span class="caret"></span>
+				</a>
+    
+				<ul id="scale-selector" class="dropdown-menu scrollable-menu" role="menu">
+					@scales.map { scale => 
+						<li><a href="#" value="@scale.values">@scale.name</a> 
+					}
+				</ul>
+			</li>
+
+			<li class="dropdown">
+				<a id="root-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+					Root &nbsp;<span class="caret"></span>
+				</a>
+				<ul id="root-selector" class="dropdown-menu scrollable-menu" role="menu">
+					<li><a href="#" value=1>C</a></li>
+					<li><a href="#" value=2>Db</a></li>
+					<li><a href="#" value=3>D</a></li>
+					<li><a href="#" value=4>Eb</a></li>
+					<li><a href="#" value=5>E</a></li>
+					<li><a href="#" value=6>F</a></li>
+					<li><a href="#" value=7>Gb</a></li>
+					<li><a href="#" value=8>G</a></li>
+					<li><a href="#" value=9>Ab</a></li>
+					<li><a href="#" value=10>A</a></li>
+					<li><a href="#" value=11>Bb</a></li>
+					<li><a href="#" value=12>B</a></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="jumbotron">
+	<!-- displays the note that youre hovered on -->
+	<p id="last-selected">&nbsp;</p>
+	<!-- This is the fingerboard itself.  -->
+	<canvas id="fingerboard" ></canvas>
+	<!-- SoundBox.js depends on Timbre.js -->
+	<script src='@routes.Assets.at("javascripts/timbre.min.js")'></script>
+	<!-- Custom Libs -->
+	<script src='@routes.Assets.at("javascripts/fingerboard.min.js")'></script>
+	<script src='@routes.Assets.at("javascripts/soundbox.min.js")'></script>
+	<script src='@routes.Application.javascriptRoutes'></script>
+	<!-- Main -->
+	<script src='@routes.Assets.at("javascripts/index.min.js")'></script>
+</div>
+
+}
