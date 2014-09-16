@@ -3,13 +3,6 @@ Leaps
 
 Uh... College project.
 
-###Todo
- * Cut project into smaller components to expand.
- * The data for the scale selector should be pulled from a database so that we can later on add a user-defined form for creating your own scales.
- * Gotta figure out if and how we're going to make different instruments selectable.
- * Tunings.
- * User-defined scales
- * Add login?
 
 ###Milestones
 
