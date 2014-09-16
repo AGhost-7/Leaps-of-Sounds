@@ -109,17 +109,33 @@ $(function() {
 		
         $tuningButton[0].innerHTML = $t.text() + 
         	' &nbsp;<span class="caret"></span>';
-        ev.preventDefault();
-        
-	}
+        ev.preventDefault();  
+	};
+	
+    var tooltipProps = {
+    	placement: 'right',
+    	container: 'body'
+    };
     
-	$('#tuning-selector').find('a').click(tuningOnClick);
+    var tuningValuesToTitle = function(val) {
+    	return val
+    		.split(",")
+    		.map(function(num){
+    			return fingerboard.notationFromFreqId(Number(num))
+    		})
+    		.join(" - ")
+    }
     
-    // Hover effect.
-    $('#tuning-selector').find('a').tooltip({
-        container: 'body',
-        placement: 'right'
-    });
+    var $tuningElem;
+	$('#tuning-selector')
+		.find('a')
+		.each(function(key, elem){
+			$tuningElem = $(elem);
+			$tuningElem.attr('title', 
+					tuningValuesToTitle($tuningElem.attr('value')));
+		})
+		.click(tuningOnClick)
+		.tooltip(tooltipProps);
     
     // ----------------------------------------------------
     // Dropdown: instrument
@@ -146,11 +162,15 @@ $(function() {
         				value: tuning.values,
         				on:{
         					click: tuningOnClick
-        				}
+        				}, 
+        				title: tuningValuesToTitle(tuning.values)
         			});
         			$ul.append(
         					$('<li></li>').append($a));
         		});
+        		
+        		// Annnd now we activate Bootstrap's tooltip.
+        		$ul.find('a').tooltip(tooltipProps);
         		
         		// And then we need to update the fingerboard's data as
         		// there may be a different number of strings.
