@@ -52,7 +52,7 @@ Fingerboard.View = function($canvas, model, events) {
 			openWidth / 4 : heightRatio / 4),
 			helperRadius = radius * 2 / 3;
 		
-		context.lineWidth = 0.5;
+		context.lineWidth = 1;
 		
 		/* console.log(
 			'width ratio', width / (model.frets()),
@@ -80,18 +80,29 @@ Fingerboard.View = function($canvas, model, events) {
 				context
 					.beginPath()
 					.fillStyle(colors.strings)
-					.moveTo(0, stringH)
+					.moveTo(openWidth, stringH)
 					.lineTo(width, stringH)
 					.stroke()
 					
-			if(string == 1) {
+			if(string === 1) {
+				if(fret === 1){
+					context.context.lineWidth = 5;
+					context
+						.beginPath()
+						.fillStyle(colors.frets)
+						.moveTo(fretStart, 0)
+						.lineTo(fretStart, height)
+						.stroke()
+						;
+					context.context.lineWidth = 1;	
+				} else if(fret !== 0)
 				// draw the fret
-				context
-					.beginPath()
-					.fillStyle(colors.frets)
-					.moveTo(fretStart, 0)
-					.lineTo(fretStart, height)
-					.stroke();
+					context
+						.beginPath()
+						.fillStyle(colors.frets)
+						.moveTo(fretStart, 0)
+						.lineTo(fretStart, height)
+						.stroke();
 				
 				switch(fret) {
 					// draw the inlay visual helpers
@@ -180,7 +191,6 @@ Fingerboard.View = function($canvas, model, events) {
 	*/
 	
 	}
-	
 	function updateDimensions() {
 		width = $canvas.width();
 		height = $canvas.height();
@@ -200,14 +210,16 @@ Fingerboard.View = function($canvas, model, events) {
 	}
 	
 	
-	
 	// disable highlighting for the canvas(looks ridiculous)
 	canvas.style['user-select'] = 'none';
 	canvas.style['-webkit-user-select'] = 'none';
 	canvas.style['-moz-user-select'] = 'none';
-	canvas.style['border-style'] = 'solid';
-	canvas.style['color'] = 'gray';
-		
+	// I'm going to need to remove this eventually...
+	//canvas.style['border-top'] = '1px solid';
+	//canvas.style['border-bottom'] = '1px solid';
+	//canvas.style['border-style'] = 'solid';
+	//canvas.style['color'] = 'gray';
+	
 	// Object construction
 	
 	updateDimensions();

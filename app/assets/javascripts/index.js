@@ -21,7 +21,7 @@ $(function() {
     
     // Change the selector to blue and play the sound when clicked on
     var lastNote;
-    fingerboard.on('noteclick', function(note) {
+    fingerboard.noteclick(function(note) {
         if(lastNote) {
             var slct;
             if(lastNote.scaleValue)
@@ -47,7 +47,7 @@ $(function() {
 
     // Displays info about the note that the mouse is currently hovered on
     var $p = $('#last-selected');
-    fingerboard.on('notehover', function(note) {
+    fingerboard.notehover(function(note) {
         $p.text(
             'note : ' + note.interval.notation +note.interval.index 
         );

@@ -19,6 +19,14 @@ object Application extends Controller {
 				))
 	}
 	
+	def index2 = Action {
+		Ok(views.html.index(
+				Scale.getAll, 
+				Tuning.ofInstrument("Guitar"),
+				Instrument.getAll
+				))
+	}
+	
 	def javascriptRoutes = Action { implicit request =>
 		import routes.javascript._
 		Ok(Routes.javascriptRouter("jsRoutes")(
@@ -31,5 +39,4 @@ object Application extends Controller {
 		write("Requested tunings for: " + name)
 		Ok(Json.toJson(Tuning.ofInstrument(name)))
 	}
-	
 }

@@ -7,27 +7,45 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	 
-	<!-- SEO BEGIN -->
+	@* SEO BEGIN *@
 	<meta http-equiv="content-language" content="en" />
 	<meta name="description" content="Free online guitar scales viewer." />
 	
-	<!-- Google and Google Plus -->
+	@* Google and Google Plus *@
 	<link href="" rel="publisher" />
 	<link href="" rel="author" />
-	<!-- Facebook profile linkage -->
+	@* Facebook profile linkage *@
 	<meta property="fb:profile_id" content="" />
 	
-	<!-- Open Graph, used by Facebook -->
+	@* Open Graph, used by Facebook *@
 	<meta property="og:description" content="Free online guitar scales viewer." /> 
 	<meta property="og:site_name" content="Leaps" />
-	<!-- SEO END -->
-	 
-	<!-- Core dependencies -->
-	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
+	@* SEO END *@
+	
+	@* In case that some n00b is using IE *@
+	<!--[if lt IE 9]>
+		<script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		<script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	
+	@* CSS should always be at the top *@
+	<style>
+	.scrollable-menu {
+		height: auto;
+		max-height: 400px;
+		overflow-x: hidden;
+	}
+	/* for smaller devices */
+	@@media all and (max-height: 600px) {
+		.scrollable-menu {
+			max-height: 300px;
+		}
+	}
+	</style>
+	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
-	<script src='@routes.Assets.at("javascripts/jquery-2.1.1.js")'></script>
-	<script src='@routes.Assets.at("javascripts/bootstrap.js")'></script>
-
+	@* Since JQuery is so heavily used, keep this at the top, just in case... *@
+	<script src='@routes.Assets.at("javascripts/jquery-2.1.1.min.js")'></script>
 </head>
 <body>
 	<div class="container">

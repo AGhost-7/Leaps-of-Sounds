@@ -19,6 +19,12 @@ module.exports = function(grunt) {
 				files: {
 					'dist/fingerboard.min.js': ['dist/fingerboard.js']
 				}
+			},
+			
+			play: {
+				files: {
+					'../public/javascripts/fingerboard.min.js': ['../public/javascripts/fingerboard.js']
+				}
 			}
 		},
 		watch:{
@@ -31,7 +37,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	grunt.registerTask('default', ['concat:publish', 'uglify:publish']);
-	
-	
-	grunt.registerTask('play', ['watch']);
+	grunt.registerTask('play', ['concat:play', 'uglify:play']);
 };

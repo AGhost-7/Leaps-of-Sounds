@@ -51,11 +51,12 @@ Fingerboard = function($canvas, argsObj) {
 		};
     
 		// Construct event stuff
-		/* Dunno why this isn't working, I'll get back to this later...*/
 		for(var key in listeners) {
-			self[key] = function(callback) {
-				listeners[key].push(callback);
-			}
+			self[key] = (function(key){
+				return function(callback){
+					listeners[key].push(callback)
+				}
+			})(key);
 		}
 		
 		return self;
