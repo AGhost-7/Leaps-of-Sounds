@@ -111,27 +111,23 @@ Fingerboard = function($canvas, argsObj) {
 	Fingerboard.ContextWrapper = function (context) {
 		var t = this;
 		
-		var functionify = function(obj, key) {
-			return function() {
-				obj[key].apply(obj, arguments);
-				return t;
-			};
-		};
-		
-		var settify = function(obj, key) {
-			return function(val) {
-				obj[key] = val;
-				return t;
-			}
-		};
-		
 		// basic wrapping
 		for(var key in context) {
 			if(typeof context[key] === 'function') {
-				t[key] = functionify(context, key)
+				t[key] = (function(key, context){
+					return function(){
+						context[key].apply(context, arguments);
+						return t;
+					}
+				})(key, context)
 			} else {
 				// Only interested in setters for method chains.
-				t[key] = settify(context, key)
+				t[key] = (function(key, context){
+					return function(val){
+						context[key] = val;
+						return t;
+					}
+				})(key, context)
 			}
 		}
 		
@@ -373,11 +369,12 @@ Fingerboard.Model = function(args, events) {
 			index = 0,
 			intervals = [],
 			scaleLength = notation.length || args.scaleLength;
-
+		
+		// Use a default value if its possible
 		if(!tuning) {
 			if(notation.every(function(val, i) { return defaultNotation[i] === val }) 
 				&& strings() === 6) {
-
+				
 				var note = function(notation, index) {
 					return index * 12 + defaultNotation.indexOf(notation);
 				};
@@ -646,71 +643,6 @@ Fingerboard.View = function($canvas, model, events) {
 					.fill();
 			}
 		});
-	
-	// Don't use, this will be removed eventually.
-	/*var oldRenderer = function(fret, string, note) {
-		fretStart = fret * widthRatio;
-		fretEnd = fretStart + widthRatio -1;		
-		stringH = ((string-1) * heightRatio) + (heightRatio / 2);
-		
-		// I need the dimension of each note on the fingerboard
-		// to be stored for later access for the event service.
-		note.dimension.x1 = fretStart;
-		note.dimension.y1 = stringH - (heightRatio / 2);
-		note.dimension.x2 = fretEnd;
-		note.dimension.y2 = stringH + (heightRatio / 2);
-		
-	
-		// draw the string
-		if(fret === 0)
-			context.beginPath()
-				.color('gray')
-				.moveTo(0, stringH)
-				.lineTo(width, stringH)
-				.stroke();
-			
-		
-		if(string == 1) {
-			// draw the fret
-			fretW = fret * widthRatio + 1;
-			context.beginPath()
-				.color('gray')
-				.moveTo(fretStart, 0)
-				.lineTo(fretStart, height)
-				.stroke();
-			
-			switch(fret) {
-				// draw the helper dots
-				case 3: case 5: case 7: case 9:
-					context.beginPath()
-						.color('#D1A319')
-						.arc(fretStart + (widthRatio / 2), height / 2, helperRadius, 0, endArc)
-						.fill();
-					break;
-				// draw the double dot
-				case 12:
-					context.beginPath()
-						.color('#D1A319')
-						.arc(fretStart + (widthRatio / 2), height / 3, helperRadius, 0, endArc)
-						.fill();
-					context.beginPath()
-						.color('#D1A319')
-						.arc(fretStart + (widthRatio / 2), 2*(height/3), helperRadius, 0, endArc)
-						.fill();
-					break;
-			}
-		}
-		
-		// Draw the circle if its selected
-		if(note.selector !== '' && (color = selectors[note.selector])) {
-			context.beginPath()
-				.color(color)
-				.arc(fretStart + (widthRatio / 2), stringH, radius, 0, endArc)
-				.fill();
-		}
-	};
-	*/
-	
 	}
 	function updateDimensions() {
 		width = $canvas.width();

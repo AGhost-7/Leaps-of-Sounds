@@ -8,27 +8,23 @@
 	Fingerboard.ContextWrapper = function (context) {
 		var t = this;
 		
-		var functionify = function(obj, key) {
-			return function() {
-				obj[key].apply(obj, arguments);
-				return t;
-			};
-		};
-		
-		var settify = function(obj, key) {
-			return function(val) {
-				obj[key] = val;
-				return t;
-			}
-		};
-		
 		// basic wrapping
 		for(var key in context) {
 			if(typeof context[key] === 'function') {
-				t[key] = functionify(context, key)
+				t[key] = (function(key, context){
+					return function(){
+						context[key].apply(context, arguments);
+						return t;
+					}
+				})(key, context)
 			} else {
 				// Only interested in setters for method chains.
-				t[key] = settify(context, key)
+				t[key] = (function(key, context){
+					return function(val){
+						context[key] = val;
+						return t;
+					}
+				})(key, context)
 			}
 		}
 		

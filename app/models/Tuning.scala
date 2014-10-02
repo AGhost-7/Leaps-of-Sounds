@@ -8,6 +8,8 @@ object Tuning {
 	import anorm._
 	import play.api.db.DB
 	import play.api.Play.current
+	import scala.concurrent._
+	import ExecutionContext.Implicits.global
 	
 	implicit val json = Json.writes[Tuning]
 	
@@ -15,17 +17,18 @@ object Tuning {
 	
 	def fromRow(row:SqlRow) = Tuning(row[String]("name"), row[String]("values"))
 	
-	def ofInstrument(instrument: String) = 
-		DB.withConnection { implicit con =>
-			SQL("""
-				SELECT * FROM tunings 
-				WHERE instrument=(
-					SELECT id FROM instruments WHERE name={inst}
+	def ofInstrument(instrument: String)(implicit con: java.sql.Connection) = 
+		future {
+				SQL("""
+					SELECT * FROM tunings 
+					WHERE instrument=(
+						SELECT id FROM instruments WHERE name={inst}
 					)
-			""")
-			.on("inst" ->instrument)()
+				""")
+				.on("inst" ->instrument)()
 				.map(fromRow)
 				.toList
 		}
+	
 	
 }

@@ -45,3 +45,5 @@ Requested tunings for: Guitar
 Requested tunings for: Bass Guitar
 Requested tunings for: Ukulele
 Requested tunings for: Guitar
+Requested tunings for: Ukulele
+Requested tunings for: Ukulele

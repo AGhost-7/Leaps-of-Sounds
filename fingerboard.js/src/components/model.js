@@ -135,11 +135,12 @@ Fingerboard.Model = function(args, events) {
 			index = 0,
 			intervals = [],
 			scaleLength = notation.length || args.scaleLength;
-
+		
+		// Use a default value if its possible
 		if(!tuning) {
 			if(notation.every(function(val, i) { return defaultNotation[i] === val }) 
 				&& strings() === 6) {
-
+				
 				var note = function(notation, index) {
 					return index * 12 + defaultNotation.indexOf(notation);
 				};

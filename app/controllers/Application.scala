@@ -6,25 +6,49 @@ import play.api.mvc._
 import play.api.libs.json.Json
 import models._
 import utils._
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import anorm._
+import play.api.db.DB
 
 object Application extends Controller {
 	
-	val write = Writer("logger.txt")
+	//val write = Writer("logger.txt")
 	
-	def index = Action {
-		Ok(views.html.index(
-				Scale.getAll, 
-				Tuning.ofInstrument("Guitar"),
-				Instrument.getAll
-				))
+	def index = Action.async {
+		implicit val con = DB.getConnection()
+		// get the async objects
+		val scales = Scale.getAll
+		val tunings = Tuning.ofInstrument("Guitar") 
+		val instruments = Instrument.getAll
+		
+		// processing is complete when ALL futures
+		// have gained their results
+		val futures = scales.zip(tunings).zip(instruments)
+		 futures.map { 
+			case((scales, tunings), instruments) =>
+				con.close
+				Ok(views.html.index(scales, tunings, instruments))
+		}
+	
 	}
 	
-	def index2 = Action {
-		Ok(views.html.index(
-				Scale.getAll, 
-				Tuning.ofInstrument("Guitar"),
-				Instrument.getAll
-				))
+	def index2 = Action.async {
+		implicit val con = DB.getConnection()
+		// get the async objects
+		val scales = Scale.getAll
+		val tunings = Tuning.ofInstrument("Guitar") 
+		val instruments = Instrument.getAll
+		
+		// processing is complete when ALL futures
+		// have gained their results
+		val futures = scales.zip(tunings).zip(instruments)
+		
+		futures.map { 
+			case((scales, tunings), instruments) =>
+				con.close
+				Ok(views.html.index(scales, tunings, instruments))
+		}
 	}
 	
 	def javascriptRoutes = Action { implicit request =>
@@ -35,8 +59,11 @@ object Application extends Controller {
 		.as("text/javascript")
 	}
 	
-	def getTuningsOfInstrument(name: String) = Action {
-		write("Requested tunings for: " + name)
-		Ok(Json.toJson(Tuning.ofInstrument(name)))
+	def getTuningsOfInstrument(name: String) = Action.async {
+	//	write("Requested tunings for: " + name)
+		implicit val con = DB.getConnection()
+		Tuning.ofInstrument(name)(con) map { instruments =>
+			Ok(Json.toJson(instruments))
+		}
 	}
 }

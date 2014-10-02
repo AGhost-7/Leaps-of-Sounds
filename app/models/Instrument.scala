@@ -8,6 +8,8 @@ object Instrument {
 	import anorm._
 	import play.api.db.DB
 	import play.api.Play.current
+	import scala.concurrent._
+	import ExecutionContext.Implicits.global
 	
 	implicit val json = Json.writes[Instrument]
 	
@@ -15,9 +17,11 @@ object Instrument {
 	
 	def fromRow(row:SqlRow) = Instrument(row[Int]("id"), row[String]("name"), row[Int]("strings"))
 	
-	def getAll = 
-		DB.withConnection { implicit con =>
-			SQL("""SELECT * FROM instruments""")().map(fromRow).toList
-		}
+	def getAll(implicit con:java.sql.Connection) = 
+		future {
+				SQL("""SELECT * FROM instruments""")()
+					.map(fromRow)
+					.toList
+		} 
 	
 }
