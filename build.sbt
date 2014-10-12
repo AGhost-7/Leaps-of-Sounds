@@ -5,7 +5,8 @@ version := "0.5"
 libraryDependencies ++= Seq(
   jdbc,
   anorm,
-  "mysql" % "mysql-connector-java" % "5.1.18",
+  "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
+  "org.mindrot" % "jbcrypt" % "0.3m",
   cache
 )     
 

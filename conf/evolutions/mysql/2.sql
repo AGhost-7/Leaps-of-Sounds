@@ -1,6 +1,6 @@
 # --- !Ups
 
-INSERT INTO scales("name", "values") VALUES
+INSERT INTO scales(`name`, `values`) VALUES
 ('Major', '1,3,5,6,8,10,12'),
 ('Harmonic Minor', '1,3,4,6,8,9,12'),
 ('Melodic Minor (Ascending)', '1,3,4,6,8,10,12'),
@@ -110,4 +110,4 @@ INSERT INTO scales("name", "values") VALUES
 
 # --- !Downs
 
-DELETE FROM "scales";
+DELETE FROM `scales`;

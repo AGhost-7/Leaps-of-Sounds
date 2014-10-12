@@ -15,3 +15,5 @@ dist
 /.settings
 /.target/
 /bin/
+/bin
+/.target

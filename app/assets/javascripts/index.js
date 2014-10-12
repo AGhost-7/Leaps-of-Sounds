@@ -143,7 +143,16 @@ $(function() {
     onaclick('#instrument-button', '#instrument-selector', function($t) {
         var name = $t.text();
         var strings = $t.attr('value');
-        jsRoutes.controllers.Application.getTuningsOfInstrument(name).ajax({
+		  console.log(jsRoutes);
+        $.ajax({
+			url:(function(){
+				//var self = window.location.href,
+				//	url = new URL(self);
+				return '/tuning/of-instrument';
+			})(),
+			data:{
+				name: name
+			},
         	success: function(data){
         		// First, reset the button to simply display "Tuning" like when
         		// the page initially loads.

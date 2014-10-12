@@ -4,8 +4,11 @@
 
 # Home page
 GET     /                               controllers.Application.index
-GET	    /assets/javascripts/routes		controllers.Application.javascriptRoutes()
-GET     /tuning/of-instrument/:name     controllers.Application.getTuningsOfInstrument(name)
+GET	    /assets/javascripts/routes      controllers.Application.javascriptRoutes()
+GET     /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
+GET     /registration                   controllers.AppForms.register
+GET     /registration-finalize          controllers.AppForms.addUser
+
 GET     /2                              controllers.Application.index2
 
 # Map static resources from the /public folder to the /assets URL path
