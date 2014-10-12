@@ -1,5 +1,11 @@
-@(loginForm: Form[User])
+@(loginForm: Form[User])(implicit session: play.api.mvc.Session) 
+@import helper.twitterBootstrap._
+  
 @main("Login") {
 
-
+	  @helper.form(action = routes.AppForms.beginSession) {
+	    @helper.inputText(loginForm("User Name"))
+	    @helper.inputPassword(loginForm("Password"))
+	    <input type="submit" class="btn btn-info" value="Login"/>
+	  }
 }

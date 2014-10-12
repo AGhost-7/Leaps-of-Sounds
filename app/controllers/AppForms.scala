@@ -42,9 +42,7 @@ object AppForms extends Controller {
       })
   )
   
-  val log  = { s: String => Logger.logger.info(s, "") }
-  
-  def register = Action.async { 
+  def register = Action.async { implicit request =>
     future {
       Ok(views.html.registration(registrationForm))
     }
@@ -74,22 +72,26 @@ object AppForms extends Controller {
     )(User.apply)(User.unapply)  
   )
   
-  def login = Action.async {
+  def login = Action.async { implicit request =>
     future {
       Ok(views.html.login(loginForm))
     }
   }
   
-  def beingSession = Action.async { implicit request =>
+  def beginSession = Action.async { implicit request =>
     loginForm.bindFromRequest.fold(
-      hasErrors =>
+      hasErrors => {
         future {
           BadRequest(views.html.login(hasErrors))
-        },
-      user =>
+        }
+      },
+      user => {
         future {
           Redirect(routes.Application.index)
+            .withSession("username" -> user.username)
+            .flashing("successMsg" -> "You're now logged in!")
         }
+      }
     )
   }
 }

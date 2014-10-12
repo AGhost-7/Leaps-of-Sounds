@@ -6,9 +6,13 @@
 GET     /                               controllers.Application.index
 GET	    /assets/javascripts/routes      controllers.Application.javascriptRoutes()
 GET     /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
+POST    /registration-finalize          controllers.AppForms.addUser
 GET     /registration                   controllers.AppForms.register
-GET     /registration-finalize          controllers.AppForms.addUser
+POST    /login-finalize                 controllers.AppForms.beginSession
+GET     /login                          controllers.AppForms.login
+GET     /logout                         controllers.Application.logout
 
+#For testing only
 GET     /2                              controllers.Application.index2
 
 # Map static resources from the /public folder to the /assets URL path
