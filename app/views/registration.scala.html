@@ -2,6 +2,12 @@
 @import helper.twitterBootstrap._
 
 @main("Registration") {
+  @for(err <- formMapper.globalErrors) {
+    <div class="alert alert-error fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      @err.message
+    </div>
+  }
 	@helper.form(action = routes.AppForms.addUser) {
 		@helper.inputText(formMapper("User name"))
 		@helper.inputPassword(formMapper("Password"))

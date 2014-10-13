@@ -59,7 +59,8 @@ object Application extends Controller {
   def getTuningsOfInstrument(name: String) = Action.async { implicit request =>
     //	write("Requested tunings for: " + name)
     implicit val con = DB.getConnection()
-    Tuning.ofInstrument(name)(con) map { instruments =>
+    
+    Tuning.ofInstrument(name) map { instruments =>
       Ok(Json.toJson(instruments))
     }
   }

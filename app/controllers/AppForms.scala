@@ -14,6 +14,7 @@ import anorm._
 
 // project imports
 import models.{User,Registratee}
+import utils._
 
 object AppForms extends Controller {
   
@@ -24,7 +25,7 @@ object AppForms extends Controller {
       "Password Confirmation" -> text(minLength = 6),
       "Email" -> email
     )(Registratee.apply)(Registratee.unapply)
-      verifying("Passwords must match", 
+      verifying("Passwords must match.", 
         fields => fields.password2 == fields.password)
       // Custom validation: check for duplicates in the database, single query.
       verifying("Username or email is already in use.", 
@@ -70,6 +71,9 @@ object AppForms extends Controller {
       "User Name" -> text,
       "Password" -> text
     )(User.apply)(User.unapply)  
+    verifying("Your password or username is incorrect.", fields => 
+      User.authenticate(fields.username, fields.password)
+    )
   )
   
   def login = Action.async { implicit request =>
@@ -87,8 +91,11 @@ object AppForms extends Controller {
       },
       user => {
         future {
+          //log("UUID: " + java.util.UUID.randomUUID.toString)
+          //log("IP: " + request.remoteAddress)
+          
           Redirect(routes.Application.index)
-            .withSession("username" -> user.username)
+            .withSession("username" -> user.username, "token" -> user.sessionToken)
             .flashing("successMsg" -> "You're now logged in!")
         }
       }

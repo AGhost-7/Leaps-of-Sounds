@@ -5,6 +5,7 @@ case class FlashMessage (msgClass: String, msg:String){
 }
 object FlashMessage{
   def getAll (implicit request: Request[AnyContent]) = 
+    //Names correspond to the Alert.js classes from bootstrap.
     List("warningMsg", 
         "successMsg",
         "activeMsg",

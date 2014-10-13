@@ -2,10 +2,15 @@
 @import helper.twitterBootstrap._
   
 @main("Login") {
-
-	  @helper.form(action = routes.AppForms.beginSession) {
-	    @helper.inputText(loginForm("User Name"))
-	    @helper.inputPassword(loginForm("Password"))
-	    <input type="submit" class="btn btn-info" value="Login"/>
-	  }
+  @for(err <- loginForm.globalErrors) {
+    <div class="alert alert-danger fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      @err.message
+    </div>
+  }
+  @helper.form(action = routes.AppForms.beginSession) {
+    @helper.inputText(loginForm("User Name"))
+    @helper.inputPassword(loginForm("Password"))
+    <input type="submit" class="btn btn-info" value="Login"/>
+  }
 }
