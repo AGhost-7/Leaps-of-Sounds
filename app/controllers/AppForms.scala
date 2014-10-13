@@ -60,6 +60,7 @@ object AppForms extends Controller {
         future { 
           User.persistUser(registratee)
           Redirect(routes.Application.index)
+            .flashing("successMsg" -> "You have been successfully registered!")
         }
       }
     )

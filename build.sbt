@@ -1,4 +1,4 @@
-name := "Leaps"
+name := "leaps-play"
 
 version := "0.5"
 
