@@ -1,4 +1,4 @@
-@(formMapper: Form[Registratee])(implicit session: play.api.mvc.Session) 
+@(formMapper: Form[Registratee])(implicit session: play.api.mvc.Session, request: Request[AnyContent]) 
 @import helper.twitterBootstrap._
 
 @main("Registration") {
@@ -15,4 +15,20 @@
 		@helper.inputText(formMapper("Email"))
 		<input type="submit" class="btn btn-info" value="Register!"/>
 	}
+	
+	<!-- 
+@{
+	import play.api.mvc._
+	import play.api._
+	import play.api.Play.current
+	
+	val isProd = Play.isProd
+	val isHttps = request.headers.get("x-forwarded-proto").getOrElse("").contains("https")
+	
+	s"""
+	We are in production? : $isProd \n
+	We are in https? $isHttps
+	"""
+}
+ -->
 }

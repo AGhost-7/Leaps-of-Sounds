@@ -1,4 +1,4 @@
-@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
+@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session, request: Request[AnyContent])
 @main("Leaps!") {
 
 @* Print the flash messages that were sent by the registration, etc. *@

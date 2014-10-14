@@ -1,4 +1,4 @@
-@(loginForm: Form[User])(implicit session: play.api.mvc.Session) 
+@(loginForm: Form[User])(implicit session: play.api.mvc.Session, request: Request[AnyContent]) 
 @import helper.twitterBootstrap._
   
 @main("Login") {
@@ -13,4 +13,20 @@
     @helper.inputPassword(loginForm("Password"))
     <input type="submit" class="btn btn-info" value="Login"/>
   }
+  
+  <!-- 
+@{
+	import play.api.mvc._
+	import play.api._
+	import play.api.Play.current
+	
+	val isProd = Play.isProd
+	val isHttps = request.headers.get("x-forwarded-proto").getOrElse("").contains("https")
+	
+	s"""
+	We are in production? : $isProd \n
+	We are in https? $isHttps
+	"""
+}
+ -->
 }

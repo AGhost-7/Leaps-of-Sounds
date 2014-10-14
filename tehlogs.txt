@@ -1,5 +1,3 @@
-Is in production? false
-Is https? false
 
 --Request: localhost:9000/login --
 Is in production? false
