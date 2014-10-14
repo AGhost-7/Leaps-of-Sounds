@@ -15,20 +15,4 @@
 		@helper.inputText(formMapper("Email"))
 		<input type="submit" class="btn btn-info" value="Register!"/>
 	}
-	
-	<!-- 
-@{
-	import play.api.mvc._
-	import play.api._
-	import play.api.Play.current
-	
-	val isProd = Play.isProd
-	val isHttps = request.headers.get("x-forwarded-proto").getOrElse("").contains("https")
-	
-	s"""
-	We are in production? : $isProd \n
-	We are in https? $isHttps
-	"""
-}
- -->
 }

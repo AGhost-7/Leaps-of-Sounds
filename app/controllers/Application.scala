@@ -56,10 +56,6 @@ object Application extends Controller {
       .as("text/javascript")
   }
   
-  def errYea = Action.secure { request =>
-  	future{ Ok("Hello!") }
-  }
-  
   def getTuningsOfInstrument(name: String) = Action.async { implicit request =>
     //	write("Requested tunings for: " + name)
     implicit val con = DB.getConnection()
