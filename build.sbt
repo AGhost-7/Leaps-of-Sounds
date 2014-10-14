@@ -5,7 +5,7 @@ version := "0.5"
 libraryDependencies ++= Seq(
   jdbc,
   anorm,
-  "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
   "org.mindrot" % "jbcrypt" % "0.3m",
   cache
 )     
