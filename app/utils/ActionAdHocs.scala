@@ -13,6 +13,10 @@ package object implicits {
   implicit class ActionAdHocs(obj: ActionBuilder[Request]) {
     
     def secure(callback: Request[AnyContent] => Future[SimpleResult]) = obj.async { implicit request =>
+      val https = request.headers.get("x-forwarded-proto").getOrElse("").contains("https")
+      Logger.info("Is in production? " + Play.isProd)
+      Logger.info("Is https? " + https)
+      
       if(Play.isProd && !request.headers.get("x-forwarded-proto").getOrElse("").contains("https")){
         future {
           Results.Redirect("https://" + request.host + request.uri)
@@ -23,9 +27,7 @@ package object implicits {
     
     def secureSync(callback: Request[AnyContent] => SimpleResult) = obj.apply { implicit request =>
       if(Play.isProd && !request.headers.get("x-forwarded-proto").getOrElse("").contains("https")){
-       // future {
-          Results.Redirect("https://" + request.host + request.uri)
-        //}
+        Results.Redirect("https://" + request.host + request.uri)
       }
       callback(request)
     }
