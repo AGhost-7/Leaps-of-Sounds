@@ -15,7 +15,7 @@ import anorm._
 // project imports
 import models.{User,Registratee}
 import utils._
-
+import utils.implicits._
 object AppForms extends Controller {
   
   val registrationForm = Form(
@@ -43,13 +43,13 @@ object AppForms extends Controller {
       })
   )
   
-  def register = Action.async { implicit request =>
+  def register = Action.secure { implicit request =>
     future {
       Ok(views.html.registration(registrationForm))
     }
   }
   
-  def addUser = Action.async { implicit request =>
+  def addUser = Action.secure { implicit request =>
     registrationForm.bindFromRequest.fold(
       hasErrors => {
         future {
@@ -77,13 +77,13 @@ object AppForms extends Controller {
     )
   )
   
-  def login = Action.async { implicit request =>
+  def login = Action.secure { implicit request =>
     future {
       Ok(views.html.login(loginForm))
     }
   }
   
-  def beginSession = Action.async { implicit request =>
+  def beginSession = Action.secure { implicit request =>
     loginForm.bindFromRequest.fold(
       hasErrors => {
         future {

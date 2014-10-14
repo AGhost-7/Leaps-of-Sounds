@@ -1,12 +1,86 @@
-@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument])(implicit session: play.api.mvc.Session) 
-
+@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
 @main("Leaps!") {
 
+@* Print the flash messages that were sent by the registration, etc. *@
+@for(message <- messages) {
+  <div class="alert alert-@message.msgClass fade in" role="alert">
+    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      @message.msg
+    </div>
+}
+<style>
+.dropdown-submenu {
+    position:relative;
+}
+.dropdown-submenu>.dropdown-menu {
+    top:0;
+    left:100%;
+    margin-top:-6px;
+    margin-left:-1px;
+    -webkit-border-radius:0 6px 6px 6px;
+    -moz-border-radius:0 6px 6px 6px;
+    border-radius:0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+    display:block;
+}
+.dropdown-submenu>a:after {
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#cccccc;
+    margin-top:5px;
+    margin-right:-10px;
+}
+.dropdown-submenu:hover>a:after {
+    border-left-color:#ffffff;
+}
+.dropdown-submenu.pull-left {
+    float:none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
+}
+</style>
 <div class="panel panel-warning">
-  
+	
 	<div class="panel-body" id="fingerboard-input">
     
 		<ul class="nav nav-pills nav-justified">
+		
+			<li class="menu-item dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+					Instrument &nbsp;<span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li>
+						<a href="#">Create</a>
+					</li>
+					<li>
+						<a href="#">Delete</a>
+					</li>
+					<li class="dropdown dropdown-submenu">
+						<a id="instrument-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+							Select
+						</a>
+						<ul id="instrument-selector" class="dropdown-menu" role="menu">
+							@instruments.map { instrument => 
+								<li><a href="#" value="@instrument.strings">@instrument.name</a></li> 
+							}
+						</ul>
+					</li>
+					
+				</ul>
+			</li>
 			
 			<li class="dropdown">
 				<a id="instrument-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -79,15 +153,15 @@
 	<!-- This is the fingerboard itself.  -->
 	<canvas id="fingerboard" ></canvas>
 	
-	<script async src='@routes.Assets.at("javascripts/bootstrap-index.min.js")'></script>
+	
 	<!-- SoundBox.js depends on Timbre.js -->
-	<script async src='@routes.Assets.at("javascripts/timbre.min.js")'></script>
+	<script src='@routes.Assets.at("javascripts/timbre.js")'></script>
 	<!-- Custom Libs -->
-	<script async src='@routes.Assets.at("javascripts/fingerboard.min.js")'></script>
-	<script async src='@routes.Assets.at("javascripts/soundbox.min.js")'></script>
-	<script async src='@routes.Application.javascriptRoutes'></script>
+	<script src='@routes.Assets.at("javascripts/fingerboard.js")'></script>
+	<script src='@routes.Assets.at("javascripts/soundbox.js")'></script>
+	<script src='@routes.Application.javascriptRoutes'></script>
 	<!-- Main -->
-	<script async src='@routes.Assets.at("javascripts/index.min.js")'></script>
+	<script async src='@routes.Assets.at("javascripts/index.js")'></script>
 </div>
 
 }

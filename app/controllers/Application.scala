@@ -10,7 +10,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import anorm._
 import play.api.db.DB
-
+import utils.implicits._
 
 object Application extends Controller {
 
@@ -45,7 +45,7 @@ object Application extends Controller {
     futures.map {
       case ((scales, tunings), instruments) =>
         con.close
-        Ok(views.html.index(scales, tunings, instruments, messages))
+        Ok(views.html.index2(scales, tunings, instruments, messages))
     }
   }
 
@@ -55,16 +55,20 @@ object Application extends Controller {
       routes.javascript.Application.getTuningsOfInstrument))
       .as("text/javascript")
   }
-
+  
+  def errYea = Action.secure { request =>
+  	future{ Ok("Hello!") }
+  }
+  
   def getTuningsOfInstrument(name: String) = Action.async { implicit request =>
     //	write("Requested tunings for: " + name)
     implicit val con = DB.getConnection()
-    
+
     Tuning.ofInstrument(name) map { instruments =>
       Ok(Json.toJson(instruments))
     }
   }
-  
+
   def logout = Action { implicit request =>
     Redirect(routes.Application.index)
       .withNewSession
