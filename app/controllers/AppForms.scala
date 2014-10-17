@@ -1,7 +1,7 @@
 package controllers
 // Scala libs
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+
 
 // Play libs
 import play.api._
@@ -10,12 +10,15 @@ import play.api.Play.current
 import play.api.db.DB
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
 import anorm._
 
 // project imports
-import models.{User,Registratee}
+import models._
 import utils._
 import utils.implicits._
+
 object AppForms extends Controller {
   
   val registrationForm = Form(
@@ -29,18 +32,7 @@ object AppForms extends Controller {
         fields => fields.password2 == fields.password)
       // Custom validation: check for duplicates in the database, single query.
       verifying("Username or email is already in use.", 
-	fields => fields match {
-          case user => 
-            DB.withConnection { implicit con =>
-              SQL("""
-                SELECT COUNT(*) AS Count FROM users 
-                WHERE email = {email} OR username = {username}
-              """)
-                .on("email" -> user.email, "username" -> user.username)
-                .apply()
-                .head[Long]("Count") == 0L
-            }
-      })
+	user => user.isOriginal )
   )
   
   def register = Action.secure { implicit request =>
@@ -58,8 +50,8 @@ object AppForms extends Controller {
       },
       registratee => {
         future { 
-          User.persistUser(registratee)
-          Redirect(routes.Application.index)
+          registratee.persist
+          Redirect("http://" + request.host)
             .flashing("successMsg" -> "You have been successfully registered!")
         }
       }
@@ -71,7 +63,7 @@ object AppForms extends Controller {
     mapping(
       "User Name" -> text,
       "Password" -> text
-    )(User.apply)(User.unapply)  
+    )(LoginUser.apply)(LoginUser.unapply)  
     verifying("Your password or username is incorrect.", fields => 
       User.authenticate(fields.username, fields.password)
     )
@@ -92,10 +84,9 @@ object AppForms extends Controller {
       },
       user => {
         future {
-          //log("UUID: " + java.util.UUID.randomUUID.toString)
-          //log("IP: " + request.remoteAddress)
+          val r = routes.Application.index
           
-          Redirect(routes.Application.index)
+          Redirect("http://" + request.host)
             .withSession("username" -> user.username, "token" -> user.sessionToken)
             .flashing("successMsg" -> "You're now logged in!")
         }

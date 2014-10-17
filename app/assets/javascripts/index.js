@@ -1,5 +1,4 @@
 $(function() {
-	console.log("with a tiny change");
     var $canvas = $('#fingerboard');
     $canvas.css('width', '100%');
 

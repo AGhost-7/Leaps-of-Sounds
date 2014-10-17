@@ -28,7 +28,6 @@ object Tuning {
 	""")
         .on("inst" -> instrument)()
         .map(fromRow)
-        .toList
     }
 
 }

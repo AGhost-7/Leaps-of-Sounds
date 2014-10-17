@@ -1,4 +1,4 @@
-@(scales: List[Scale], tunings: List[Tuning], instruments: List[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
+@(scales: Stream[Scale], tunings: Stream[Tuning], instruments: Stream[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
 @main("Leaps!") {
 
 @* Print the flash messages that were sent by the registration, etc. *@
@@ -88,13 +88,13 @@
 	
 	
 	<!-- SoundBox.js depends on Timbre.js -->
-	<script src='@routes.Assets.at("javascripts/timbre.js")'></script>
+	<script src='@routes.Assets.at("javascripts/timbre.min.js")'></script>
 	<!-- Custom Libs -->
-	<script src='@routes.Assets.at("javascripts/fingerboard.js")'></script>
-	<script src='@routes.Assets.at("javascripts/soundbox.js")'></script>
+	<script src='@routes.Assets.at("javascripts/fingerboard.min.js")'></script>
+	<script src='@routes.Assets.at("javascripts/soundbox.min.js")'></script>
 	<script src='@routes.Application.javascriptRoutes'></script>
 	<!-- Main -->
-	<script async src='@routes.Assets.at("javascripts/index.js")'></script>
+	<script async src='@routes.Assets.at("javascripts/index.min.js")'></script>
 </div>
 
 }

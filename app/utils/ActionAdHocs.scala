@@ -3,14 +3,15 @@ import play.api.mvc._
 import play.api._
 import play.api.Play.current
 import scala.concurrent._
-import ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
+/**
+ * I want to add some convenience methods to prevent myself from repeating
+ * what I'm doing too much.
+ */
 package object implicits {
 
-  /**
-   * I want to add some convenience methods to prevent myself from repeating
-   * what I'm doing too much.
-   */
+  
   implicit class ActionAdHocs(obj: ActionBuilder[Request]) {
     
     /**
@@ -40,5 +41,4 @@ package object implicits {
       }
     }
   }
-
 }

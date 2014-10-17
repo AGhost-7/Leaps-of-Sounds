@@ -6,7 +6,7 @@ object Scale {
   import anorm._
   import play.api.db.DB
   import scala.concurrent._
-  import ExecutionContext.Implicits.global
+  import play.api.libs.concurrent.Execution.Implicits.defaultContext
   
   def fromRow(row: anorm.SqlRow) = Scale(row[String]("name"), row[String]("values"))
 
@@ -14,6 +14,5 @@ object Scale {
     future {
       SQL("""SELECT "name", "values" FROM scales""")()
         .map(fromRow)
-        .toList
     }
 }
