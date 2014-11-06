@@ -20,23 +20,13 @@ object Instrument {
 
   def fromRow(row: SqlRow) = Instrument(row[Int]("id"), row[String]("name"), row[Int]("strings"))
 
-  def getAll(implicit con: java.sql.Connection, identity: Identity) =
-    identity.id.flatMap { id =>
-      id match {
-      	case Known(value) =>
-          future {
-            SQL("SELECT * FROM instruments WHERE user_id = {user} OR IS NULL")
-              .on("user" -> value)()
-              .map(fromRow)
-          }
-      	case Unknown =>
-      	  future {
-            SQL("""SELECT * FROM instruments""")()
-            .map(fromRow)
-          }
-      }
-      
-    }	
-    
+  def getAll(implicit con: java.sql.Connection, user: Option[User]) = 
+  	user.fold(
+  		SQL("SELECT * FROM instruments WHERE user_id IS NULL")()
+  	)(user =>
+  		SQL("SELECT * FROM instruments WHERE user_id = {user} OR user_id IS NULL")
+  			.on("user" -> user.id)()
+  	).map(fromRow)
+  
 
 }

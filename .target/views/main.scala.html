@@ -45,6 +45,9 @@
 			max-height: 300px;
 		}
 	}
+	#shfloot {
+		font-size: 80%;
+	}
 	</style>
 	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
@@ -67,12 +70,16 @@
 	            <li class="dropdown">
 	              <a href="#" class="dropdown-toggle" data-toggle="dropdown">@session.get("username").getOrElse("My Account")<span class="caret"></span></a>
 	              <ul class="dropdown-menu" role="menu">
-	                <li><a href="@routes.AppForms.login">Login</a></li>
-	                <li><a href="@routes.AppForms.register">Register</a></li>
-	                <li><a href="#">My Favorites</a></li>
+	              	@if(session.get("username").isDefined){
+	                	<li><a href="#">My Scales</a></li>
+	                	<li><a href="#">My Instruments</a></li>
+	                	<li class="divider"></li>
+	                	<li><a href="@routes.Application.logout">Logout</a></li>
+	                } else {
+	                	<li><a href="@routes.AppForms.login">Login</a></li>
+	                	<li><a href="@routes.AppForms.register">Register</a></li>
+	                }
 	                
-	                <li class="divider"></li>
-	                <li><a href="@routes.Application.logout">Logout</a></li>
 	              </ul>
 	            </li>
 	          </ul>
@@ -81,7 +88,9 @@
 		</div>
 	</nav>
 	@content
-    </div>
-    
+   </div>
+	<!-- <div class="container">
+		<p id="shfloot">By Jonathan Boudreau</p>
+	</div> -->
 </body>
 </html>

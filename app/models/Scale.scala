@@ -11,8 +11,6 @@ object Scale {
   def fromRow(row: anorm.SqlRow) = Scale(row[String]("name"), row[String]("values"))
 
   def getAll(implicit con: java.sql.Connection) =
-    future {
       SQL("""SELECT "name", "values" FROM scales""")()
         .map(fromRow)
-    }
 }
