@@ -26,7 +26,7 @@ package object implicits {
           Results.Redirect("https://" + request.host + request.uri)
         }
       } else {
-	callback(request)
+      	callback(request)
       }
     }
     

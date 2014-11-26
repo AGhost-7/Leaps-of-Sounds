@@ -1,23 +1,25 @@
 package models
 
-case class Tuning(name: String, values: String, instrumentId: Option[Int] = None) {
+case class Tuning(
+		name: String, 
+		values: String, 
+		user: Option[Int],
+		instrumentId: Int) extends JsonAble {
   def toJson = Tuning.toJson(this)
 }
-object Tuning {
+object Tuning extends CompWithUserRef[Tuning] {
   import play.api.libs.json.Json
   import anorm._
   import play.api.mvc._
   import play.api.db.DB
-  import play.api.Play.current
-  import scala.concurrent._
-  import ExecutionContext.Implicits.global
 
-  implicit val json = Json.writes[Tuning]
+  implicit val parser = Json.writes[Tuning]
+  
+  val tableName = "tunings"
 
-  def toJson(tun: Tuning) = Json.toJson(tun)
-
-  def fromRow(row: SqlRow) = Tuning(row[String]("name"), row[String]("values"))
-
+  def fromRow(row: SqlRow) = 
+  	Tuning(row[String]("name"), row[String]("values"), row[Option[Int]]("user_id"), row[Int]("instrument"))
+  
   def ofInstrument(instrument: String)
     (implicit con: java.sql.Connection, 
     		request: Request[AnyContent],

@@ -11,9 +11,17 @@ GET     /registration                   controllers.AppForms.register
 POST    /login-finalize                 controllers.AppForms.beginSession
 GET     /login                          controllers.AppForms.login
 GET     /logout                         controllers.Application.logout
+GET     /scale-editor                   controllers.Application.scaleEditor
 
-#For testing only
-#GET     /2                              controllers.Application.index2
+# RESTful stuff
+GET     /scale/all                      controllers.Scales.all
+#GET     /scale/routes                   controllers.Scales.jsRoutes
+GET     /scale                          controllers.Scales.list(set: Int)
+POST    /scale                          controllers.Scales.add(name, values)
+PUT     /scale                          controllers.Scales.update(id: Int, name, values)
+DELETE  /scale                          controllers.Scales.delete(id: Int)
+
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)

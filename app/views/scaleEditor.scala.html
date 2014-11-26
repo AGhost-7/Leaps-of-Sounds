@@ -1,0 +1,164 @@
+@(scales: Stream[Scale])(implicit session: play.api.mvc.Session)
+@import models.Scale.intervals
+
+@main("My Scales") {
+	
+	<h4 class="small">Name</h4>
+	
+	<div class="form-group">
+		<input class="form-control" type="text" id="scale-name-editor"/>
+	</div>
+	
+	<h4 class="small">Scale Values</h4>
+	
+	<div class="row" id="scale-value-editor">
+	
+		<div class="col-md-2">
+			<select class="form-control">
+				<option></option>
+				@for(i <- 1 to 12) {
+					<option value="@i">@intervals(""+ i)</option>
+				}
+			</select>
+		</div>
+	</div>
+	
+	<br/>
+	<div class="input-group">
+		<button class="btn btn-success btn-sm" id="btn-change">Add</button>
+	</div>
+	<br/>
+	
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Values</th>
+				<th></th>
+			</tr>	
+		</thead>
+		
+		<tbody id="scales-list">
+			@scales.map { scale =>
+				<tr data-values="@scale.values" data-id="@scale.id">
+					<td>@scale.name</td>
+					@* Convert to human readable notation, since I'm using integer 
+					 * notation to do computations on the data in javascript *@
+					<td>
+						@scale.values.split(",").map { v => @intervals(v) }.mkString(" - ")
+					</td>
+					<td>
+						<button class="btn btn-default btn-sm delete-btn">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	
+	<script src="@routes.Application.javascriptRoutes"></script>
+	<script>
+		var CONST = {
+			valuesConstraint: /@models.Scale.valuesConstraint.toString()/g,
+			nameConstraint: /@models.Scale.nameConstraint.toString()/g,
+			intervals: @Html(models.Scale.jsIntervals)
+		}
+	</script>
+	<script>
+	(function(){
+		var $scaleEditor = $('#scale-value-editor'),
+			$nameEditor = $('#scale-name-editor'),
+			$lastElem;
+		$scaleEditor.find('div.col-md-2').change(function(){
+			var $t = $(this);
+
+			if($lastElem === undefined || $lastElem[0] === $t[0]){
+
+				var $c = $t.clone(true);
+				$scaleEditor.append($c);
+				$lastElem = $c;
+				
+			} else if($t.find('select').val() === ''){
+				$t.remove();
+			}
+		
+		});
+
+		$('#btn-change').click(function(){
+			// extract data to send it off.
+			var values = $scaleEditor
+				.find('select')
+				.map(function(i, e) { return e.value })
+				.toArray()
+				.filter(function(val) { return val !== "" })
+				.join(',');
+				
+			var name = $nameEditor.val();
+			
+			if(!name.match(CONST.nameConstraint)) {
+				alert("Name is invalid")
+			} else if(!values.match(CONST.valuesConstraint)){
+				alert("Scale must have at least two values");
+			} else {
+				jsRoutes.controllers.Scales.add(name, values).ajax({
+					success: function(scale){
+	
+						var prettyValues = scale
+							.values
+							.split(',')
+							.map(function(val) { return CONST.intervals[val] }, "")
+							.join(" - ");
+
+						var html = 
+							'<tr data-values="' + scale.values + '" data-id="' + scale.id + '">' +
+								'<td>' + scale.name + '</td>' +
+								'<td>' + prettyValues + '</td>' +
+								'<td>' +
+									'<button class="btn btn-default btn-sm delete-btn">Delete</button>' +
+								'</td>' +
+							'</tr>';
+							
+							
+						var $row = $(html);
+						$('#scales-list').prepend($row);
+						$row.find('button').click(onDelete);
+					},
+					error: function(x, status, err){
+						alert("Error: " + status);
+					}
+				
+				});
+			}
+			
+		});
+		
+		$('.delete-btn').click(onDelete);
+		
+		function onDelete (){
+			var $t = $(this).parent().parent(), 
+				id = $t.attr('data-id');
+			jsRoutes.controllers.Scales.delete(id).ajax({
+				success: function(result){
+					$t.remove();
+				},
+				error: function(x,stat,err){
+					alert("Error: " + err);
+				}
+
+			});
+		}
+		
+	})()
+	</script>
+}
+
+
+
+
+
+
+
+
+
+
+
+

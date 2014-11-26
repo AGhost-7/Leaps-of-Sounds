@@ -1,4 +1,4 @@
-@(scales: Stream[Scale], tunings: Stream[Tuning], instruments: Stream[Instrument], messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
+@(scales: (List[Scale], List[Scale]), tunings: (List[Tuning], List[Tuning]), instruments: (List[Instrument], List[Instrument]), messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
 @main("Leaps!") {
 
 @* Print the flash messages that were sent by the registration, etc. *@
@@ -20,7 +20,12 @@
 					Instrument &nbsp;<span class="caret"></span>
 				</a>
 				<ul id="instrument-selector" class="dropdown-menu scrollable-menu" role="menu">
-					@instruments.map { instrument => 
+					@if(instruments._1.length > 0) {
+						@instruments._1.map { instrument =>
+							<li><a href="#" value="@instrument.strings">@instrument.name</a></li>
+						}
+					}
+					@instruments._2.map { instrument => 
 						<li><a href="#" value="@instrument.strings">@instrument.name</a></li> 
 					}
 				</ul>
@@ -31,7 +36,13 @@
 					Tuning &nbsp;<span class="caret"></span>
 				</a>
 				<ul id="tuning-selector" class="dropdown-menu scrollable-menu" role="menu">
-					@tunings.map { tuning => 
+					@if(tunings._1.length > 0) {
+						<li class="dropdown-header">My Tunings</li>
+						@tunings._1.map { tuning => 
+							<li><a href="#" value="@tuning.values">@tuning.name</a></li>
+						}
+					}
+					@tunings._2.map { tuning => 
 						<li><a href="#" value="@tuning.values">@tuning.name</a></li> 
 					}
 				</ul>
@@ -43,10 +54,17 @@
 				</a>
     
 				<ul id="scale-selector" class="dropdown-menu scrollable-menu" role="menu">
+					@if(scales._1.length > 0) {
+						<li class="dropdown-header">My Scales</li>
+						@scales._1.map { scale =>
+							<li><a href="#" value="@scale.values">@scale.name</a></a></li>
+						}
+						<li class="dropdown-header">Default Scales</li>
+					}
 					@{	// Doing it this way to make the html
 						// print in a much more compressed manner.
 						// This is raw Scala code.
-						scales.map { scale => 
+						scales._2.map { scale => 
 							<li><a href="#" value={scale.values}>{scale.name}</a></li>
 						}
 					}
