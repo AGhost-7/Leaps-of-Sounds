@@ -83,10 +83,7 @@ var onDelete = function (){
 		success: function(result){
 			$t.remove()
 		},
-		error: function(x,stat,err){
-			alert("Error: " + err)
-		}
-
+		error: defaultError
 	})
 }
 
@@ -116,9 +113,7 @@ var onUpdate = withValidInput(function(name, strValues){
 			onCancel()
 		
 		},
-		error: function(x,err){
-			alert('Error: ' + err)
-		}
+		error: defaultError
 	})
 	
 })
@@ -176,9 +171,7 @@ var onAdd = withValidInput(function(name, strValues){
 			
 			emptyInput()
 		},
-		error: function(x, status, err){
-			alert("Error: " + status)
-		}
+		error: defaultError
 	
 	})
 })
@@ -280,5 +273,22 @@ function validateInput(name, values){
 	
 	return true
 }
-	
+
+function defaultError(x, status, err){
+	alert(
+		'- Error -\n' +
+		'Status: ' + status + '\n' + 
+		'Error Thrown: ' + err
+		)
+}
+
 })(jsRoutes, CONST, jQuery)
+
+
+
+
+
+
+
+
+
