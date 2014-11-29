@@ -48,7 +48,7 @@ object Application extends Controller {
       routes.javascript.Application.getTuningsOfInstrument,
       routes.javascript.Scales.list,
       routes.javascript.Scales.add,
-      routes.javascript.Scales.delete,
+      routes.javascript.Scales.remove,
       routes.javascript.Scales.all,
       routes.javascript.Scales.update
       ))
@@ -74,7 +74,7 @@ object Application extends Controller {
   def scaleEditor = Action { implicit request =>
   	DB.withConnection { implicit con =>
 	  	User.fromSession.map { user => 
-				val scales = Scale ofUser user
+				val scales = Scale.ofUser(user).sortWith { _.name < _.name } 
 				Ok(views.html.scaleEditor(scales))
 	  	}.getOrElse(Unauthorized)
 	  }

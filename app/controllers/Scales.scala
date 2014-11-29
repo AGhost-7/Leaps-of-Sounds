@@ -25,7 +25,7 @@ object Scales extends Controller {
 		}.getOrElse(Unauthorized)
 	}
 	
-	def delete(id: Int) = Action { implicit request =>
+	def remove(id: Int) = Action { implicit request =>
 		User.fromSession.map { user =>
 			DB.withConnection { implicit con =>
 				SQL("""
@@ -67,18 +67,7 @@ object Scales extends Controller {
 			Ok(Json.toJson(Scale.getAll))
 		}
 	}
-	
-	/*def jsRoutes = Action { implicit request =>
-		import routes.javascript._
-		Ok(Routes.javascriptRouter("routes")(
-      routes.javascript.Scales.list,
-      routes.javascript.Scales.add,
-      routes.javascript.Scales.delete,
-      routes.javascript.Scales.all,
-      routes.javascript.Scales.update
-		))
-	}*/
-	
+
 }
 
 

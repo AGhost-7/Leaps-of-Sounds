@@ -3,13 +3,13 @@
 
 @main("My Scales") {
 	
-	<h4 class="small">Name</h4>
+	<h4 id="name-header">Name</h3>
 	
 	<div class="form-group">
 		<input class="form-control" type="text" id="scale-name-editor"/>
 	</div>
 	
-	<h4 class="small">Scale Values</h4>
+	<h4 id="values-header">Scale Values</h3>
 	
 	<div class="row" id="scale-value-editor">
 	
@@ -25,8 +25,12 @@
 	
 	<br/>
 	<div class="input-group">
-		<button class="btn btn-success btn-sm" id="btn-change">Add</button>
+		<button class="btn btn-success btn-sm" id="btn-add">Add</button>
+		<button class="btn btn-default btn-sm hide" id="btn-cancel">Cancel</button>&nbsp;
+		<button class="btn btn-default btn-sm hide" id="btn-update">Update</button>
 	</div>
+	
+	
 	<br/>
 	
 	<table class="table">
@@ -48,12 +52,53 @@
 						@scale.values.split(",").map { v => @intervals(v) }.mkString(" - ")
 					</td>
 					<td>
-						<button class="btn btn-default btn-sm delete-btn">Delete</button>
+						<button class="btn btn-default btn-sm row-modify">Modify</button>
+						<button class="btn btn-default btn-sm row-delete">Delete</button>
 					</td>
 				</tr>
 			}
 		</tbody>
 	</table>
+	
+	<!-- Templates -->
+	
+	<script id="row-template" type="text/x-handlebars-template">
+	
+	<tr data-id={{id}} data-values={{values}}>
+		<td>{{name}}</td>
+		<td>{{prettyValues}}</td>
+		<td>
+			<button class="btn btn-default btn-sm row-modify">Modify</button>
+			<button class="btn btn-default btn-sm row-delete">Delete</button>
+		</td>
+	</tr>
+
+	</script>
+	
+	<script id="values-input-template" type="text/x-handlebars-template">
+	
+	<div class="col-md-2">
+		<select class="form-control">
+			<option></option>
+			
+			{{#each this.options}}
+			
+			{{#if selected}}
+			<option value={{key}} selected>{{value}}</option>
+			{{else}}
+			<option value={{key}}>{{value}}</option>
+			{{/if}}
+			
+			{{/each}}
+
+		</select>
+	</div>
+	
+	</script>
+	
+	<!-- Non-Global Javascript -->
+	
+	<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
 	
 	<script src="@routes.Application.javascriptRoutes"></script>
 	<script>
@@ -63,92 +108,8 @@
 			intervals: @Html(models.Scale.jsIntervals)
 		}
 	</script>
-	<script>
-	(function(){
-		var $scaleEditor = $('#scale-value-editor'),
-			$nameEditor = $('#scale-name-editor'),
-			$lastElem;
-		$scaleEditor.find('div.col-md-2').change(function(){
-			var $t = $(this);
-
-			if($lastElem === undefined || $lastElem[0] === $t[0]){
-
-				var $c = $t.clone(true);
-				$scaleEditor.append($c);
-				$lastElem = $c;
-				
-			} else if($t.find('select').val() === ''){
-				$t.remove();
-			}
-		
-		});
-
-		$('#btn-change').click(function(){
-			// extract data to send it off.
-			var values = $scaleEditor
-				.find('select')
-				.map(function(i, e) { return e.value })
-				.toArray()
-				.filter(function(val) { return val !== "" })
-				.join(',');
-				
-			var name = $nameEditor.val();
-			
-			if(!name.match(CONST.nameConstraint)) {
-				alert("Name is invalid")
-			} else if(!values.match(CONST.valuesConstraint)){
-				alert("Scale must have at least two values");
-			} else {
-				jsRoutes.controllers.Scales.add(name, values).ajax({
-					success: function(scale){
+	<script src="@routes.Assets.at("javascripts/scaleEditor.min.js")"></script>
 	
-						var prettyValues = scale
-							.values
-							.split(',')
-							.map(function(val) { return CONST.intervals[val] }, "")
-							.join(" - ");
-
-						var html = 
-							'<tr data-values="' + scale.values + '" data-id="' + scale.id + '">' +
-								'<td>' + scale.name + '</td>' +
-								'<td>' + prettyValues + '</td>' +
-								'<td>' +
-									'<button class="btn btn-default btn-sm delete-btn">Delete</button>' +
-								'</td>' +
-							'</tr>';
-							
-							
-						var $row = $(html);
-						$('#scales-list').prepend($row);
-						$row.find('button').click(onDelete);
-					},
-					error: function(x, status, err){
-						alert("Error: " + status);
-					}
-				
-				});
-			}
-			
-		});
-		
-		$('.delete-btn').click(onDelete);
-		
-		function onDelete (){
-			var $t = $(this).parent().parent(), 
-				id = $t.attr('data-id');
-			jsRoutes.controllers.Scales.delete(id).ajax({
-				success: function(result){
-					$t.remove();
-				},
-				error: function(x,stat,err){
-					alert("Error: " + err);
-				}
-
-			});
-		}
-		
-	})()
-	</script>
 }
 
 

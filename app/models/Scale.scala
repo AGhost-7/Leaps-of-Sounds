@@ -70,10 +70,12 @@ object Scale extends CompWithUserRef[Scale] {
   			UPDATE "scales"
   			SET "name" = {name}, "values" = {values}
   			WHERE user_id = {user}
+					AND id = {id}
   	""")
   		.on("user" -> user.id,
   				"name" -> name,
-  				"values" -> values)
+  				"values" -> values,
+					"id" -> id)
   		.executeUpdate
   	println(n)
   	

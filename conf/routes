@@ -19,7 +19,7 @@ GET     /scale/all                      controllers.Scales.all
 GET     /scale                          controllers.Scales.list(set: Int)
 POST    /scale                          controllers.Scales.add(name, values)
 PUT     /scale                          controllers.Scales.update(id: Int, name, values)
-DELETE  /scale                          controllers.Scales.delete(id: Int)
+DELETE  /scale                          controllers.Scales.remove(id: Int)
 
 
 
