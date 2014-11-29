@@ -21,7 +21,7 @@ object Scales extends Controller {
 					Ok(Json.toJson(Scale.update(user, id, name, values)))
 				}
 			else
-				BadRequest
+				BadRequest("Invalid arguments.")
 		}.getOrElse(Unauthorized)
 	}
 	

@@ -138,7 +138,6 @@ var onRowModify = function(){
 		name = $tr.find('td:first-child').text()
 		
 	selectedId = Number($tr.attr('data-id'))
-	console.log('selected id: ', selectedId)
 	
 	// place stored data into inputs
 	valuesInputTemplate(values).prependTo('#scale-value-editor')
@@ -207,20 +206,19 @@ function withValidInput(callback){
 	
 		var values = $scaleEditor
 			.find('select')
-			.map(function(i, e) { return e.value })
+			.map(function(i, e) { return Number(e.value) })
 			.toArray()
-			.filter(function(val) { return val !== "" })
+			.filter(function(val) { return !!val })
 			
 		var name = $nameEditor.val()
 		
 		
 		if(validateInput(name, values)){
 		
-			values.sort()
+			values.sort(function(a, b) { return a - b })
 			var strValues = values.join(',')
 			
 			callback(name, strValues)
-			
 		}
 	}
 }
