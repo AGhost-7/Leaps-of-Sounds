@@ -1,7 +1,5 @@
 (function(jsRoutes, CONST, $){
 
-
-
 // variables
 
 var $scaleEditor = $('#scale-value-editor'),
@@ -59,8 +57,8 @@ var valuesInputTemplate = (function(){
 
 var onDropdownChange = function(){
 	var $t = $(this)
-
-	if($lastElem === undefined || $lastElem[0] === $t[0]){
+	
+	if($lastElem === undefined || $lastElem[0] === this){
 
 		var $c = $t.clone(true)
 		$scaleEditor.append($c)
@@ -140,7 +138,10 @@ var onRowModify = function(){
 	selectedId = Number($tr.attr('data-id'))
 	
 	// place stored data into inputs
-	valuesInputTemplate(values).prependTo('#scale-value-editor')
+	var $in = valuesInputTemplate(values)
+	$in.prependTo('#scale-value-editor')
+	$in.change(onDropdownChange)
+	
 	$nameEditor.val(name)
 	
 	
@@ -186,7 +187,7 @@ $addBtn.click(onAdd)
 $updateBtn.click(onUpdate)
 $cancelBtn.click(onCancel)
 
-$scaleEditor.find('div.col-md-2').change(onDropdownChange)
+$scaleEditor.find('div.scrollblock-element').change(onDropdownChange)
 
 // helper functions
 

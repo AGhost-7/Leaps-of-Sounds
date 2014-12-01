@@ -77,7 +77,7 @@ object Scale extends CompWithUserRef[Scale] {
   				"values" -> values,
 					"id" -> id)
   		.executeUpdate
-  	println(n)
+  	//println(n)
   	
   	Scale(id, name, values, Some(user.id))
   }
