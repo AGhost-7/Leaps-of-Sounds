@@ -54,7 +54,7 @@ BEGIN
 	
 	RETURN tupl;
 	
-END
+END;
 $$ LANGUAGE plpgsql;
 
 
