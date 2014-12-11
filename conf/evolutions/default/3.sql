@@ -56,7 +56,14 @@ END
 $$ LANGUAGE plpgsql;
 
 
+-- I forgot to add the cascading delete to this one.
 
+
+ALTER TABLE "tunings"
+DROP CONSTRAINT tunings_instrument_fkey,
+ADD FOREIGN KEY(instrument)
+	REFERENCES instruments(id)
+	ON DELETE CASCADE;
 
 
 

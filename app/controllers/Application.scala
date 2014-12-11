@@ -71,6 +71,16 @@ object Application extends Controller {
 	  }
   }
   
+  def instrumentsEditor = Action { implicit request =>
+  	User.fromSession.map { user => 
+  		DB.withTransaction { implicit con =>
+	  		val instruments = Instrument.ofUser(user)
+	  		val tunings = Tuning.ofUser(user)
+	  		Ok(views.html.instrumentsEditor(instruments, tunings))
+  		}
+  	}.getOrElse(Unauthorized)
+  }
+  
   def tuningEditor = Action { implicit request =>
   	DB.withTransaction { implicit con =>
   		User.fromSession.map { implicit user =>

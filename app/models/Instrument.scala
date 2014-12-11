@@ -41,6 +41,5 @@ object Instrument extends CompWithUserRef[Instrument] {
   				"user" -> user.id)
   		.executeUpdate
   	Instrument(id, name, strings, defaultTuning, Some(user.id))
-  }
-
+  }  
 }
