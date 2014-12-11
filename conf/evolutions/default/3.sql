@@ -19,6 +19,8 @@ WHERE tunings.name = 'Standard'
 	AND tunings.instrument = instruments.id;
 
 -- Lets add a stored procedure now...
+-- Note! Double quotes must be used for
+-- inner semi-colons.
 
 CREATE TYPE id_tuple_two AS (
 	id_one INTEGER, 
@@ -36,25 +38,25 @@ CREATE FUNCTION insert_instrument(
 $$
 	
 DECLARE 
-	tupl id_tuple_two;
+	tupl id_tuple_two;;
 	
 BEGIN
 	
 	INSERT INTO "instruments"(id, "name","strings","user_id")
 	VALUES(DEFAULT, inst_name, inst_strings, user_id)
-	RETURNING id INTO tupl.id_one;
+	RETURNING id INTO tupl.id_one;;
 	
 	INSERT INTO "tunings"(id, "name", "values","instrument", "user_id")
 	VALUES(DEFAULT, tun_name, tun_values, tupl.id_one, user_id)
-	RETURNING id INTO tupl.id_two;
+	RETURNING id INTO tupl.id_two;;
 	
 	UPDATE "instruments"
 	SET "default_tuning" = tupl.id_two
-	WHERE id = tupl.id_one;
+	WHERE id = tupl.id_one;;
 	
-	RETURN tupl;
+	RETURN tupl;;
 	
-END;
+END;;
 $$ LANGUAGE plpgsql;
 
 
