@@ -1,101 +1,103 @@
-2014-12-11T05:14:39.753357+00:00 app[web.1]: 
-2014-12-11T05:14:39.753361+00:00 app[web.1]: 
-2014-12-11T05:14:39.753851+00:00 app[web.1]: [[33mwarn[0m] play - Run with -DapplyEvolutions.default=true and -DapplyDownEvolutions.default=true if you want to run them automatically, including downs (be careful, especially if your down evolutions drop existing data)
-2014-12-11T05:14:39.753340+00:00 app[web.1]: RETURNING id INTO tupl.id_two;
-2014-12-11T05:14:39.753344+00:00 app[web.1]: SET "default_tuning" = tupl.id_two
-2014-12-11T05:14:39.753358+00:00 app[web.1]: -- I forgot to add the cascading delete to this one.
-2014-12-11T05:14:39.753360+00:00 app[web.1]: 
-2014-12-11T05:14:40.532000+00:00 heroku[web.1]: Process exited with status 255
-2014-12-11T05:14:40.550052+00:00 heroku[web.1]: State changed from starting to crashed
-2014-12-11T05:14:42.597649+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=73a6e23f-96c4-4736-9ddb-8d4b08515500 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:14:43.525244+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=0cc16ea4-97ca-4c78-86bd-13c9da8b97fc fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:14:49.790030+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=3aa3e185-6441-4f9e-aa1f-f0b00f3c9166 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:14:50.295530+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=bbfbf92c-04e6-4b24-b849-4e2befd44f2a fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:15:05.741495+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=acace059-7119-418c-a992-17662a25431d fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:15:05.920404+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=276bd394-17f5-42ee-a08e-2247baaa26fb fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:15:31.412903+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=fc6dafa9-3dcc-4c1d-88f2-796224c57b60 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:15:32.017185+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=5a7489ce-3a68-4b50-9034-e1128d78be01 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:24:43+00:00 heroku[slug-compiler]: Slug compilation started
-2014-12-11T05:26:09+00:00 heroku[slug-compiler]: Slug compilation finished
-2014-12-11T05:26:08.982883+00:00 heroku[api]: Deploy 1909937 by hellomynameisjony@gmail.com
-2014-12-11T05:26:08.982919+00:00 heroku[api]: Release v26 created by hellomynameisjony@gmail.com
-2014-12-11T05:26:09.121804+00:00 heroku[web.1]: State changed from crashed to starting
-2014-12-11T05:26:14.626364+00:00 heroku[web.1]: Starting process with command `target/universal/stage/bin/leaps-play -Dconfig.resource=production.conf -Dhttp.port=${PORT}`
-2014-12-11T05:26:15.756352+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx384m  -Djava.rmi.server.useCodebaseOnly=true
-2014-12-11T05:26:16.452756+00:00 app[web.1]: Play server process ID is 2
-2014-12-11T05:26:18.130946+00:00 app[web.1]: [[37minfo[0m] play - database [default] connected at jdbc:postgresql://ec2-54-225-102-235.compute-1.amazonaws.com:5432/d5j8eqc2mpj99p
-2014-12-11T05:26:18.513322+00:00 app[web.1]: [[31merror[0m] play - ERROR: unterminated dollar-quoted string at or near "$$
-2014-12-11T05:26:18.513330+00:00 app[web.1]: DECLARE
-2014-12-11T05:26:18.513332+00:00 app[web.1]: tupl id_tuple_two"
-2014-12-11T05:26:18.516210+00:00 app[web.1]: Oops, cannot start the server.
-2014-12-11T05:26:18.516555+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.checkEvolutionsState(Evolutions.scala:193)
-2014-12-11T05:26:18.516671+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:473)
-2014-12-11T05:26:18.513333+00:00 app[web.1]:   Position: 161 [ERROR:0, SQLSTATE:42601]
-2014-12-11T05:26:18.516297+00:00 app[web.1]: @6kf3ggkg4: Database 'default' is in an inconsistent state!
-2014-12-11T05:26:18.516610+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.applyScript(Evolutions.scala:277)
-2014-12-11T05:26:18.513328+00:00 app[web.1]: 
-2014-12-11T05:26:18.516777+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:461)
-2014-12-11T05:26:18.516914+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
-2014-12-11T05:26:18.516841+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:459)
-2014-12-11T05:26:18.516724+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:507)
-2014-12-11T05:26:18.517135+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
-2014-12-11T05:26:18.517272+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
-2014-12-11T05:26:18.516969+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:459)
-2014-12-11T05:26:18.517453+00:00 app[web.1]: 	at play.core.server.NettyServer$.createServer(NettyServer.scala:243)
-2014-12-11T05:26:18.517030+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
-2014-12-11T05:26:18.517195+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply$mcV$sp(Play.scala:88)
-2014-12-11T05:26:18.517320+00:00 app[web.1]: 	at play.utils.Threads$.withContextClassLoader(Threads.scala:18)
-2014-12-11T05:26:18.517082+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
-2014-12-11T05:26:18.517424+00:00 app[web.1]: 	at play.core.StaticApplication.<init>(ApplicationProvider.scala:52)
-2014-12-11T05:26:18.517479+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:279)
-2014-12-11T05:26:18.517564+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
-2014-12-11T05:26:18.517592+00:00 app[web.1]: 	at play.core.server.NettyServer$.main(NettyServer.scala:274)
-2014-12-11T05:26:18.517233+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
-2014-12-11T05:26:18.517515+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:274)
-2014-12-11T05:26:18.517619+00:00 app[web.1]: 	at play.core.server.NettyServer.main(NettyServer.scala)
-2014-12-11T05:26:18.517382+00:00 app[web.1]: 	at play.api.Play$.start(Play.scala:87)
-2014-12-11T05:26:19.311987+00:00 heroku[web.1]: State changed from starting to crashed
-2014-12-11T05:26:19.312632+00:00 heroku[web.1]: State changed from crashed to starting
-2014-12-11T05:26:19.302179+00:00 heroku[web.1]: Process exited with status 255
-2014-12-11T05:26:24.147393+00:00 heroku[web.1]: Starting process with command `target/universal/stage/bin/leaps-play -Dconfig.resource=production.conf -Dhttp.port=${PORT}`
-2014-12-11T05:26:24.856406+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx384m  -Djava.rmi.server.useCodebaseOnly=true
-2014-12-11T05:26:25.234547+00:00 app[web.1]: Play server process ID is 2
-2014-12-11T05:26:26.666852+00:00 app[web.1]: tupl id_tuple_two"
-2014-12-11T05:26:26.666846+00:00 app[web.1]: 
-2014-12-11T05:26:26.666838+00:00 app[web.1]: [[31merror[0m] play - ERROR: unterminated dollar-quoted string at or near "$$
-2014-12-11T05:26:26.670142+00:00 app[web.1]: Oops, cannot start the server.
-2014-12-11T05:26:26.670203+00:00 app[web.1]: @6kf3gh6hk: Database 'default' is in an inconsistent state!
-2014-12-11T05:26:26.670485+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.checkEvolutionsState(Evolutions.scala:193)
-2014-12-11T05:26:26.666849+00:00 app[web.1]: DECLARE
-2014-12-11T05:26:26.666854+00:00 app[web.1]:   Position: 161 [ERROR:0, SQLSTATE:42601]
-2014-12-11T05:26:26.670561+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$$anonfun$evolutionScript$2.apply(Evolutions.scala:313)
-2014-12-11T05:26:26.670623+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
-2014-12-11T05:26:26.670527+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.databaseEvolutions(Evolutions.scala:348)
-2014-12-11T05:26:26.670674+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.evolutionScript(Evolutions.scala:311)
-2014-12-11T05:26:26.670859+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:459)
-2014-12-11T05:26:26.670702+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:462)
-2014-12-11T05:26:26.670885+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
-2014-12-11T05:26:26.671049+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
-2014-12-11T05:26:26.671225+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:279)
-2014-12-11T05:26:26.670925+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
-2014-12-11T05:26:26.670961+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
-2014-12-11T05:26:26.670739+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:507)
-2014-12-11T05:26:26.670801+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:459)
-2014-12-11T05:26:26.670984+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply$mcV$sp(Play.scala:88)
-2014-12-11T05:26:26.670593+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$$anonfun$evolutionScript$2.apply(Evolutions.scala:311)
-2014-12-11T05:26:26.671160+00:00 app[web.1]: 	at play.core.StaticApplication.<init>(ApplicationProvider.scala:52)
-2014-12-11T05:26:26.671127+00:00 app[web.1]: 	at play.api.Play$.start(Play.scala:87)
-2014-12-11T05:26:26.670796+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:461)
-2014-12-11T05:26:26.671089+00:00 app[web.1]: 	at play.utils.Threads$.withContextClassLoader(Threads.scala:18)
-2014-12-11T05:26:26.671340+00:00 app[web.1]: 	at play.core.server.NettyServer.main(NettyServer.scala)
-2014-12-11T05:26:26.671247+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:274)
-2014-12-11T05:26:26.671313+00:00 app[web.1]: 	at play.core.server.NettyServer$.main(NettyServer.scala:274)
-2014-12-11T05:26:26.670831+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
-2014-12-11T05:26:26.671012+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
-2014-12-11T05:26:26.671285+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
-2014-12-11T05:26:26.671193+00:00 app[web.1]: 	at play.core.server.NettyServer$.createServer(NettyServer.scala:243)
-2014-12-11T05:26:26.583120+00:00 app[web.1]: [[37minfo[0m] play - database [default] connected at jdbc:postgresql://ec2-54-225-102-235.compute-1.amazonaws.com:5432/d5j8eqc2mpj99p
-2014-12-11T05:26:27.512447+00:00 heroku[web.1]: Process exited with status 255
-2014-12-11T05:26:27.522642+00:00 heroku[web.1]: State changed from starting to crashed
-2014-12-11T05:31:56.964716+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=0ef28029-b332-4cb3-a7f6-cd10a3ebd971 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
-2014-12-11T05:31:57.697567+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=1d70d9df-48bf-44ce-a664-99f72ae41f03 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T05:39:56.202507+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:459)
+2014-12-11T05:39:56.202792+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
+2014-12-11T05:39:56.203095+00:00 app[web.1]: 	at play.core.server.NettyServer.main(NettyServer.scala)
+2014-12-11T05:39:56.202324+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
+2014-12-11T05:39:56.202472+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:461)
+2014-12-11T05:39:56.202432+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:507)
+2014-12-11T05:39:56.202580+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:459)
+2014-12-11T05:39:56.202647+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
+2014-12-11T05:39:56.202826+00:00 app[web.1]: 	at play.utils.Threads$.withContextClassLoader(Threads.scala:18)
+2014-12-11T05:39:56.202889+00:00 app[web.1]: 	at play.core.StaticApplication.<init>(ApplicationProvider.scala:52)
+2014-12-11T05:39:56.203059+00:00 app[web.1]: 	at play.core.server.NettyServer$.main(NettyServer.scala:274)
+2014-12-11T05:39:56.201872+00:00 app[web.1]: Oops, cannot start the server.
+2014-12-11T05:39:56.202857+00:00 app[web.1]: 	at play.api.Play$.start(Play.scala:87)
+2014-12-11T05:39:56.202688+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
+2014-12-11T05:39:56.202930+00:00 app[web.1]: 	at play.core.server.NettyServer$.createServer(NettyServer.scala:243)
+2014-12-11T05:39:56.202964+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:279)
+2014-12-11T05:39:56.117540+00:00 app[web.1]: [[37minfo[0m] play - database [default] connected at jdbc:postgresql://ec2-54-225-102-235.compute-1.amazonaws.com:5432/d5j8eqc2mpj99p
+2014-12-11T05:39:56.924432+00:00 heroku[web.1]: State changed from starting to crashed
+2014-12-11T05:39:56.925967+00:00 heroku[web.1]: State changed from crashed to starting
+2014-12-11T05:39:56.909609+00:00 heroku[web.1]: Process exited with status 255
+2014-12-11T05:40:02.515464+00:00 heroku[web.1]: Starting process with command `target/universal/stage/bin/leaps-play -Dconfig.resource=production.conf -Dhttp.port=${PORT}`
+2014-12-11T05:40:03.663553+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx384m  -Djava.rmi.server.useCodebaseOnly=true
+2014-12-11T05:40:04.267575+00:00 app[web.1]: Play server process ID is 2
+2014-12-11T05:40:05.783907+00:00 app[web.1]: [[37minfo[0m] play - database [default] connected at jdbc:postgresql://ec2-54-225-102-235.compute-1.amazonaws.com:5432/d5j8eqc2mpj99p
+2014-12-11T05:40:05.883486+00:00 app[web.1]: [[31merror[0m] play - ERROR: unterminated dollar-quoted string at or near "$$
+2014-12-11T05:40:05.883491+00:00 app[web.1]: 
+2014-12-11T05:40:05.883494+00:00 app[web.1]: tupl id_tuple_two"
+2014-12-11T05:40:05.883493+00:00 app[web.1]: DECLARE
+2014-12-11T05:40:05.886818+00:00 app[web.1]: @6kf3ibme2: Database 'default' is in an inconsistent state!
+
+2014-12-11T05:40:05.883496+00:00 app[web.1]:   Position: 161 [ERROR:0, SQLSTATE:42601]
+2014-12-11T05:40:05.886736+00:00 app[web.1]: Oops, cannot start the server.
+2014-12-11T05:40:05.887046+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.checkEvolutionsState(Evolutions.scala:193)
+2014-12-11T05:40:05.887085+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.databaseEvolutions(Evolutions.scala:348)
+2014-12-11T05:40:05.887148+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$$anonfun$evolutionScript$2.apply(Evolutions.scala:313)
+2014-12-11T05:40:05.887183+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$$anonfun$evolutionScript$2.apply(Evolutions.scala:311)
+2014-12-11T05:40:05.887219+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
+2014-12-11T05:40:05.887296+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:462)
+2014-12-11T05:40:05.887262+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.evolutionScript(Evolutions.scala:311)
+2014-12-11T05:40:05.887369+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:461)
+2014-12-11T05:40:05.887329+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:507)
+2014-12-11T05:40:05.887435+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
+2014-12-11T05:40:05.887402+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:459)
+2014-12-11T05:40:05.887474+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:459)
+2014-12-11T05:40:05.887503+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
+2014-12-11T05:40:05.887537+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
+2014-12-11T05:40:05.887681+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
+2014-12-11T05:40:05.887576+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
+2014-12-11T05:40:05.887609+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply$mcV$sp(Play.scala:88)
+2014-12-11T05:40:05.887642+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
+2014-12-11T05:40:05.887822+00:00 app[web.1]: 	at play.core.server.NettyServer$.createServer(NettyServer.scala:243)
+2014-12-11T05:40:05.887716+00:00 app[web.1]: 	at play.utils.Threads$.withContextClassLoader(Threads.scala:18)
+2014-12-11T05:40:05.887749+00:00 app[web.1]: 	at play.api.Play$.start(Play.scala:87)
+2014-12-11T05:40:05.887782+00:00 app[web.1]: 	at play.core.StaticApplication.<init>(ApplicationProvider.scala:52)
+2014-12-11T05:40:05.887855+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:279)
+2014-12-11T05:40:05.887962+00:00 app[web.1]: 	at play.core.server.NettyServer$.main(NettyServer.scala:274)
+2014-12-11T05:40:05.887993+00:00 app[web.1]: 	at play.core.server.NettyServer.main(NettyServer.scala)
+2014-12-11T05:40:05.887929+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
+2014-12-11T05:40:05.887888+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:274)
+2014-12-11T05:40:06.553741+00:00 heroku[web.1]: Process exited with status 255
+2014-12-11T05:40:06.567021+00:00 heroku[web.1]: State changed from starting to crashed
+2014-12-11T05:40:07.381806+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=4f54ad95-2565-4577-a9c6-38f87756f61a fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T05:40:08.092063+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=3f8c35a1-446f-4dac-85c9-ed9bd28a04b1 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T06:03:03.747129+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/"
+ host=radiant-wave-9056.herokuapp.com request_id=8140fdec-48a9-4e95-96cf-f83a58ebfe9a fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T06:03:04.146062+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=3c5c6772-13d7-47b1-a166-0fa3eddafa18 fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T06:03:08.438983+00:00 heroku[web.1]: State changed from crashed to starting
+2014-12-11T06:03:14.512434+00:00 heroku[web.1]: Starting process with command `target/universal/stage/bin/leaps-play -Dconfig.resource=production.conf -Dhttp.port=${PORT}`
+2014-12-11T06:03:15.273799+00:00 app[web.1]: Picked up JAVA_TOOL_OPTIONS: -Xmx384m  -Djava.rmi.server.useCodebaseOnly=true
+2014-12-11T06:03:15.647987+00:00 app[web.1]: Play server process ID is 2
+2014-12-11T06:03:17.158250+00:00 app[web.1]:   Detail: function insert_instrument(character varying,integer,integer,character varying,character varying) depends on type id_tuple_two
+2014-12-11T06:03:17.158244+00:00 app[web.1]: [[31merror[0m] play - ERROR: cannot drop type id_tuple_two because other objects depend on it
+2014-12-11T06:03:17.158253+00:00 app[web.1]:   Hint: Use DROP ... CASCADE to drop the dependent objects too. [ERROR:0, SQLSTATE:2BP01]
+2014-12-11T06:03:17.168063+00:00 app[web.1]: Oops, cannot start the server.
+2014-12-11T06:03:17.168323+00:00 app[web.1]: @6kf3ld0gn: Database 'default' is in an inconsistent state!
+2014-12-11T06:03:17.168936+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.applyScript(Evolutions.scala:277)
+2014-12-11T06:03:17.169022+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:473)
+2014-12-11T06:03:17.168835+00:00 app[web.1]: 	at play.api.db.evolutions.Evolutions$.checkEvolutionsState(Evolutions.scala:193)
+2014-12-11T06:03:17.169383+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:461)
+2014-12-11T06:03:17.169574+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:459)
+2014-12-11T06:03:17.169373+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:507)
+2014-12-11T06:03:17.169610+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
+2014-12-11T06:03:17.169661+00:00 app[web.1]: 	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:459)
+2014-12-11T06:03:17.169699+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
+2014-12-11T06:03:17.169735+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:88)
+2014-12-11T06:03:17.169828+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply$mcV$sp(Play.scala:88)
+2014-12-11T06:03:17.169790+00:00 app[web.1]: 	at scala.collection.immutable.List.foreach(List.scala:318)
+2014-12-11T06:03:17.169895+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
+2014-12-11T06:03:17.169926+00:00 app[web.1]: 	at play.api.Play$$anonfun$start$1.apply(Play.scala:88)
+2014-12-11T06:03:17.169988+00:00 app[web.1]: 	at play.utils.Threads$.withContextClassLoader(Threads.scala:18)
+2014-12-11T06:03:17.170033+00:00 app[web.1]: 	at play.api.Play$.start(Play.scala:87)
+2014-12-11T06:03:17.170080+00:00 app[web.1]: 	at play.core.StaticApplication.<init>(ApplicationProvider.scala:52)
+2014-12-11T06:03:17.170137+00:00 app[web.1]: 	at play.core.server.NettyServer$.createServer(NettyServer.scala:243)
+2014-12-11T06:03:17.170187+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:279)
+2014-12-11T06:03:17.170236+00:00 app[web.1]: 	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:274)
+2014-12-11T06:03:17.170379+00:00 app[web.1]: 	at play.core.server.NettyServer.main(NettyServer.scala)
+2014-12-11T06:03:17.170297+00:00 app[web.1]: 	at scala.Option.map(Option.scala:145)
+2014-12-11T06:03:17.170339+00:00 app[web.1]: 	at play.core.server.NettyServer$.main(NettyServer.scala:274)
+2014-12-11T06:03:16.993170+00:00 app[web.1]: [[37minfo[0m] play - database [default] connected at jdbc:postgresql://ec2-54-225-102-235.compute-1.amazonaws.com:5432/d5j8eqc2mpj99p
+2014-12-11T06:03:17.913750+00:00 heroku[web.1]: Process exited with status 255
+2014-12-11T06:03:17.929850+00:00 heroku[web.1]: State changed from starting to crashed
+2014-12-11T06:03:38.834346+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=radiant-wave-9056.herokuapp.com request_id=155901dc-437a-4c81-88cf-ae6cb20ee6af fwd="173.206.86.48" dyno= connect= service= status=503 bytes=
+2014-12-11T06:03:39.359245+00:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/favicon.ico" host=radiant-wave-9056.herokuapp.com request_id=2daff081-8aaf-42d5-b0b7-33dab0abc9eb fwd="173.206.86.48" dyno= connect= service= status=503 bytes=

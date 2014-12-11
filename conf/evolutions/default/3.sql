@@ -76,8 +76,6 @@ DROP COLUMN "last_login";
 ALTER TABLE "instruments"
 DROP COLUMN "default_tuning";
 
-DROP TYPE IF EXISTS id_tuple_two;
-
 DROP FUNCTION IF EXISTS insert_instrument(
 	inst_name VarChar(45), 
 	inst_strings INT, 
@@ -85,6 +83,10 @@ DROP FUNCTION IF EXISTS insert_instrument(
 	tun_name VarChar(45),
 	tun_values VarChar(45)
 );
+
+DROP TYPE IF EXISTS id_tuple_two;
+
+
 
 ALTER TABLE "tunings"
 DROP CONSTRAINT tunings_instrument_fkey,
