@@ -167,7 +167,7 @@ var onAdd = withValidInput(function(name, strValues){
 			
 			$('#scales-list').prepend($row)
 			$row.find('.row-delete').click(onDelete)
-			$row.find('.row-modify').click(onButtonModify)
+			$row.find('.row-modify').click(onRowModify)
 			
 			emptyInput()
 		},
