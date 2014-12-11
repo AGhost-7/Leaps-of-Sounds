@@ -71,10 +71,10 @@ ADD FOREIGN KEY(instrument)
 # --- !Downs
 
 ALTER TABLE "users" 
-DROP COLUMN "last_login";
+DROP COLUMN IF EXISTS "last_login";
 
 ALTER TABLE "instruments"
-DROP COLUMN "default_tuning";
+DROP COLUMN IF EXISTS "default_tuning";
 
 DROP FUNCTION IF EXISTS insert_instrument(
 	inst_name VarChar(45), 
@@ -85,8 +85,6 @@ DROP FUNCTION IF EXISTS insert_instrument(
 );
 
 DROP TYPE IF EXISTS id_tuple_two;
-
-
 
 ALTER TABLE "tunings"
 DROP CONSTRAINT tunings_instrument_fkey,
