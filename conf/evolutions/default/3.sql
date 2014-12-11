@@ -1,4 +1,6 @@
 
+# --- !Ups
+
 -- Lets track our users a bit.
 
 ALTER TABLE "users" 
@@ -66,12 +68,28 @@ ADD FOREIGN KEY(instrument)
 	ON DELETE CASCADE;
 
 
+# --- !Downs
 
+ALTER TABLE "users" 
+DROP COLUMN "last_login";
 
+ALTER TABLE "instruments"
+DROP COLUMN "default_tuning";
 
+DROP TYPE IF EXISTS id_tuple_two;
 
+DROP FUNCTION IF EXISTS insert_instrument(
+	inst_name VarChar(45), 
+	inst_strings INT, 
+	user_id INT, 
+	tun_name VarChar(45),
+	tun_values VarChar(45)
+);
 
-
+ALTER TABLE "tunings"
+DROP CONSTRAINT tunings_instrument_fkey,
+ADD FOREIGN KEY(instrument)
+	REFERENCES instruments(id);
 
 
 
