@@ -1,4 +1,9 @@
-@(scales: (List[Scale], List[Scale]), tunings: (List[Tuning], List[Tuning]), instruments: (List[Instrument], List[Instrument]), messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
+@(scales: (List[Scale], List[Scale]), 
+	tunings: (List[Tuning], List[Tuning]),
+	instruments: (List[Instrument], List[Instrument]), 
+	selectedInstrument: Instrument,
+	defaultTuning: Tuning,
+	messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
 @main("Leaps!") {
 
 @* Print the flash messages that were sent by the registration, etc. *@
@@ -22,11 +27,11 @@
 				<ul id="instrument-selector" class="dropdown-menu scrollable-menu" role="menu">
 					@if(instruments._1.length > 0) {
 						@instruments._1.map { instrument =>
-							<li><a href="#" value="@instrument.strings">@instrument.name</a></li>
+							<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li>
 						}
 					}
 					@instruments._2.map { instrument => 
-						<li><a href="#" value="@instrument.strings">@instrument.name</a></li> 
+						<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li> 
 					}
 				</ul>
 			</li>
@@ -103,16 +108,33 @@
 	<p id="last-selected">&nbsp;</p>
 	<!-- This is the fingerboard itself.  -->
 	<canvas id="fingerboard" ></canvas>
-	
+	<script>
+	var loadArgs = {
+		strings: @selectedInstrument.strings,
+		frets: 14,
+		selectors : {
+			playing: '#1975FF'
+		},
+		interval: {
+			westernSystem: true,
+			tuning: '@defaultTuning.values'
+		},
+		scale: {
+			values: [1, 3, 5, 6, 8, 10, 12],
+			root: 1,
+			select: true
+		}
+	}
+	</script>
 	
 	<!-- SoundBox.js depends on Timbre.js -->
-	<script src='@routes.Assets.at("javascripts/timbre.min.js")'></script>
+	<script src='@routes.Javascripts.at("timbre")'></script>
 	<!-- Custom Libs -->
-	<script src='@routes.Assets.at("javascripts/fingerboard.min.js")'></script>
-	<script src='@routes.Assets.at("javascripts/soundbox.min.js")'></script>
-	<script src='@routes.Application.javascriptRoutes'></script>
+	<script src='@routes.Javascripts.at("fingerboard")'></script>
+	<script src='@routes.Javascripts.at("soundbox")'></script>
+	<script src='@routes.Javascripts.router'></script>
 	<!-- Main -->
-	<script async src='@routes.Assets.at("javascripts/index.min.js")'></script>
+	<script async src='@routes.Javascripts.at("index")'></script>
 </div>
 
 }

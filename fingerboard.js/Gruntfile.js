@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		concat: {
-			publish: {
+			default: {
 				src: [ 'src/constructor.js', 
 					'src/dependencies/*.js',
 					'src/components/*.js' ],
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
 			}
 		},
 		uglify: {
-			publish: {
+			default: {
 				files: {
 					'dist/fingerboard.min.js': ['dist/fingerboard.js']
 				}
@@ -28,14 +28,22 @@ module.exports = function(grunt) {
 			}
 		},
 		watch:{
-			files: ['src/**/*.js'],
-			tasks: ['concat:play']
+			default:{
+				files: ['src/**/*.js'],
+				tasks: ['concat']
+			},
+			play:{
+				files: ['src/**/*.js'],
+				tasks: ['concat:play']
+			}
+			
 		}
 	});
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('default', ['concat:publish', 'uglify:publish']);
+	grunt.registerTask('default', ['concat', 'uglify']);
 	grunt.registerTask('play', ['concat:play', 'uglify:play']);
+	//grunt.registerTask('local-testing', [''])
 };

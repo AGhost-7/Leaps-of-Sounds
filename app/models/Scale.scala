@@ -1,6 +1,6 @@
 package models
 
-case class Scale(id : Long,name: String, values: String, user: Option[Int]) extends JsonAble {
+case class Scale(id : Long, name: String, values: String, user: Option[Int]) extends JsonAble {
 	def toJson = Scale.toJson(this)
 }
 
@@ -14,7 +14,7 @@ object Scale extends CompWithUserRef[Scale] {
   
   val tableName = "scales"
   	
-  val nameConstraint = """^[A-z1-9\s]{4,}$""".r
+  val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
   val valuesConstraint = "^((1[0-2]|[0-9])([,](1[0-2]|[0-9]))+)$".r
   
   implicit val parser = Json.writes[Scale]
@@ -65,7 +65,7 @@ object Scale extends CompWithUserRef[Scale] {
 		Scale(id.get, name, values, Some(user.id))
 	}
   
-  def update(user: User, id: Int, name: String, values: String)(implicit con: java.sql.Connection) = {
+  def update(id: Long, name: String, values: String, user: User)(implicit con: java.sql.Connection) = {
   	val n = SQL("""
   			UPDATE "scales"
   			SET "name" = {name}, "values" = {values}
@@ -77,7 +77,6 @@ object Scale extends CompWithUserRef[Scale] {
   				"values" -> values,
 					"id" -> id)
   		.executeUpdate
-  	//println(n)
   	
   	Scale(id, name, values, Some(user.id))
   }

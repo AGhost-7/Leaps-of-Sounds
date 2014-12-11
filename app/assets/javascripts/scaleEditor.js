@@ -154,7 +154,7 @@ var onRowModify = function(){
 
 var onAdd = withValidInput(function(name, strValues){
 
-	jsRoutes.controllers.Scales.add(name, strValues).ajax({
+	jsRoutes.controllers.Scales.insert(name, strValues).ajax({
 		success: function(scale){
 
 			scale.prettyValues = scale

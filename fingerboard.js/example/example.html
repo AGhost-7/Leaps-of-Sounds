@@ -73,9 +73,10 @@ body {
 
 <script>
 $(function() {
-
+	var $canvas = $('#fingerboard')
+	
 	// Demo of what this library can do so far...
-	var fingerboard = new Fingerboard($('#fingerboard'), {
+	var fingerboard = new Fingerboard($canvas, {
 		strings: 6,
 		frets: 14,
 		interval: {
@@ -89,11 +90,13 @@ $(function() {
 	});
 	
 	fingerboard.on('noteclick', function(note) {
-		var selector = note.selector = note.selector === 'selected' ? '' : 'selected';
+		var selector = note.selector = note.selector === 'selected' ? 
+			'' : 'selected';
 	
 		fingerboard.setNoteFor(note.fret, note.string, { selector: selector } );
 		console.log('noteclick: ', note);
 	});
+	
 	var $p = $('#last-selected');
 	
 	fingerboard.on('notehover', function(note) {
@@ -104,7 +107,6 @@ $(function() {
 	
 	$('#scale-selector').change(function(ev) {
 		console.log('selected:' + $(ev.target).val() );
-	//	var arr = JSON.parse($(ev.target).val());
 		
 		fingerboard.set({
 			scale: {
@@ -122,10 +124,8 @@ $(function() {
 			}
 		});
 	});
+	
 	$('#tuning-selector').change(function(ev) {
-		//var tuning = $(ev.target).val()
-		//	.split(",")
-		//	.map(function(val) { return Number(val) });
 		fingerboard.set({
 			interval: {
 				tuning: $(ev.target).val()
@@ -133,6 +133,42 @@ $(function() {
 		});
 	});
 	
+	jQuery.fn.mousedrag = function(callback) {
+		var holding = false,
+			lastLoc = {}
+		
+		this.on('mousedrag', callback)
+		
+		this.on('mousedown', function(e){
+			lastLoc.x = e.pageX
+			lastLoc.y = e.pageY
+			holding = true
+		})
+		
+		this.on('mouseup', function(e){
+			holding = false
+		})
+		
+		this.on('mousemove', function(e){
+			if(holding){
+				e.dragY = e.pageY - lastLoc.y
+				e.dragX = e.pageX - lastLoc.x
+				lastLoc.x = e.pageX
+				lastLoc.y = e.pageY
+				callback(e)
+			} 
+		})
+		
+		this.on('mouseout', function(e){
+			holding = false
+		})
+	}
+	
+	$canvas.mousedrag(function(e){
+		$canvas.height($canvas.height() + e.dragY)
+		$canvas.width($canvas.width() + e.dragX)
+		$canvas.trigger('resize')
+	})
 	
 	var defaultNotation = 
 		['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];

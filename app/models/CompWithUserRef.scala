@@ -3,7 +3,7 @@ package models
 import play.api._
 import play.api.libs.json.Json
 import anorm._
-
+import java.sql.Connection
 
 /**
  * Simple type for bounds. Didn't use duck typing since its reflective AFAIK.
@@ -32,7 +32,7 @@ trait CompWithUserRef [A <: JsonAble] {
 	
 	def toJson(obj: A) = Json.toJson(obj)
 	
-	def countForUser(user: User)(implicit con: java.sql.Connection) =
+	def countForUser(user: User)(implicit con: Connection) =
 		SQL(s"""
 			SELECT Count(*) As cnt FROM "$tableName"
 			WHERE user_id = {user}
@@ -41,7 +41,7 @@ trait CompWithUserRef [A <: JsonAble] {
 					"user" -> user.id)()
 			.head[Int]("cnt")
 	
-	def ofPageForUser(page: Int, user: User)(implicit con: java.sql.Connection) = 
+	def ofPageForUser(page: Int, user: User)(implicit con: Connection) = 
 		SQL(s"""
 			SELECT * FROM "$tableName"
 			WHERE user_id = {user}
@@ -50,13 +50,13 @@ trait CompWithUserRef [A <: JsonAble] {
 				"start" -> (page-1) * 10)()
 			.map(fromRow)
 	
-	def pageAsJson(page: Int, user: User)(implicit con: java.sql.Connection) =
+	def pageAsJson(page: Int, user: User)(implicit con: Connection) =
 		Json.toJson(ofPageForUser(page, user))
 	
 	/**
 	 * Returns all scales that the user should be able to read.
 	 */
-	def getAll(implicit con: java.sql.Connection, user: Option[User]) = 
+	def getAll(implicit con: Connection, user: Option[User]) = 
   	user.fold(
   		SQL(s"""
   			SELECT * FROM "$tableName" 
@@ -74,13 +74,27 @@ trait CompWithUserRef [A <: JsonAble] {
   /**
    * Returns only the user defined rows
    */
-  def ofUser(user: User)(implicit con: java.sql.Connection) = 
+  def ofUser(user: User)(implicit con: Connection) = 
   	SQL(s"""
   		SELECT * FROM "$tableName"
   		WHERE user_id = {user}
   	""")
 	  	.on("user" -> user.id)()
 	  	.map(fromRow)
+	 
+	 /**
+	  * Generic removal method for single entry.
+	  */
+	 def remove(id: Long, user: User)(implicit con: Connection) =
+		 SQL(s"""
+				DELETE FROM "$tableName"
+				WHERE id = {id}
+					AND user_id = {user}
+		 """)
+		 	.on("id" -> id,
+		 			"user" -> user.id)
+		 	.executeUpdate
+		 
 }
 
 

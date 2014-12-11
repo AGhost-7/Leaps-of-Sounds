@@ -15,4 +15,10 @@ Uh... College project.
 ###1.1
  * User-defined instruments
  * User-defined tunings
-  
+ * Full screen mode
+
+###1.2
+ * Display Modes: These will place information directly on the fingerboard.
+  * Interval mode (e.g., b5, 7th)
+  * Note mode (e.g., Ab, C)
+	

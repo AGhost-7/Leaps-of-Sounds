@@ -155,6 +155,32 @@ Fingerboard = function($canvas, argsObj) {
 	};
 
 })(Fingerboard);
+// little plugin
+/*
+window.jQuery.fn.mousedrag = function(callback) {
+	var holding = false,
+		lastLoc = {}
+	
+	this.on('mousedrag', callback)
+	
+	this.on('mousedown', function(e){
+		lastLoc.x = e.pageX
+		lastLoc.y = e.pageY
+		holding = true
+	})
+	
+	this.on('mouseup', function(e){
+		holding = false
+	})
+	
+	this.on('mousemove', function(e){
+		if(holding){
+			lastLoc.x = e.pageX
+			lastLoc.y = e.pageY
+			callback(e)
+		} 
+	})
+}*/
 
 /******************************************************************************
  * Polymorphy.js
@@ -644,6 +670,7 @@ Fingerboard.View = function($canvas, model, events) {
 			}
 		});
 	}
+	
 	function updateDimensions() {
 		width = $canvas.width();
 		height = $canvas.height();
@@ -697,14 +724,19 @@ Fingerboard.View = function($canvas, model, events) {
 		// if the mouse is no longer inside of the square we should
 		// try and find the note that the mouse is on top of.
 		if(model.mouseHoveredNote) {
-			stateChanged = !model.mouseHoveredNote.dimension.isPointWithinBounds(x, y);
+			stateChanged = !model
+				.mouseHoveredNote
+				.dimension
+				.isPointWithinBounds(x, y);
 		}
 		else stateChanged = true;
 		
 		if(stateChanged) {
+		
 			var newHovered = model.find(function(fret, string, value) {
 				return value.dimension.isPointWithinBounds(x, y)
 			});
+			
 			if(newHovered) {
 				model.mouseHoveredNote = newHovered;
 		
@@ -719,6 +751,9 @@ Fingerboard.View = function($canvas, model, events) {
 	
 	// The view should also abstract away all resize handling.
 	$(window).resize(repaint);
+	
+	// Gotta manually trigger the event though...
+	$canvas.on('resize', repaint);
 	
 	// We'll need to make sure that the view listens for changes in the model
 	events.modelchange(repaint);

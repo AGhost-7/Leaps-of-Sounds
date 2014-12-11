@@ -107,7 +107,7 @@ case class LoginUser(username: String, password: String) {
 	 */
 	def sessionToken = {
 		val uid = java.util.UUID.randomUUID.toString
-		DB.withConnection { implicit con =>
+		DB.withTransaction { implicit con =>
 			SQL("""
         INSERT INTO tokens
         VALUES ({uid}, (SELECT id FROM users WHERE username={username}))
@@ -115,6 +115,12 @@ case class LoginUser(username: String, password: String) {
 				.on("username" -> username,
 					"uid" -> uid)
 				.execute
+				
+			SQL("""
+				UPDATE TABLE "users"
+					SET last_login = CURRENT_TIMESTAMP
+					WHERE username = {username}
+			""").on("username" -> username)()
 		}
 		uid
 	}

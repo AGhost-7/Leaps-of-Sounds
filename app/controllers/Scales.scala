@@ -12,53 +12,27 @@ import models.{Scale, User}
 /**
  * Standard CRUD operations for Scales data.
  */
-object Scales extends Controller {
+object Scales extends Controller with RestfulController {
 
-	def update(id: Int, name: String, values: String) = Action { implicit request =>
-		User.fromSession.map { user =>
-			if(Scale.validInput(name, values))
-				DB.withConnection { implicit con =>
-					Ok(Json.toJson(Scale.update(user, id, name, values)))
-				}
-			else
-				BadRequest("Invalid arguments.")
-		}.getOrElse(Unauthorized)
+	def update(id: Long, name: String, values: String) = inLogin withDB { (user, con) =>
+		ifValidated(Scale.validInput(name, values)){
+			Scale.update(id, name, values, user)(con).toJson
+		}
 	}
 	
-	def remove(id: Int) = Action { implicit request =>
-		User.fromSession.map { user =>
-			DB.withConnection { implicit con =>
-				SQL("""
-					DELETE FROM "scales" 
-					WHERE user_id = {user}
-						AND id = {id}
-				""")
-					.on("user" -> user.id, "id" -> id)
-					.executeUpdate()
-					
-				Ok("Removed")
-			}
-		}.getOrElse(Unauthorized)
-		
+	def remove(id: Long) = inLogin.withDB { (user, con) =>
+		Scale.remove(id, user)(con)
+		Ok("{}")
 	}
 	
-	def add(name: String, values: String) = Action { implicit request =>
-  	if(Scale.validInput(name, values))
-	  	User.fromSession.map { user => 
-	  		DB.withTransaction { implicit con =>
-	  			Ok(Json.toJson(Scale.insert(user, name, values)))
-	  		}
-	  	}.getOrElse(Unauthorized)
-  	else
-  		BadRequest("Invalid input.")
-  }
+	def insert(name: String, values: String) = inLogin withDB { (user, con) =>
+		ifValidated(Scale.validInput(name, values)) {
+			Scale.insert(user, name, values)(con).toJson
+		}
+	}
 	
-	def list(set: Int) = Action { implicit request =>
-		User.fromSession.map { user =>
-			DB.withConnection { implicit con => 
-  			Ok(Scale.pageAsJson(set, user))
-  		}
-		}.getOrElse(Unauthorized)
+	def list(set: Int) = inLogin withDB { (user, con) =>
+		Ok(Scale.pageAsJson(set, user)(con))
 	}
 	
 	def all = Action { implicit request =>

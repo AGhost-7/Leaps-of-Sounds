@@ -66,10 +66,8 @@ object AppForms extends Controller {
 		)
 	)
 
-	def login = Action.secure { implicit request =>
-		future {
-			Ok(views.html.login(loginForm))
-		}
+	def login = Action.secureSync { implicit request =>
+		Ok(views.html.login(loginForm))
 	}
 
 	def beginSession = Action.secure { implicit request =>

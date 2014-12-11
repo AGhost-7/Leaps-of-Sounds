@@ -14,7 +14,7 @@ import models._
 import utils._
 
 /**
- * This routes the primary pages of the application
+ * This routes the primary pages of the application.
  */
 
 object Application extends Controller {
@@ -31,38 +31,29 @@ object Application extends Controller {
     	case _ => (some, none)
     }
     
-    val scales = groupByUser(Scale.getAll.toList)
-    val tunings = groupByUser(Tuning.ofInstrument("Guitar").toList)
-    val instruments = groupByUser(Instrument.getAll.toList)
+    val instruments = Instrument.getAll
+    
+    // For now, lets make the guitar the default displaying instrument.
+    // Maybe I could make this custimizable eventually.
+    val selectedInstrument = instruments.find { _.id == 1 }.get
+    
+    val tunings = Tuning.ofInstrument(1)
+    val defaultTuning = tunings.find { _.id == selectedInstrument.defaultTuning }.get
+    
+    val scalesGroup = groupByUser(Scale.getAll.toList)
+    val tuningsGroup = groupByUser(tunings.toList)
+    val instrumentsGroup = groupByUser(instruments.toList)
+    
     val messages = FlashMessage.getAll.toList
     
     con.close
     
-    Ok(views.html.index(scales, tunings, instruments, messages))
-  }
-
-
-  def javascriptRoutes = Action { implicit request =>
-    import routes.javascript._
-    Ok(Routes.javascriptRouter("jsRoutes")(
-      routes.javascript.Application.getTuningsOfInstrument,
-      routes.javascript.Scales.list,
-      routes.javascript.Scales.add,
-      routes.javascript.Scales.remove,
-      routes.javascript.Scales.all,
-      routes.javascript.Scales.update
-      ))
-      .as("text/javascript")
-  }
-  
-  def getTuningsOfInstrument(name: String) = Action { implicit request =>
-    DB.withTransaction { implicit con => 
-	    implicit val user = User.fromSession
-	    
-	    val tunings = Tuning.ofInstrument(name)
-	    
-	    Ok(Json.toJson(tunings))
-    }
+    Ok(views.html.index(scalesGroup, 
+    		tuningsGroup, 
+    		instrumentsGroup, 
+    		selectedInstrument, 
+    		defaultTuning, 
+    		messages))
   }
 
   def logout = Action { implicit request =>
@@ -89,25 +80,6 @@ object Application extends Controller {
   			Ok(Json.toJson(tunings).toString)
   		}.getOrElse(Unauthorized)
   	}
-  }
-  
-  def scaleOfUser(page: Int) = Action { implicit request =>
-  	User.fromSession.map { user =>
-  		DB.withConnection { implicit con => 
-  			Ok(Scale.pageAsJson(page, user))
-  		}
-  	}.getOrElse(BadRequest)
-  }
-  
-  def addScale(name: String, values: String) = Action { implicit request =>
-  	if(Scale.validInput(name, values))
-	  	User.fromSession.map { user => 
-	  		DB.withTransaction { implicit con =>
-	  			Ok(Json.toJson(Scale.insert(user, name, values)))
-	  		}
-	  	}.getOrElse(Unauthorized)
-  	else
-  		BadRequest("Invalid input.")
   }
   
 }

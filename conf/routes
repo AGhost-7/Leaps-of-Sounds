@@ -2,10 +2,13 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Html / Form Processing
+# ~~~~~~~~~~~~~~~~~~~~~~
+
 GET     /                               controllers.Application.index
-GET	    /assets/javascripts/routes      controllers.Application.javascriptRoutes()
-GET     /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
+
+#GET     /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
 POST    /registration-finalize          controllers.AppForms.addUser
 GET     /registration                   controllers.AppForms.register
 POST    /login-finalize                 controllers.AppForms.beginSession
@@ -13,15 +16,40 @@ GET     /login                          controllers.AppForms.login
 GET     /logout                         controllers.Application.logout
 GET     /scale-editor                   controllers.Application.scaleEditor
 
+# ~~~~~~~~~~~~~
 # RESTful stuff
+# ~~~~~~~~~~~~~
+
+#Scales
 GET     /scale/all                      controllers.Scales.all
-#GET     /scale/routes                   controllers.Scales.jsRoutes
 GET     /scale                          controllers.Scales.list(set: Int)
-POST    /scale                          controllers.Scales.add(name, values)
-PUT     /scale                          controllers.Scales.update(id: Int, name, values)
-DELETE  /scale                          controllers.Scales.remove(id: Int)
+POST    /scale                          controllers.Scales.insert(name, values)
+PUT     /scale                          controllers.Scales.update(id: Long, name, values)
+DELETE  /scale                          controllers.Scales.remove(id: Long)
+
+#Tunings
+GET    /tuning/of-instrument            controllers.Tunings.ofInstrument(instrument: Long)
+
+#GET    /tuning/of-user                                          
+POST   /tuning                          controllers.Tunings.insert(name, values, instrument: Long)
+PUT    /tuning                          controllers.Tunings.update(id: Long, name, values, instrumentId: Long)
+DELETE /tuning                          controllers.Tunings.remove(id: Long)
 
 
+
+
+
+# ~~~~~~~~~~~~~
+# Static assets
+# ~~~~~~~~~~~~~
+
+GET	    /assets/javascripts/router      controllers.Javascripts.router
+
+# Extension is automatically added so that when in production these will
+# be minified, while still remaining easy to debug on dev.
+GET     /assets/javascripts/*file       controllers.Javascripts.at(file)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
+
+
