@@ -11,6 +11,7 @@ import org.mindrot.jbcrypt.BCrypt
 
 import scala.concurrent._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import java.sql.Connection
 
 import utils._
 
@@ -104,7 +105,7 @@ case class LoginUser(username: String, password: String) {
 	/**
 	 * Generates the session token for the user's account, with appropriate DB
 	 * storage.
-	 */
+	 
 	def sessionToken = {
 		val uid = java.util.UUID.randomUUID.toString
 		DB.withTransaction { implicit con =>
@@ -117,28 +118,31 @@ case class LoginUser(username: String, password: String) {
 				.execute
 				
 			SQL("""
-				UPDATE TABLE "users"
+				UPDATE "users"
 					SET last_login = CURRENT_TIMESTAMP
 					WHERE username = {username}
 			""").on("username" -> username)()
 		}
 		uid
-	}
+	}*/
 }
-case class User(username: String, uuid: String, id: Int)
+case class User(username: String, uuid: String, id: Int) {
+	
+}
 object User {
 
-	def authenticate(username: String, password: String) =
-		DB.withConnection { implicit con =>
-			SQL("SELECT password FROM users WHERE username = {username}")
-				.on("username" -> username)() match {
-					case result if (result.length == 0) => false
-					case result if (!BCrypt.checkpw(password, result.head[String]("password"))) =>
-						false
-					case result =>
-						true
-				}
+	def authenticate(username: String, password: String)(implicit con: Connection) =
+		ofUsername(username) match {
+			case result if (result.length == 0) => false
+			case result if (!BCrypt.checkpw(password, result.head[String]("password"))) =>
+				false
+			case result =>
+				true
 		}
+	
+	def ofUsername(name: String)(implicit con: Connection) =
+		SQL("SELECT * FROM users WHERE username = {username}")
+			.on("username" -> name)()
 	
 	def fromSession(implicit request:Request[AnyContent]):Option[User] = {
 		request.session.get("token").flatMap { token =>
@@ -154,4 +158,24 @@ object User {
 			}
 		}
 	}
+	
+	/**
+	 * Generates the session token for the user's account, with appropriate DB
+	 * storage. This should only be called AFTER proper authentication.
+	 */
+	def getToken(username: String)(implicit con: Connection) = {
+		val uid = java.util.UUID.randomUUID.toString
+		
+		val userId = ofUsername(username).head[Long]("id")
+		
+		SQL("""SELECT * FROM begin_session({user}::INT,{token}::CHAR(37))""")
+			.on("user" -> userId,
+					"token" -> uid)()
+					
+				
+		uid
+	}
+	
 }
+
+

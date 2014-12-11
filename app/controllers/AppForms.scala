@@ -61,9 +61,11 @@ object AppForms extends Controller {
 			"User Name" -> text,
 			"Password" -> text)
 			(LoginUser.apply)(LoginUser.unapply)
-				.verifying ("Your password or username is incorrect.", fields =>
-					User.authenticate(fields.username, fields.password)
-		)
+				.verifying ("Your password or username is incorrect.", { fields =>
+					DB.withConnection { implicit con => 
+						User.authenticate(fields.username, fields.password)
+					}
+				})
 	)
 
 	def login = Action.secureSync { implicit request =>
@@ -77,11 +79,12 @@ object AppForms extends Controller {
 			},
 			user => {
 				future {
-					val r = routes.Application.index
-
+					val token = DB.withTransaction { implicit con =>
+						User.getToken(user.username)
+					}
 					Redirect("http://" + request.host)
 						.withSession("username" -> user.username, 
-								"token" -> user.sessionToken)
+								"token" -> token)
 						.flashing("successMsg" -> "You're now logged in!")
 				}
 			})
