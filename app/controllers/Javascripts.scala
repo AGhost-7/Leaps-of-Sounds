@@ -25,6 +25,7 @@ object Javascripts extends Controller {
 	def router = Action { implicit request =>
     import routes.javascript._
     Ok(Routes.javascriptRouter("jsRoutes")(
+		//	routes.javascript.Instruments.update,
       routes.javascript.Tunings.ofInstrument,
       routes.javascript.Scales.list,
       routes.javascript.Scales.insert,

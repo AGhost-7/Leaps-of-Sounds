@@ -15,6 +15,8 @@ POST    /login-finalize                 controllers.AppForms.beginSession
 GET     /login                          controllers.AppForms.login
 GET     /logout                         controllers.Application.logout
 GET     /scale-editor                   controllers.Application.scaleEditor
+GET     /instrument-editor             controllers.Application.instrumentEditor
+
 
 # ~~~~~~~~~~~~~
 # RESTful stuff
@@ -27,10 +29,14 @@ POST    /scale                          controllers.Scales.insert(name, values)
 PUT     /scale                          controllers.Scales.update(id: Long, name, values)
 DELETE  /scale                          controllers.Scales.remove(id: Long)
 
+# Instruments
+
+#GET    /instrument                      controllers.Instruments.
+POST    /instrument                      controllers.Instruments.insert(name: String, strings: Int, tuningName: String, tuningValues: String)
+PUT     /instrument                      controllers.Instruments.update(id: Long, name: String, strings: Int, defaultTuning: Long)
 # Tunings
 GET    /tuning/of-instrument            controllers.Tunings.ofInstrument(instrument: Long)
 
-#GET    /tuning/of-user                                          
 POST   /tuning                          controllers.Tunings.insert(name, values, instrument: Long)
 PUT    /tuning                          controllers.Tunings.update(id: Long, name, values, instrumentId: Long)
 DELETE /tuning                          controllers.Tunings.remove(id: Long)

@@ -6,7 +6,7 @@ import play.api.mvc._
 import play.api.db.DB
 import play.api.Play.current
 import play.api.db.DB
-import play.api.libs.json.Json
+import play.api.libs.json._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import anorm._
 import utils.implicits._
@@ -71,12 +71,25 @@ object Application extends Controller {
 	  }
   }
   
-  def instrumentsEditor = Action { implicit request =>
-  	User.fromSession.map { user => 
+  def instrumentEditor = Action { implicit request =>
+  	User.fromSession.map { implicit user => 
   		DB.withTransaction { implicit con =>
-	  		val instruments = Instrument.ofUser(user)
+  			
+  			// Some of the tunings depend on the default instruments provided,
+  			// so we're going to need all instruments which are readable
+  			// by the user.
+	  		val instruments = Instrument.getAll(con, Some(user))
+	  		
+	  		// The app is going to use a large json object to display its tunings
+	  		// instead.
 	  		val tunings = Tuning.ofUser(user)
-	  		Ok(views.html.instrumentsEditor(instruments, tunings))
+	  		val grouped = tunings.groupBy { _.instrumentId }
+	  		val jsTunings = for((key, values) <- grouped ) yield {
+	  			val jsValues = values.map { _.toJson }
+	  			("" + key, JsArray(jsValues.toSeq))
+	  		}
+	  		
+	  		Ok(views.html.instrumentsEditor(instruments, Json.toJson(jsTunings)))
   		}
   	}.getOrElse(Unauthorized)
   }

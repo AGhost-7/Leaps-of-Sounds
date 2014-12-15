@@ -27,7 +27,7 @@ object Instrument extends CompWithUserRef[Instrument] {
   def validInput(name: String, strings: Int) =
   	strings < 16 && nameConstraint.findFirstIn(name).isDefined
   
-  def update(id: Long, name: String, strings: Int, defaultTuning: Int, user: User)(implicit con: Connection) = {
+  def update(id: Long, name: String, strings: Int, defaultTuning: Long, user: User)(implicit con: Connection) = {
   	SQL("""
   		UPDATE TABLE "instruments"
   		SET name = {name}, strings = {strings}, default_tuning = {tuning}

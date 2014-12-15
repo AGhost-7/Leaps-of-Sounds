@@ -1,5 +1,105 @@
-@(instruments: Stream[Instrument], tunings: Stream[Tuning])(implicit session: play.api.mvc.Session)
+@(instruments: Stream[Instrument], tunings: play.api.libs.json.JsValue)(implicit session: play.api.mvc.Session)
 
 @main("Instruments Editor") {
+	
+	<div id="input-container"></div>
+	
+	<div id="container-inst-add" class="hidden">
+		<div class="form-group">
+			<label id="name-header">Name</label>
+			<input type="text" id="input-name" class="form-control" value={{name}} />
+		</div>
+		<div class="form-group">
+			<label id="strings-header">Number of strings</label>
+			<input type="text" id="input-strings" class="form-control" value={{strings}} />
+		</div>
+		
+		<div>
+			<button class="btn btn-default" id="inst-add-ok">Ok</button>
+			<button class="btn btn-default" id="inst-add-cancel">Cancel</button>
+		</div>
+	</div>
+	
+	<div id="container-inst-mod" class="hidden">
+		<div class="form-group">
+			<label id="name-header">Name</label>
+			<input type="text" id="input-name" class="form-control" value={{name}} />
+		</div>
+		<div class="form-group">
+			<label id="strings-header">Number of strings</label>
+			<input type="text" id="input-strings" class="form-control" value={{strings}} />
+		</div>
+		
+		<input type="hidden" value={{id}} id="inst-add-id" />
+		
+		<div>
+			<button class="btn btn-default" id="inst-add-ok">Ok</button>
+			<button class="btn btn-default" id="inst-add-cancel">Cancel</button>
+		</div>
+	</div>
+	
+	<div id="input-tuning" class="hidden">
+	
+	</div>
+	
+	<table class="table">
+		<thead>
+			<th>Name</th>
+			<th>Strings</th>
+			<th>Edit</th>
+		</thead>
+		<tbody>
+			@for(instrument <- instruments) {
+				<tr data-id="@instrument.id">
+					<td>@instrument.name</td>
+					<td>@instrument.strings</td>
+					<td>
+						@if(instrument.user.isDefined){
+							<button class="btn btn-default mod-instrument">Modify</button>
+						} else {
+							<button class="btn btn-default mod-instrument">Modify</button>
+						}
+						<button class="btn btn-default">Tunings</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+	<!-- Templates -->
+	
+	<script id="instrument-input-template" type="text/x-handlebars-template">
+		<div class="form-group">
+			<label id="name-header">Name</label>
+			<input type="text" id="input-name" class="form-control" value={{name}} />
+		</div>
+		<div class="form-group">
+			<label id="strings-header">Number of strings</label>
+			<input type="text" id="input-strings" class="form-control" value={{strings}} />
+		</div>
+		<input type="hidden" value={{id}} id="input-id" />
+		<div>
+			<button class="btn btn-default" id="instrument-ok">Ok</button>
+			<button class="btn btn-default" id="instrument-cancel">Cancel</button>
+		</div>
+	</script>
+	
+	<script type="text/x-handlebars-template">
+	</script>
+	
+	<!-- Non-Global Javascript -->
+	
+	<script src='@routes.Javascripts.at("handlebars")'></script>
+	<script src='@routes.Javascripts.router'></script>
+	
+	<script>
+	var tunings = @Html(tunings.toString),
+		CONST = {
+			instrument: /@Html(Instrument.nameConstraint.toString)/g,
+			tuning: /@Html(Tuning.nameConstraint.toString)/g
+		}
+	</script>
+	
+	<script src='@routes.Javascripts.at("instrumentEditor")'></script>
 	
 }

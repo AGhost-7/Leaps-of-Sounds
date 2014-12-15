@@ -1,4 +1,5 @@
 package controllers
+
 import play.api.mvc._
 import models._
 import anorm._
@@ -44,7 +45,7 @@ object Instruments extends Controller with RestfulController {
 			}
 		}
 	
-	def update(id: Long, name: String, strings: Int, defaultTuning: Int) = 
+	def update(id: Long, name: String, strings: Int, defaultTuning: Long) = 
 		inLogin withDB { (user, con) => 
 			ifValidated(Instrument.validInput(name, strings)) {
 				Instrument.update(id, name, strings, defaultTuning, user)(con).toJson
