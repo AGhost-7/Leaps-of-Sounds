@@ -3,7 +3,37 @@
  * Model
  */
 
-
+/* -- Internal Data Structure --
+	model: {
+		settings: {
+			tuning: [Int]
+			notation: [String]
+			scaleLength: Int,
+			root: Int
+		},
+		# This is a 2 dim array of Note instances #
+		fingerboard: [[ {
+			fret: Integer
+			string: Integer
+			selector: [String]
+			dimension: {
+				x1: Integer,
+				y1: Integer,
+				x2: Integer,
+				y2: Integer
+			}
+			interval:{
+				freqId: Integer
+				index: Integer
+				value: Integer
+				notation: String
+				shift: Integer
+				degree: String
+			}
+		} ]]
+		
+	}
+*/
 (function(Fingerboard, Clonify, Polymorphy) {
 
 function Square (x1, y1, x2, y2) {

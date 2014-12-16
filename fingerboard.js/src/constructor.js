@@ -36,23 +36,23 @@ var Fingerboard = window.Fingerboard = function($canvas, argsObj) {
 			// Whenever a change is done to an element, this event is triggered.
 			// Some of the internal logic won't trigger this event at all.
 			"modelchange": []
-		};
+		}
     
 		var self = {
 			broadcast: function(event, callback) {
-				//console.log('event',event);
+				//console.log('event',event)
 				if(listeners[event]) {
 					listeners[event].forEach(function(listener) {
 						listener(callback())
-					});
+					})
 				}
 			},
 			on: function(event, callback) {
 				if(!listeners[event]) 
-					listeners[event] = [];
-				listeners[event].push(callback);
+					listeners[event] = []
+				listeners[event].push(callback)
 			}
-		};
+		}
     
 		// Construct event stuff
 		for(var key in listeners) {
@@ -60,46 +60,58 @@ var Fingerboard = window.Fingerboard = function($canvas, argsObj) {
 				return function(callback){
 					listeners[key].push(callback)
 				}
-			})(key);
+			})(key)
 		}
 		
-		return self;
-	})();
+		return self
+	})()
   
 	// Expose the events to the Fingerboard object.
 	for(var key in events) {
-		this[key] = events[key];
+		this[key] = events[key]
 	}
   
 	var model = new Fingerboard.Model(argsObj, events),
-		view = new Fingerboard.View(argsObj, $canvas, model, events);
+		view = new Fingerboard.View(argsObj, $canvas, model, events)
 		
 	// This is basically to change model "settings" only.
-	this.set = model.set;
+	this.set = model.set
 	
 	// Get the note from the 2 dimensional array of notes.
 	this.getNoteFor = function(fret, string) {
 		return getNoteFor(fret, string).clone()
-	};
+	}
 	
 	// Set the note from the 2 dimensional array of notes. This will trigger the
 	// modelchange event.
 	this.setNoteFor = function(fret, string, args) {
-		var internal = getNoteFor(fret, string);
+		var internal = getNoteFor(fret, string)
 		for(var key in args)
-			internal[key] = args[key];
+			internal[key] = args[key]
 		// broadcast changes to listeners
-		events.broadcast('modelchange', function() { return args });
-	};
+		events.broadcast('modelchange', function() { return args })
+	}
 	
-	this.frets = model.frets;
-	this.strings = model.strings;
+	this.frets = function(){
+		return model.frets
+	}
+	
+	this.strings = function(){
+		return model.strings
+	}
+	
+	this.tuning = function(){
+		// the tuning is reversed internally.
+		var tuning = model.settings.tuning.slice()
+		tuning.reverse()
+		return tuning
+	}
 	
 	this.select = function(arg) {
 		model.select(arg)
-		events.broadcast('modelchange', function() { return arg });
-	};
+		events.broadcast('modelchange', function() { return arg })
+	}
 	
-	this.notationFromFreqId = model.notationFromFreqId;
+	this.notationFromFreqId = model.notationFromFreqId
 	
 }

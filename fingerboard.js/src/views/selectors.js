@@ -24,7 +24,6 @@ Fingerboard.Selectors.notation = function(colors, font, radius){
 			.arc(x, y, rad, 0, endArc)
 			.fill()
 			
-	//	var msg = note.interval.notation + note.interval.index
 		context
 			.begin()
 			.color('white')
@@ -33,10 +32,6 @@ Fingerboard.Selectors.notation = function(colors, font, radius){
 			.font(ft)
 			.fillText(note.interval.notation + note.interval.index, x, y)
 		
-		/*context
-			.begin()
-			.color('black')
-			.strokeText(msg, x, y)*/
 	}
 }
 /*

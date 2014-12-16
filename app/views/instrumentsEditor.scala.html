@@ -1,12 +1,17 @@
 @(instruments: Stream[Instrument], tunings: play.api.libs.json.JsValue)(implicit session: play.api.mvc.Session)
 
 @main("Instruments Editor") {
+
 	
 	<div id="input-container">
 		<button class="btn btn-sm btn-success" id="inst-add-btn">Add</button>
 	</div>
 	
 	<br/>
+	
+	<div class="hidden">
+		<canvas class="col-sm-10 pull-right" id="tuning-view"></canvas>
+	</div>
 	
 	<table class="table">
 		<thead>
@@ -23,7 +28,7 @@
 						@if(instrument.user.isDefined){
 							<button class="btn btn-default btn-sm mod-instrument">Modify</button>
 						} else {
-							<button class="btn btn-default btn-sm mod-instrument">Modify</button>
+							<button class="btn btn-default btn-sm disabled mod-instrument">Modify</button>
 						}
 						<button class="btn btn-sm btn-default">Tunings</button>
 					</td>
@@ -50,13 +55,59 @@
 		</div>
 	</script>
 	
-	<script id="tuning-values-template" type="text/x-handlebars-template">
-		{{#each values}}
+	<script id="tuning-input-template" type="text/x-handlebars-template">
+		<div class="form-group">
+			<label>Name</label>
+			<input type="text" id="input-tuning-name" class="form-control">
+		</div>
+		
+		<div class="form-group">
+			<label>Values</label>
+		</div>
+		
+		<div id="tuning-values-loc">
+			<ul id="tuning-dropdown-loc" class="list-group col-sm-2">
+			</ul>
+		</div>
+		
+		<div class="col-sm-12" style="padding: 0px;">
 			
-		{{/each}}
+			<button class="btn btn-default btn-sm" id="input-tuning-ok">Ok</button>
+			<button class="btn btn-default btn-sm" id="input-tuning-cancel">Cancel</button>
+			
+		</div>
+		
 	</script>
 	
-	<script id="tuning-input-template" type="text/x-handlebars-template">
+	
+	<script id="tuning-values-template" type="text/x-handlebars-template">
+		<li class="list-group-item tuning-dropdown-group" data-i={{i}} data-note="0" data-index="0">
+				
+			<div class="input-group-btn">
+				<button class="btn btn-sm btn-default" data-toggle="dropdown">
+					Note <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu tuning-note-input">
+					{{#each notes}}
+						<li><a href="#">{{this}}</a></li>
+					{{/each}}
+				</ul>
+			</div>
+			
+			<div class="input-group-btn">
+				<button class="btn btn-sm btn-default" data-toggle="dropdown">
+					Index <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu tuning-index-input">
+					{{#each indexes}}
+					<li><a href="#">{{this}}</a></li>
+					{{/each}}
+				</ul>
+			</div>
+		</li>
+	</script>
+	
+	<!--<script id="tuning-input-template" type="text/x-handlebars-template">
 		<div class="form-group">
 			<label>Name</label>
 			<input type="text" ip="input-name" class="form-control" value={{name}}>
@@ -65,13 +116,14 @@
 			<label>Values</label>
 			{{{values}}}
 		</div>
-	</script>
+	</script>-->
 	
 	<!-- Non-Global Javascript -->
 	
 	<script src='@routes.Javascripts.at("handlebars")'></script>
 	<script src='@routes.Javascripts.at("fingerboard")'></script>
 	<script src='@routes.Javascripts.router'></script>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
 	
 	<script>
 	var tunings = @Html(tunings.toString),

@@ -1,9 +1,37 @@
 (function($, routes){
 
 var $inputContainer = $('#input-container')
+var notation = [
+	'C', 'Db', 'D', 
+	'Eb', 'E', 'F', 
+	'Gb', 'G', 'Ab', 
+	'A', 'Bb', 'B'
+]
 
-// Templates
+var $canvas = $('#tuning-view')
 
+var fingerboard = new Fingerboard($canvas, {
+	strings: 1,
+	frets: 13,
+	interval:{
+		tuning: [0]
+	},
+	scale:{
+		// Just want to have a view of C Major
+		values: [1, 3, 5, 6, 8, 10, 12],
+		root: 1,
+		select: true
+	},
+	display:{
+		// use the notation preset
+		selector: Fingerboard.Selectors.notation()
+	}
+})
+
+/**
+ * Templates
+ */
+ 
 // Lets make it better for use with jquery...
 Handlebars.$load = function(selector){
 	var html = $(selector).html(),
@@ -13,6 +41,66 @@ Handlebars.$load = function(selector){
 		return $(template(args))
 	}
 }
+
+var tuningValuesTemplate = (function(){
+	var $init = Handlebars.$load('#tuning-values-template')
+	return function($target, i){
+		var $input = $init({
+				notes: notation,
+				indexes: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+				i: i
+			})
+		
+		$target.append($input)
+		
+		$input.find('.tuning-note-input a').click(updateNote)
+		$input.find('.tuning-index-input a').click(updateIndex)
+	}
+})()
+
+var tuningInputTemplate = (function(){
+	var $init = Handlebars.$load('#tuning-input-template')
+	
+	return function(args){
+		
+		var 
+			i = args.strings
+			tuning = [],
+			$input = $init({})
+		
+		
+		$inputContainer.html('')
+		$inputContainer.append($input)
+		
+		var $target = $('#tuning-dropdown-loc')
+			
+		while(i > 0){
+			tuningValuesTemplate($target, i--)
+			tuning.push(0)
+		}
+		
+		// move the canvas to its appropriate location so it 
+		// can be seen
+		$('#tuning-values-loc').append($canvas)
+		
+		// The height will be relative to the number of strings
+		// on the instrument.
+		$canvas.height(args.strings * 55)
+		
+		fingerboard.set({
+			strings: args.strings,
+			interval:{
+				tuning: tuning
+			}
+		})
+		
+		console.log($('#input-tuning-ok').attr('class'))
+		
+		// Now the events for this scene...
+		$input.find('#input-tuning-ok').click(args.onOk)
+		$input.find('#input-tuning-cancel').click(args.onCancel)
+	}
+})()
 
 var instrumentTemplate = (function(){
 	var $init = Handlebars.$load('#instrument-input-template')
@@ -38,17 +126,109 @@ var instrumentTemplate = (function(){
 	}
 })()
 
-
+/**
+ * Initialization
+ */
 
 $('.mod-instrument').click(modifyInstrument)
 $('#inst-add-btn').click(addInstrument)
+//tuningValuesTemplate('#input-tuning')
 
+tuningInputTemplate({
+	strings: 2,
+	onOk: function(e){
+		alert('ok!')
+	},
+	okCancel: function(e){
+		alert('cancel!')
+	}
+})
+
+
+/**
+ * Event Handlers
+ */
 
 function onServerError(xhr){
-	var response = JSON.parse(xhr.messageBody);
+	var response = JSON.parse(xhr.messageBody)
 	alert(response.errorMessage)
 }
 
+/**
+ * Event Handlers: Tunings
+ */
+
+function updateIndex(e){
+	var $t = $(this),
+		$group = $t.parents('.tuning-dropdown-group'),
+		newIndex = $t.text()
+		
+	$group.attr('data-index', newIndex)
+	
+	// now we update the tuning with the changes
+	inputUpdateTuning($group)
+	
+	e.preventDefault()
+}
+
+function updateNote(e){
+	var $t = $(this),
+		$group = $t.parents('.tuning-dropdown-group'),
+		newNote = notation.indexOf($t.text())
+	
+	$group.attr('data-note', newNote)
+	
+	// now we update the tuning with the changes
+	inputUpdateTuning($group)
+	
+	e.preventDefault()
+}
+
+function inputUpdateTuning($group){
+	var 
+		note = Number($group.attr('data-note')),
+		index = Number($group.attr('data-index')),
+		i = Number($group.attr('data-i')),
+		tuning = fingerboard.tuning()
+	
+	tuning[i] = index * 12 + note
+	
+	fingerboard.set({
+		interval:{
+			tuning: tuning
+		}
+	})
+}
+
+function addString(){
+
+}
+
+function removeString(){
+
+}
+
+
+function addTuning(){
+
+}
+
+
+function defaultTuning(){
+
+}
+
+function removeTuning(){
+
+}
+
+function cancelTuning(){
+
+}
+
+/**
+ * Event Handlers: Instruments
+ */
 function addInstrument(){
 	instrumentTemplate({$tieTo: $inputContainer})
 	
@@ -94,7 +274,6 @@ function updateInstrument(){
 			},
 			error: onServerError
 		})
-		
 		
 		$inputContainer.html('')
 	})

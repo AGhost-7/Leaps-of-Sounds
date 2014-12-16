@@ -48,13 +48,13 @@
 	#shfloot {
 		font-size: 80%;
 	}
-	
 	</style>
 	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
 	@* Since JQuery is so heavily used, keep this at the top, just in case... *@
-	<script src='@routes.Javascripts.at("jquery-2.1.1")'></script>
-	<script src='@routes.Javascripts.at("bootstrap")'></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js'></script>
+	
 </head>
 <body>
 	<div class="container">
@@ -93,6 +93,14 @@
 			</div>
 		</div>
 	</nav>
+	
+	<!--[if lt IE 9]>
+	<div class="alert alert-danger">
+		You are using an outdated browser.
+	</div>
+	<![endif]-->
+	
+	
 	@content
    </div>
 	<!-- <div class="container">
