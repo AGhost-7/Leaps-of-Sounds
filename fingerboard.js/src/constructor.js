@@ -4,7 +4,7 @@
  */
 
  
- /*
+/*
 	argsObj = {
 		frets: Number,
 		strings: Number,
@@ -18,10 +18,14 @@
 			values: Array<Number, Number> || CSV || Json Array(String),
 			root: Number
 			select: boolean
+		},
+		display: {
+			selector: function(ContextWrapper, Note, x, y),
+			inlay: function(ContextWrapper, x, y, width, height)
 		}
 	}
 */
-Fingerboard = function($canvas, argsObj) {
+var Fingerboard = window.Fingerboard = function($canvas, argsObj) {
   
 	var events = (function(){
 		var listeners = {
@@ -68,7 +72,7 @@ Fingerboard = function($canvas, argsObj) {
 	}
   
 	var model = new Fingerboard.Model(argsObj, events),
-		view = new Fingerboard.View($canvas, model, events);
+		view = new Fingerboard.View(argsObj, $canvas, model, events);
 		
 	// This is basically to change model "settings" only.
 	this.set = model.set;
@@ -98,6 +102,4 @@ Fingerboard = function($canvas, argsObj) {
 	
 	this.notationFromFreqId = model.notationFromFreqId;
 	
-	
-	
-};
+}

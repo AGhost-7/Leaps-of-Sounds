@@ -2,45 +2,11 @@
 
 @main("Instruments Editor") {
 	
-	<div id="input-container"></div>
-	
-	<div id="container-inst-add" class="hidden">
-		<div class="form-group">
-			<label id="name-header">Name</label>
-			<input type="text" id="input-name" class="form-control" value={{name}} />
-		</div>
-		<div class="form-group">
-			<label id="strings-header">Number of strings</label>
-			<input type="text" id="input-strings" class="form-control" value={{strings}} />
-		</div>
-		
-		<div>
-			<button class="btn btn-default" id="inst-add-ok">Ok</button>
-			<button class="btn btn-default" id="inst-add-cancel">Cancel</button>
-		</div>
+	<div id="input-container">
+		<button class="btn btn-sm btn-success" id="inst-add-btn">Add</button>
 	</div>
 	
-	<div id="container-inst-mod" class="hidden">
-		<div class="form-group">
-			<label id="name-header">Name</label>
-			<input type="text" id="input-name" class="form-control" value={{name}} />
-		</div>
-		<div class="form-group">
-			<label id="strings-header">Number of strings</label>
-			<input type="text" id="input-strings" class="form-control" value={{strings}} />
-		</div>
-		
-		<input type="hidden" value={{id}} id="inst-add-id" />
-		
-		<div>
-			<button class="btn btn-default" id="inst-add-ok">Ok</button>
-			<button class="btn btn-default" id="inst-add-cancel">Cancel</button>
-		</div>
-	</div>
-	
-	<div id="input-tuning" class="hidden">
-	
-	</div>
+	<br/>
 	
 	<table class="table">
 		<thead>
@@ -55,11 +21,11 @@
 					<td>@instrument.strings</td>
 					<td>
 						@if(instrument.user.isDefined){
-							<button class="btn btn-default mod-instrument">Modify</button>
+							<button class="btn btn-default btn-sm mod-instrument">Modify</button>
 						} else {
-							<button class="btn btn-default mod-instrument">Modify</button>
+							<button class="btn btn-default btn-sm mod-instrument">Modify</button>
 						}
-						<button class="btn btn-default">Tunings</button>
+						<button class="btn btn-sm btn-default">Tunings</button>
 					</td>
 				</tr>
 			}
@@ -71,25 +37,40 @@
 	<script id="instrument-input-template" type="text/x-handlebars-template">
 		<div class="form-group">
 			<label id="name-header">Name</label>
-			<input type="text" id="input-name" class="form-control" value={{name}} />
+			<input type="text" id="input-name" class="form-control" value={{name}} >
 		</div>
 		<div class="form-group">
 			<label id="strings-header">Number of strings</label>
-			<input type="text" id="input-strings" class="form-control" value={{strings}} />
+			<input type="text" id="input-strings" class="form-control" value={{strings}} >
 		</div>
 		<input type="hidden" value={{id}} id="input-id" />
 		<div>
-			<button class="btn btn-default" id="instrument-ok">Ok</button>
-			<button class="btn btn-default" id="instrument-cancel">Cancel</button>
+			<button class="btn btn-sm btn-default" id="instrument-ok">Ok</button>
+			<button class="btn btn-sm btn-default" id="instrument-cancel">Cancel</button>
 		</div>
 	</script>
 	
-	<script type="text/x-handlebars-template">
+	<script id="tuning-values-template" type="text/x-handlebars-template">
+		{{#each values}}
+			
+		{{/each}}
+	</script>
+	
+	<script id="tuning-input-template" type="text/x-handlebars-template">
+		<div class="form-group">
+			<label>Name</label>
+			<input type="text" ip="input-name" class="form-control" value={{name}}>
+		</div>
+		<div class="form-group">
+			<label>Values</label>
+			{{{values}}}
+		</div>
 	</script>
 	
 	<!-- Non-Global Javascript -->
 	
 	<script src='@routes.Javascripts.at("handlebars")'></script>
+	<script src='@routes.Javascripts.at("fingerboard")'></script>
 	<script src='@routes.Javascripts.router'></script>
 	
 	<script>

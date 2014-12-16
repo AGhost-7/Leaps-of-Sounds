@@ -3,16 +3,30 @@
  * View
  */
  
-(function(Fingerboard, ContextWrapper) {
+(function(Fingerboard, 
+ContextWrapper) {
 
 
-Fingerboard.View = function($canvas, model, events) {
+Fingerboard.View = function(args, $canvas, model, events) {
 
 	var 
 		canvas = $canvas[0],
 		context =  new ContextWrapper(canvas.getContext('2d')),
 		width, height;
-
+	
+	var drawInlay = (args.display && args.display.inlay) || 
+		function(context, x, y, width, height){
+			context
+				.beginAt(x - (width / 2), y)
+				.lineTo(x, (y - (height / 2)))
+				.lineTo(x + (width / 2), y)
+				.lineTo(x, y + (height / 2))
+				.fillStyle(colors.inlays)
+				.fill();
+		}
+		
+	
+	
 	model.settings.selectors.selected = 'gray';
 	model.settings.selectors.tonic = 'firebrick';
 	
@@ -23,7 +37,7 @@ Fingerboard.View = function($canvas, model, events) {
 		frets: 'gray'
 	};
 	
-	function drawDiamond(x, y, width, height){
+	/*function drawDiamond(context, x, y, width, height){
 		context
 			.beginAt(x - (width / 2), y)
 			.lineTo(x, (y - (height / 2)))
@@ -31,7 +45,7 @@ Fingerboard.View = function($canvas, model, events) {
 			.lineTo(x, y + (height / 2))
 			.fillStyle(colors.inlays)
 			.fill();
-	}
+	}*/
 
 	/**
 	 * private function definitions
@@ -45,12 +59,23 @@ Fingerboard.View = function($canvas, model, events) {
 			heightRatio = height / model.strings(),
 			stringH, fretStart, fretEnd, circle,
 			selectors = model.settings.selectors,
-			endArc = Math.PI * 2, inlayX;
+			endArc = Math.PI * 2, inlayX, color;
 		
 		// radius for circles :D
 		var radius = (heightRatio > openWidth ? 
 			openWidth / 4 : heightRatio / 4),
 			helperRadius = radius * 2 / 3;
+		
+		var drawSelector = (args.display && args.display.selector) ||
+			function(context, note, x, y){
+				if(color = selectors[note.selector]){
+					context
+						.beginPath()
+						.color(color)
+						.arc(x, y, radius, 0, endArc)
+						.fill();
+				}
+			}
 		
 		context.lineWidth = 1;
 		
@@ -107,23 +132,26 @@ Fingerboard.View = function($canvas, model, events) {
 				switch(fret) {
 					// draw the inlay visual helpers
 					case 3: case 5: case 7: case 9:
-						drawDiamond(inlayX, height / 2, radius * 3, radius *6);
+						drawInlay(context, inlayX, height / 2, radius * 3, radius *6);
 						break;
 					// draw the double inlay
 					case 12:
-						drawDiamond(inlayX, height / 3, radius * 3, radius *6);
-						drawDiamond(inlayX, 2 * (height / 3), radius * 3, radius *6);
+						drawInlay(context, inlayX, height / 3, radius * 3, radius *6);
+						drawInlay(context, inlayX, 2 * (height / 3), radius * 3, radius *6);
 						break;
 				}
 			}
 			
-			// Draw the circle if its selected
-			if(note.selector !== '' && (color = selectors[note.selector])) {
+			// Trigger selector draw selector if there is one for the note
+			if(note.selector !== ''){
+				drawSelector(context, note, inlayX, stringH)
+			}
+			/*if(note.selector !== '' && (color = selectors[note.selector])) {
 				context.beginPath()
 					.color(color)
 					.arc(inlayX, stringH, radius, 0, endArc)
 					.fill();
-			}
+			}*/
 		});
 	}
 	
@@ -216,4 +244,4 @@ Fingerboard.View = function($canvas, model, events) {
 };
 
 
-})(Fingerboard, Fingerboard.ContextWrapper);
+})(Fingerboard, Fingerboard.ContextWrapper)

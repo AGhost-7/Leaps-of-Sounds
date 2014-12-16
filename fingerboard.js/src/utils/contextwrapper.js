@@ -30,6 +30,8 @@
 		
 		t.context = context;
 		
+		//context.translate(0.5,0.5);
+		
 		// Aliases/ Compressions
 		t.begin = function() {
 			context.beginPath();
@@ -51,4 +53,4 @@
 		};
 	};
 
-})(Fingerboard);
+})(Fingerboard)

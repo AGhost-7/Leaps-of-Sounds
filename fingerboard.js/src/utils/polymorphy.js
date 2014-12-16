@@ -74,4 +74,4 @@ Fingerboard.Polymorphy.prototype.clone = function() {
 	return Clonify(this);
 };
 
-})(Fingerboard);
+})(Fingerboard)

@@ -86,13 +86,19 @@ $(function() {
 			values: [1, 3, 5, 6, 8, 10, 12],
 			root: 1,
 			select: true
+		},
+		display:{
+			selector: Fingerboard.Selectors.notation()
 		}
 	});
 	
 	fingerboard.on('noteclick', function(note) {
-		var selector = note.selector = note.selector === 'selected' ? 
-			'' : 'selected';
-	
+
+		var selector = ''
+		if(note.selector === ''){
+			selector = note.rootedValue === 1 ? 'tonic' : 'selected'
+		}
+		
 		fingerboard.setNoteFor(note.fret, note.string, { selector: selector } );
 		console.log('noteclick: ', note);
 	});
@@ -182,6 +188,8 @@ $(function() {
 	console.log([28,33,38,43,47,52].map(function (val){
 		return fingerboard.notationFromFreqId(val)
 	}));
+	
+	
 });
 </script>
 </html>

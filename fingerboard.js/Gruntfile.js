@@ -1,17 +1,29 @@
 module.exports = function(grunt) {
+	
+	var 
+		files = [
+			'src/constructor.js',
+			'src/utils/*.js',
+			'src/models/*.js',
+			'src/views/*.js'
+		],
+		concatOptions = {
+			separator: ";\n"
+		}
+		
 	grunt.initConfig({
 		concat: {
 			default: {
-				src: [ 'src/constructor.js', 
-					'src/dependencies/*.js',
-					'src/components/*.js' ],
-				dest: 'dist/fingerboard.js'
+				files: {
+					'dist/fingerboard.js': files
+				},
+				options: concatOptions
 			},
 			play: {
-				src: [ 'src/constructor.js', 
-					'src/dependencies/*.js',
-					'src/components/*.js' ],
-				dest: '../public/javascripts/fingerboard.js'
+				files: {
+					'../public/javascripts/fingerboard.js': files
+				},
+				options: concatOptions
 			}
 		},
 		uglify: {
@@ -20,7 +32,6 @@ module.exports = function(grunt) {
 					'dist/fingerboard.min.js': ['dist/fingerboard.js']
 				}
 			},
-			
 			play: {
 				files: {
 					'../public/javascripts/fingerboard.min.js': ['../public/javascripts/fingerboard.js']

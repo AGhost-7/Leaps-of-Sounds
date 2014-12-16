@@ -4,7 +4,7 @@
  */
 
  
- /*
+/*
 	argsObj = {
 		frets: Number,
 		strings: Number,
@@ -18,10 +18,14 @@
 			values: Array<Number, Number> || CSV || Json Array(String),
 			root: Number
 			select: boolean
+		},
+		display: {
+			selector: function(ContextWrapper, Note, x, y),
+			inlay: function(ContextWrapper, x, y, width, height)
 		}
 	}
 */
-Fingerboard = function($canvas, argsObj) {
+var Fingerboard = window.Fingerboard = function($canvas, argsObj) {
   
 	var events = (function(){
 		var listeners = {
@@ -68,7 +72,7 @@ Fingerboard = function($canvas, argsObj) {
 	}
   
 	var model = new Fingerboard.Model(argsObj, events),
-		view = new Fingerboard.View($canvas, model, events);
+		view = new Fingerboard.View(argsObj, $canvas, model, events);
 		
 	// This is basically to change model "settings" only.
 	this.set = model.set;
@@ -97,8 +101,6 @@ Fingerboard = function($canvas, argsObj) {
 	};
 	
 	this.notationFromFreqId = model.notationFromFreqId;
-	
-	
 	
 };
 
@@ -132,6 +134,8 @@ Fingerboard = function($canvas, argsObj) {
 		}
 		
 		t.context = context;
+		
+		//context.translate(0.5,0.5);
 		
 		// Aliases/ Compressions
 		t.begin = function() {
@@ -180,7 +184,7 @@ window.jQuery.fn.mousedrag = function(callback) {
 			callback(e)
 		} 
 	})
-}*/
+}*/;
 
 /******************************************************************************
  * Polymorphy.js
@@ -271,21 +275,162 @@ function Square (x1, y1, x2, y2) {
 	this.y1 = y1 ? y1 : -1;
 	this.x2 = x2 ? x2 : -1;
 	this.y2 = y2 ? y2 : -1;
-	// Is it inside the quare?
-	this.isPointWithinBounds = function(x, y) {
-		return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2
-	};
+}
+
+// Is it inside the quare?
+Square.prototype.isPointWithinBounds = function(x, y) {
+	return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2
+}
+
+// returns the public interface, creating it if it doesn't exist already.
+Square.prototype.public = function(events){
+	if(!this.__public__){
+		var p = {}, S = this
+		
+		function pointing(name){
+			return {
+			//	writable: true,
+				enumerable: true,
+				get: function(){ return S[name] },
+				set:function(val) { 
+					S[name] = val 
+					events.broadcast('modelchange',function(){ 
+						return {
+							name: 'Square:' + name,
+							value: val
+						}
+					})
+				},
+			}
+		}
+		
+		Object.defineProperties(p, {
+			x1: pointing('x1'),
+			y1: pointing('y1'),
+			x2: pointing('x2'),
+			y2: pointing('y2')
+		})
+		
+		p.isPointWithinBounds = Square.prototype.isPointWithinBounds
+		
+		this.__public__ = p
+	}
+	return this.__public__
+}
+
+function Interval(){
+	// Absolute value of this note. If two notes
+	// have the same freqId, they would be played
+	// at the exact same frequency.
+	this.freqId = -1
+	
+	// index of the interval value.
+	this.index = -1
+	
+	// integer reprentation of C,Db,D,E,F...
+	this.value = -1
+	
+	// notational (view) of value (C,Db,D,E,F...)
+	this.notation = ''
+	
+	// shift is used to 'push' the interval to where the
+	// tonic should be.
+	this.shift = -1
+	
+	// the degree is the displayed value of the shift
+	// integer
+	this.degree = ''
+}
+
+Interval.prototype.public = function(events){
+	if(!this.__public__){
+		var p = {}, S = this
+		
+		function pointing(name){
+			return {
+			//	writable: true,
+				enumerable: true,
+				get: function(){ return S[name] },
+				set:function(val) { 
+					S[name] = val 
+					events.broadcast('modelchange',function(){ 
+						return {
+							name: 'Square:' + name,
+							value: val
+						}
+					})
+				},
+			}
+		}
+		
+		Object.defineProperties(p, {
+			freqId: pointing('freqId'),
+			index: pointing('index'),
+			notation: pointing('notation'),
+			value: pointing('value'),
+			shift: pointing('shift'),
+			degree: pointing('degree')
+		})
+		
+		this.__public__ = p
+	}
+	return this.__public__
 }
 
 var Note = Polymorphy.extends({
 	constructor: function(fret, string){
-		this.fret = fret;
-		this.string = string;
-		this.selector = '';
-		this.dimension = new Square();
-		this.interval = {};
+		this.fret = fret
+		this.string = string
+		this.selector = ''
+		this.dimension = new Square()
+		this.interval = new Interval()
 	}
 });
+
+// Returns the public interface. This is lazy loaded.
+Note.prototype.public = function(events){
+	if(!this.__public__){
+		var p = {}, N = this
+		
+		function pointing(name){
+			return {
+			//	writable: true,
+				enumerable: true,
+				get: function(){ return N[name] },
+				set:function(val) { 
+					S[name] = val 
+					events.broadcast('modelchange',function(){ 
+						return {
+							name: 'Square:' + name,
+							value: val
+						}
+					})
+				}
+			}
+		}
+		
+		Object.defineProperties(p, {
+			"frets": pointing("frets"),
+			"string": pointing("string"),
+			"dimension": {
+				enumerable: true,
+				writable: false,
+				value: N.dimension.public(events)
+			},
+			"selector": pointing("selector"),
+			"interval":{
+				enumerable: true,
+				writable: false,
+				value: N.interval.public(events)
+			}
+		})
+		console.log('public interface:',p)
+		this.__public__ = p
+	}
+	
+	return this.__public__
+
+}
 
 Fingerboard.Model = function(args, events) {
 	// Array containing notes
@@ -295,10 +440,9 @@ Fingerboard.Model = function(args, events) {
 		['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 	this.settings = settings = {
-		notation: Clonify(defaultNotation),
+		notation: defaultNotation,
 		selectors: {}
 	};
-	
 	
 	// Argument processing helpers
 	
@@ -354,14 +498,14 @@ Fingerboard.Model = function(args, events) {
 					return;
 	};
 	
-	// Do I event use this?
+	// Do I even use this?
 	
 	this.select = select = function(arg) {
 		if(arg === 'scale') {
 			forEach(function(fret, string, note){
-				if(note.rootedValue === 1)
+				if(note.interval.shift === 1)
 					note.selector = 'tonic'
-				else if(note.scaleValue)
+				else if(note.interval.degree)
 					note.selector = 'selected'
 				else
 					note.selector = ''
@@ -445,9 +589,9 @@ Fingerboard.Model = function(args, events) {
 			scaleLength = settings.scaleLength;
 
 		forEach(function(fret, string, note){
-			note.rootedValue = note.interval.value - root + 1;
-			if(note.rootedValue < 1) 
-				note.rootedValue += scaleLength
+			note.interval.shift = note.interval.value - root + 1;
+			if(note.interval.shift < 1) 
+				note.interval.shift += scaleLength
 		})
 		settings.root = root;
 	};
@@ -461,7 +605,7 @@ Fingerboard.Model = function(args, events) {
 		var 
 			spacings = (args && asJSArray(args.values)) || settings.scale,
 			scaleLength = settings.scaleLength,
-			sc, scaleValue,
+			sc, degree,
 			scale = [];
 	  
 		if((args && args.root) || !settings.root){
@@ -474,12 +618,12 @@ Fingerboard.Model = function(args, events) {
 
 		// Now we set the values (1st, 2nd, 3rd, etc of the scale).
 		forEach(function(fret, string, note){
-			if(scaleValue = scale[note.rootedValue])
-				note.scaleValue = scaleValue
+			if(degree = scale[note.interval.shift])
+				note.interval.degree = degree
 			else 
 				// The note could have information from the previous
 				// scale, so we need to clear that.
-				note.scaleValue = undefined
+				note.interval.degree = undefined
 		});
 	  
 		settings.scale = spacings;
@@ -541,22 +685,102 @@ Fingerboard.Model = function(args, events) {
 
 })(Fingerboard, Fingerboard.Clonify, Fingerboard.Polymorphy);
 
+;
+/**
+ * Selector extras
+ */
+ 
+(function(Fingerboard){
 
+Fingerboard.Selectors = {}
+
+Fingerboard.Selectors.notation = function(colors, font, radius){
+	var 
+		colors = {
+			selected: colors && colors.selected || 'gray',
+			tonic: colors && colors.tonic || 'firebrick'
+		}, 
+		endArc = Math.PI * 2,
+		ft = font || '700 11px tahoma',
+		rad = radius || 12
+	
+	
+	return function(context, note, x, y){
+		context
+			.begin()
+			.color(colors[note.selector])
+			.arc(x, y, rad, 0, endArc)
+			.fill()
+			
+	//	var msg = note.interval.notation + note.interval.index
+		context
+			.begin()
+			.color('white')
+			.textAlign('center')
+			.textBaseline('middle')
+			.font(ft)
+			.fillText(note.interval.notation + note.interval.index, x, y)
+		
+		/*context
+			.begin()
+			.color('black')
+			.strokeText(msg, x, y)*/
+	}
+}
+/*
+Fingerboard.Selectors.interval = function(colors){
+	var 
+		colors = {
+			selected: colors && colors.selected || 'gray',
+			tonic: colors && colors.tonic || 'firebrick'
+		}, 
+		endArc = Math.PI * 2
+		
+	return function(context, note, x, y){
+		context
+			.begin()
+			.color(colors[note.selector])
+			.arc(x, y, 10, 0, endArc)
+			.fill()
+			
+		context
+			.begin()
+			.fillText(note.interval.notation, x, y)
+	}
+}
+*/
+
+
+})(Fingerboard);
 
 /******************************************************************************
  * View
  */
  
-(function(Fingerboard, ContextWrapper) {
+(function(Fingerboard, 
+ContextWrapper) {
 
 
-Fingerboard.View = function($canvas, model, events) {
+Fingerboard.View = function(args, $canvas, model, events) {
 
 	var 
 		canvas = $canvas[0],
 		context =  new ContextWrapper(canvas.getContext('2d')),
 		width, height;
-
+	
+	var drawInlay = (args.display && args.display.inlay) || 
+		function(context, x, y, width, height){
+			context
+				.beginAt(x - (width / 2), y)
+				.lineTo(x, (y - (height / 2)))
+				.lineTo(x + (width / 2), y)
+				.lineTo(x, y + (height / 2))
+				.fillStyle(colors.inlays)
+				.fill();
+		}
+		
+	
+	
 	model.settings.selectors.selected = 'gray';
 	model.settings.selectors.tonic = 'firebrick';
 	
@@ -567,7 +791,7 @@ Fingerboard.View = function($canvas, model, events) {
 		frets: 'gray'
 	};
 	
-	function drawDiamond(x, y, width, height){
+	/*function drawDiamond(context, x, y, width, height){
 		context
 			.beginAt(x - (width / 2), y)
 			.lineTo(x, (y - (height / 2)))
@@ -575,7 +799,7 @@ Fingerboard.View = function($canvas, model, events) {
 			.lineTo(x, y + (height / 2))
 			.fillStyle(colors.inlays)
 			.fill();
-	}
+	}*/
 
 	/**
 	 * private function definitions
@@ -589,12 +813,23 @@ Fingerboard.View = function($canvas, model, events) {
 			heightRatio = height / model.strings(),
 			stringH, fretStart, fretEnd, circle,
 			selectors = model.settings.selectors,
-			endArc = Math.PI * 2, inlayX;
+			endArc = Math.PI * 2, inlayX, color;
 		
 		// radius for circles :D
 		var radius = (heightRatio > openWidth ? 
 			openWidth / 4 : heightRatio / 4),
 			helperRadius = radius * 2 / 3;
+		
+		var drawSelector = (args.display && args.display.selector) ||
+			function(context, note, x, y){
+				if(color = selectors[note.selector]){
+					context
+						.beginPath()
+						.color(color)
+						.arc(x, y, radius, 0, endArc)
+						.fill();
+				}
+			}
 		
 		context.lineWidth = 1;
 		
@@ -651,23 +886,26 @@ Fingerboard.View = function($canvas, model, events) {
 				switch(fret) {
 					// draw the inlay visual helpers
 					case 3: case 5: case 7: case 9:
-						drawDiamond(inlayX, height / 2, radius * 3, radius *6);
+						drawInlay(context, inlayX, height / 2, radius * 3, radius *6);
 						break;
 					// draw the double inlay
 					case 12:
-						drawDiamond(inlayX, height / 3, radius * 3, radius *6);
-						drawDiamond(inlayX, 2 * (height / 3), radius * 3, radius *6);
+						drawInlay(context, inlayX, height / 3, radius * 3, radius *6);
+						drawInlay(context, inlayX, 2 * (height / 3), radius * 3, radius *6);
 						break;
 				}
 			}
 			
-			// Draw the circle if its selected
-			if(note.selector !== '' && (color = selectors[note.selector])) {
+			// Trigger selector draw selector if there is one for the note
+			if(note.selector !== ''){
+				drawSelector(context, note, inlayX, stringH)
+			}
+			/*if(note.selector !== '' && (color = selectors[note.selector])) {
 				context.beginPath()
 					.color(color)
 					.arc(inlayX, stringH, radius, 0, endArc)
 					.fill();
-			}
+			}*/
 		});
 	}
 	
@@ -760,4 +998,4 @@ Fingerboard.View = function($canvas, model, events) {
 };
 
 
-})(Fingerboard, Fingerboard.ContextWrapper);
+})(Fingerboard, Fingerboard.ContextWrapper)

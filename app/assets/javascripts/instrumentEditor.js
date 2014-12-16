@@ -41,11 +41,19 @@ var instrumentTemplate = (function(){
 
 
 $('.mod-instrument').click(modifyInstrument)
+$('#inst-add-btn').click(addInstrument)
+
 
 function onServerError(xhr){
 	var response = JSON.parse(xhr.messageBody);
 	alert(response.errorMessage)
 }
+
+function addInstrument(){
+	instrumentTemplate({$tieTo: $inputContainer})
+	
+}
+
 
 function modifyInstrument(e){
 	
@@ -70,6 +78,11 @@ function modifyInstrument(e){
 
 function cancelInstrument(){
 	$inputContainer.html('')
+	var $btn = $('<button class="btn btn-sm btn-success" id="inst-add-btn">Add</button>')
+	
+	$inputContainer.append($btn)
+	
+	$btn.click(addInstrument)
 }
 
 function updateInstrument(){
