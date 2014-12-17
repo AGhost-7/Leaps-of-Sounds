@@ -29,7 +29,7 @@ object Instrument extends CompWithUserRef[Instrument] {
   
   def update(id: Long, name: String, strings: Int, defaultTuning: Long, user: User)(implicit con: Connection) = {
   	SQL("""
-  		UPDATE TABLE "instruments"
+  		UPDATE "instruments"
   		SET name = {name}, strings = {strings}, default_tuning = {tuning}
   		WHERE id = {id} 
   			AND user_id = {user}
