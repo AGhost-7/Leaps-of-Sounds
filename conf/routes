@@ -51,6 +51,8 @@ DELETE /tuning                          controllers.Tunings.remove(id: Long)
 
 GET	    /assets/javascripts/router      controllers.Javascripts.router
 
+#GET     /assets/remote/*file            controllers.Javascripts.remote(file)
+
 # Extension is automatically added so that when in production these will
 # be minified, while still remaining easy to debug on dev.
 GET     /assets/javascripts/*file       controllers.Javascripts.at(file)

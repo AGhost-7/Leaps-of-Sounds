@@ -4,12 +4,15 @@
 	selectedInstrument: Instrument,
 	defaultTuning: Tuning,
 	messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
+	
 @main("Leaps!") {
 
 @* Print the flash messages that were sent by the registration, etc. *@
 @for(message <- messages) {
 	<div class="alert alert-@message.msgClass fade in" role="alert">
-		<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+		</button>
 		@message.msg
 	</div>
 }
@@ -26,9 +29,11 @@
 				</a>
 				<ul id="instrument-selector" class="dropdown-menu scrollable-menu" role="menu">
 					@if(instruments._1.length > 0) {
+						<li class="dropdown-header">My Instruments</li>
 						@instruments._1.map { instrument =>
 							<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li>
 						}
+						<li class="dropdown-header">Default Instruments</li>
 					}
 					@instruments._2.map { instrument => 
 						<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li> 
@@ -46,6 +51,7 @@
 						@tunings._1.map { tuning => 
 							<li><a href="#" value="@tuning.values">@tuning.name</a></li>
 						}
+						<li class="dropdown-header">Default Tunings</li>
 					}
 					@tunings._2.map { tuning => 
 						<li><a href="#" value="@tuning.values">@tuning.name</a></li> 

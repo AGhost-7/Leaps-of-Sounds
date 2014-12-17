@@ -1,4 +1,5 @@
 @(title: String)(content: Html)(implicit session: play.api.mvc.Session) 
+@import controllers.Javascripts
 <!DOCTYPE html>
 <html>
 <head>
@@ -52,8 +53,9 @@
 	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
 	@* Since JQuery is so heavily used, keep this at the top, just in case... *@
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js'></script>
+	
+	<script src='@Javascripts.remote("jquery")'></script>
+	<script src='@Javascripts.remote("bootstrap")'></script>
 	
 </head>
 <body>

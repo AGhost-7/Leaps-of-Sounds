@@ -22,4 +22,5 @@ Uh... College project.
   * Interval mode (e.g., b5, 7th)
   * Note mode (e.g., Ab, C)
 	* Full screen mode
+ * Note dragging for custom temporary scales.
 	
