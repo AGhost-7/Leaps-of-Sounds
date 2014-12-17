@@ -1,4 +1,6 @@
 @(instruments: Stream[Instrument], tunings: play.api.libs.json.JsValue)(implicit session: play.api.mvc.Session)
+@import play.api.Play.current
+@import play.api.Play
 
 @main("Instruments Editor") {
 
@@ -120,7 +122,11 @@
 	
 	<!-- Non-Global Javascript -->
 	
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js'></script>
+	@if(Play.isProd){
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+	} else {
+		<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
+	}
 	<script src='@routes.Javascripts.at("fingerboard")'></script>
 	<script src='@routes.Javascripts.router'></script>
 	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->

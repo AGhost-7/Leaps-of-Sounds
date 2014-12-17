@@ -1,5 +1,7 @@
 @(scales: Stream[Scale])(implicit session: play.api.mvc.Session)
 @import models.Scale.intervals
+@import play.api.Play.current
+@import play.api.Play
 
 @main("My Scales") {
 	
@@ -116,7 +118,11 @@
 	
 	<!-- Non-Global Javascript -->
 	
-	<script src="@routes.Javascripts.at("handlebars")"></script>
+	@if(Play.isProd){
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+	} else {
+		<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
+	}
 	
 	<script src="@routes.Javascripts.router"></script>
 	<script>

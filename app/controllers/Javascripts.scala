@@ -36,28 +36,4 @@ object Javascripts extends Controller {
       .as("text/javascript")
   }
 	
-	// Dont think I'm going to keep this, but for now...
-	def remote(library: String) = //Action.async { request =>
-		library match {
-			case "jquery" => 
-				if(Play.isProd) "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-				else "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js"
-			case "handlebars" =>
-				if(Play.isProd) "https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"
-				else "//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"
-			case "bootstrap" => 
-				if(Play.isProd) "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"
-				else "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.js"
-			case _ => library
-		}
-		
-	//	val file = library + (if(Play.isProd) ".min.js" else ".js")
-		
-//		url + "/" + file
-//		val action = Assets.at(url, file)
-//		action.apply(request)
-//	}
-		
-	
-	
 }
