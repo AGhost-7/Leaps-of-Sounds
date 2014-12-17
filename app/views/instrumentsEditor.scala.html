@@ -4,9 +4,8 @@
 
 @main("Instruments Editor") {
 
-	
 	<div id="input-container">
-		<button class="btn btn-sm btn-success" id="inst-add-btn">Add</button>
+		
 	</div>
 	
 	<br/>
@@ -15,7 +14,7 @@
 		<canvas class="col-sm-10 pull-right" id="tuning-view"></canvas>
 	</div>
 	
-	<table class="table">
+	<table class="table" id="instruments-table">
 		<thead>
 			<th>Name</th>
 			<th>Strings</th>
@@ -23,7 +22,7 @@
 		</thead>
 		<tbody>
 			@for(instrument <- instruments) {
-				<tr data-id="@instrument.id">
+				<tr data-id="@instrument.id" data-default-tuning="@instrument.defaultTuning">
 					<td>@instrument.name</td>
 					<td>@instrument.strings</td>
 					<td>
@@ -40,26 +39,43 @@
 	</table>
 
 	<!-- Templates -->
+	<script id="instrument-row-template" type="text/x-handlebars-template">
+		{{#with instrument}}
+			<tr data-id={{user}} data-default-tuning={{defaultTuning}}>
+				<td>{{name}}</td>
+				<td>{{strings}}</td>
+				<td>
+					<button class="btn btn-default btn-sm mod-instrument">Modify</button>
+					<button class="btn btn-sm btn-default">Tunings</button>
+				</td>
+			</tr>
+		{{/with}}
+	</script>
 	
 	<script id="instrument-input-template" type="text/x-handlebars-template">
+		
 		<div class="form-group">
 			<label id="name-header">Name</label>
 			<input type="text" id="input-name" class="form-control" value={{name}} >
 		</div>
+		
 		<div class="form-group">
 			<label id="strings-header">Number of strings</label>
 			<input type="text" id="input-strings" class="form-control" value={{strings}} >
 		</div>
+		
 		<input type="hidden" value={{id}} id="input-id" />
+		<input type="hidden" value={{defaultTuning}} id="input-default-tuning"/>
 		<div>
 			<button class="btn btn-sm btn-default" id="instrument-ok">Ok</button>
 			<button class="btn btn-sm btn-default" id="instrument-cancel">Cancel</button>
 		</div>
+		
 	</script>
 	
 	<script id="tuning-input-template" type="text/x-handlebars-template">
 		<div class="form-group">
-			<label>Name</label>
+			<label id="input-tuning-name-label">Name</label>
 			<input type="text" id="input-tuning-name" class="form-control">
 		</div>
 		
@@ -109,17 +125,6 @@
 		</li>
 	</script>
 	
-	<!--<script id="tuning-input-template" type="text/x-handlebars-template">
-		<div class="form-group">
-			<label>Name</label>
-			<input type="text" ip="input-name" class="form-control" value={{name}}>
-		</div>
-		<div class="form-group">
-			<label>Values</label>
-			{{{values}}}
-		</div>
-	</script>-->
-	
 	<!-- Non-Global Javascript -->
 	
 	@if(Play.isProd){
@@ -129,7 +134,6 @@
 	}
 	<script src='@routes.Javascripts.at("fingerboard")'></script>
 	<script src='@routes.Javascripts.router'></script>
-	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
 	
 	<script>
 	var tunings = @Html(tunings.toString),

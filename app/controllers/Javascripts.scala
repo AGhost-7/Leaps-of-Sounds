@@ -26,6 +26,8 @@ object Javascripts extends Controller {
     import routes.javascript._
     Ok(Routes.javascriptRouter("jsRoutes")(
 		//	routes.javascript.Instruments.update,
+			routes.javascript.Instruments.insert,
+			routes.javascript.Instruments.update,
       routes.javascript.Tunings.ofInstrument,
       routes.javascript.Scales.list,
       routes.javascript.Scales.insert,
