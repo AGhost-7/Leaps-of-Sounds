@@ -1,11 +1,34 @@
 (function($, routes){
 
 var $inputContainer = $('#input-container')
+
+var inputScene = {
+	empty: function(){
+		$inputContainer.hide('blind', {}, 500, function(){
+			$inputContainer.html('')
+		})
+	},
+	swap: function(htmlGenerator, postShow){
+		// I want this to handle cases where there is no
+		// data in there as well
+		if($inputContainer.css('display') === 'none'){
+			htmlGenerator()
+			$inputContainer.show('blind', {}, 500, postShow)
+		} else{		
+			$inputContainer.hide('blind', {}, 500, function(){
+				$inputContainer.html('')
+				htmlGenerator()
+				$inputContainer.show('blind', {}, 500, postShow)
+			})
+		}
+	}
+}
+
 var notation = [
-	'C', 'Db', 'D', 
-	'Eb', 'E', 'F', 
-	'Gb', 'G', 'Ab', 
-	'A', 'Bb', 'B'
+	'C',  'Db', 'D', 
+	'Eb', 'E',  'F', 
+	'Gb', 'G',  'Ab', 
+	'A',  'Bb', 'B'
 ]
 
 var $canvas = $('#tuning-view')
@@ -81,10 +104,6 @@ var tuningInputTemplate = (function(){
 		// can be seen
 		$('#tuning-values-loc').append($canvas)
 		
-		// The height will be relative to the number of strings
-		// on the instrument.
-		$canvas.height(args.strings * 55)
-		
 		fingerboard.set({
 			strings: args.strings,
 			interval:{
@@ -106,7 +125,7 @@ var instrumentInputTemplate = (function(){
 			$input = $init(args)
 			
 		
-		$target.html('')
+		//$target.html('')
 		$target.append($input)
 		
 		var $okBtn = $input.find('#instrument-ok'),
@@ -117,40 +136,125 @@ var instrumentInputTemplate = (function(){
 		else
 			$okBtn.click(insertInstrument)
 			
-		$cancelBtn.click(cancelInstrument)
+		$cancelBtn.click(inputScene.empty)
 		
 		return $input
 	}
 })()
 
-var instrumentRowTemplate = (function(){
-	var $init = Handlebars.$load('#instrument-row-template')
-	return function(args){
-		var $row = $init(args)
-		
-		args.$tieTo.prepend($row)
-		
-		$row.find('.mod-instrument').click(modifyInstrument)
-	}
-})()
-
-var startTemplate = function(args){
-	var $btn = $('<button class="btn btn-sm btn-success" id="inst-add-btn">Add</button>')
-	args.$tieTo.append($btn)
-	$btn.click(addInstrument)
-}
-
 /**
  * Initialization
  */
 
-$('.mod-instrument').click(modifyInstrument)
-//$('#inst-add-btn').click(addInstrument)
-//tuningValuesTemplate('#input-tuning')
-startTemplate({ $tieTo: $inputContainer })
+$('.btn-up-instrument').click(modifyInstrument)
+$('#btn-add-instrument').click(addInstrument)
+$('.btn-rem-instrument').click(removeInstrument)
+$('.btn-show-tunings').click(showTunings)
 
+/**
+ * DOM bindings for tables
+ */
+ 
+var instruments = {
+	$table: $('#instruments-table'),
+	$tbody: $('#instruments-table tbody'),
+	$init: Handlebars.$load('#instrument-row-template'),
+	$row: function(){
+		var id = typeof arguments[0] === 'object' ? 
+			arguments[0].id : arguments[0] 
+		
+		return this.$tbody.find('tr[data-id="' + id + '"]')
+	},
+	append: function(instrument){
+		var $row = this.$init(instrument)
+		console.log(instrument)
+		console.log('attempting append\n',$row.html())
+		
+		this.$tbody.append($row)
+		
+		$row.find('.btn-up-instrument').click(modifyInstrument)
+		$row.find('.btn-rem-instrument').click(removeInstrument)
+		$row.find('.btn-show-tunings').click(showTunings)
+	},
+	update: function(instrument){
+		var $tr = this.$row(instrument)
+		
+		$tr.data('default-tuning', instrument.defaultTuning)
+		
+		$tr.find('td:nth-child(2)').text(instrument.name)
+		$tr.find('td:nth-child(3)').text(instrument.strings)
+	},
+	get: function(id){
+		var $tr = this.$row(id)
+		return {
+			id: $tr.data('id'),
+			name: $tr.find('td:nth-child(2)').text(),
+			strings: Number($tr.find('td:nth-child(3)').text()),
+			defaultTuning: $tr.data('default-tuning')
+		}
+	},
+	remove: function(){
+		this.$row(arguments[0]).remove()
+	},
+	hide: function(callback){
+		this.$table.hide('blind', {}, 500, callback)
+	},
+	show: function(callback){
+		this.$table.show('blind', {}, 500, callback)
+	}
+}
 
-
+var tunings = {
+	$table: $('#tunings-table'),
+	$tbody: $('#tunings-table > tbody'),
+	$init: Handlebars.$load('#tuning-row-template'),
+	$row: function(){
+		var id = typeof arguments[0] === 'object' ? 
+			arguments[0].id : arguments[0] 
+		
+		return this.$tbody.find('tr[data-id="' + id + '"]')
+	},
+	display: function(instrumentId){
+		var $init = this.$init,
+			$tbody = this.$tbody
+			
+		$tbody.html('')
+			
+		userTunings[instrumentId].forEach(function(tuning){
+			console.log(tuning)
+			var $tr = $init(tuning)
+			$tbody.append($tr)
+		})
+		
+		// attach event handlers
+		this.$tbody.find('.btn-up-tuning').click(updateTuning)
+		this.$tbody.find('.btn-rem-tuning').click(removeTuning)
+		
+		this.$table.data('id', instrumentId)
+		
+		//this.$table.data('default-tuning', )
+		
+		this.$table.show('blind')
+	},
+	hide: function(callback){
+		this.$table.hide('blind', {}, 500, callback)
+	},
+	show: function(callback){
+		this.$table.show('blind', {}, 500, callback)
+	},
+	append: function(tuning){
+		var $tr = this.$init(tuning)
+		this.$tbody.append($tr)
+		
+		$tr.find('.btn-up-tuning').click(updateTuning)
+		$tr.find('.btn-rem-tuning').click(removeTuning)
+	},
+	update: function(tuning){
+		var $tr = this.$row(tuning)
+		
+		
+	}
+}
 
 /**
  * Event Handlers
@@ -227,12 +331,17 @@ function withValidTuning(callback){
 		$inputContainer.find('#input-tuning-name-label').append(html)
 	}
 }
-
-function addTuning(){
-
+function showTunings(){
+	var $t = $(this),
+		$tr = $t.parent().parent(),
+		id = $tr.data('id')
+	
+	instruments.hide(function(){
+		tunings.display(id)
+	})
+	
 }
-
-function removeTuning(){
+function addTuning(){
 
 }
 
@@ -240,48 +349,58 @@ function cancelTuning(){
 
 }
 
-/**
- * Event Handlers: Instruments
- */
-function addInstrument(){
-	instrumentInputTemplate({$tieTo: $inputContainer})
+function updateTuning(){
+
+}
+
+function insertTuning(){
+
+}
+
+function removeTuning(){
+
 }
 
 
+
+/**
+ * Event Handlers: Instruments
+ */
+ 
+function addInstrument(){
+	inputScene.swap(function(){
+		instrumentInputTemplate({$tieTo: $inputContainer})
+	})
+}
+
 function modifyInstrument(e){
+
+	var id = $(this)
+			.parent()
+			.parent()
+			.data('id')
+			
+	// use the instrument as base
+	var args = instruments.get(id)
 	
-	var 
-		$t = $(this),
-		$tr = $t.parent().parent(),
-		id = $tr.data('id'),
-		name = $tr.find('td:first-child').text(),
-		strings = $tr.find('td:nth-child(2)').text(),
-		defaultTuning = $tr.data('default-tuning')
+	args.$tieTo = $inputContainer
+	args.isUpdate = true
 	
-	//console.log('id',id,'name',name,'strings',strings)
-	
-	instrumentInputTemplate({
-		$tieTo: $inputContainer,
-		isUpdate: true,
-		id: id,
-		name: name,
-		strings: strings,
-		defaultTuning: defaultTuning
+	inputScene.swap(function(){
+		instrumentInputTemplate(args)	
 	})
 	
 }
 
-function cancelInstrument(){
-	$inputContainer.html('')
-	var $btn = $(
-		'<button class="btn btn-sm btn-success" id="inst-add-btn">' + 
-			'Add' + 
-		'</button>'
-	)
+function removeInstrument(){
+	var id = $(this).parent().parent().data('id')
+	routes.Instruments.remove(id).ajax({
+		success: function(response){
+			instruments.remove(response.id)
+		},
+		error: onServerError
+	})
 	
-	$inputContainer.append($btn)
-	
-	$btn.click(addInstrument)
 }
 
 function updateInstrument(){
@@ -289,67 +408,65 @@ function updateInstrument(){
 		
 		routes.Instruments.update(id, name, strings, defaultTuning).ajax({
 			success: function(instrument){
-				console.log(instrument)
-				// update the name
-				alert('W00t!')
+				instruments.update(instrument)
+				inputScene.empty()
 			},
 			error: onServerError
 		})
 		
-		$inputContainer.html('')
 	})
 }
 
 function insertInstrument(){
+	
+	// when all is said and done, insert the instrument using
+	// an ajax callback.
+	var withAjaxUsingTuning = function(name, strings){
+		return function(tuningName, tuning){
+			routes.Instruments.insert(name, strings, tuningName, tuning).ajax({
+				success: function(response){
+				
+					var inst = response.instrument,
+						tuning = response.tuning
+					// just add the instrument to the row
+					instruments.append(inst)
+					
+					// add the tuning
+					tunings[inst.id] = [tuning]
+					
+					inputScene.empty()
+					
+				},
+				error: onServerError
+			})
+		}
+	}
+	
 	withValidInstrument(function(name, strings){
+		// The height will be relative to the number of strings
+		// on the instrument.
+		$canvas.height(strings * 55)
 		
-		$inputContainer.html(
-			'<div class="alert alert-info">' + 
-				'Please enter the default tuning.' + 
-			'</div>'
-		)
+		inputScene.swap(function(){
+			$inputContainer.html(
+				'<div class="alert alert-info">' + 
+					'Please enter the default tuning.' + 
+				'</div>'
+			)
+			
+			tuningInputTemplate({
+				$tieTo: $inputContainer,
+				strings: strings,
+				onOk: function(e){
+					// validate, then we can send the data
+					withValidTuning(withAjaxUsingTuning(name, strings))
+				},
+				onCancel: function(e){
+					inputScene.empty()
+				}
+			})
 		
-		tuningInputTemplate({
-			$tieTo: $inputContainer,
-			strings: strings,
-			onOk: function(e){
-				console.log('on ok triggered')
-				// validate, then we can send the data
-				withValidTuning(function(tuningName, tuning){
-					console.log('validation passed')
-					routes.Instruments.insert(name, strings, tuningName, tuning).ajax({
-						success: function(response){
-							var inst = response.instrument,
-								tuning = response.tuning
-							
-							console.log('server response:',response)
-							
-							// just add the instrument to the row
-							instrumentRowTemplate({
-								$tieTo: $('#instruments-table tbody'),
-								instrument: inst
-							})
-							
-							console.log(tunings)
-							
-							// add the tuning
-							
-							tunings[inst.id] = [tuning]
-							
-							$inputContainer.html('')
-							startTemplate({$tieTo: $inputContainer})
-							
-						},
-						error: onServerError
-					})
-				})
-			},
-			onCancel: function(e){
-				$inputContainer.html('')
-				startTemplate({$tieTo: $inputContainer})
-			}
-		})
-		
+		}, function() { $canvas.trigger('resize') })
 	})
 }
 
@@ -377,22 +494,22 @@ function withValidInstrument(callback){
 		}
 	})()
 	
+	strings = Math.floor(Number(strings))
+	
 	$inputContainer.find('.bad-input').remove()
-	
-	
-	console.log('name:',name,' strings:',strings,' id:',id)
 	
 	if(!name.match(CONST.instrument))
 		error('Your name is using illegal characters.', 'name')
-	else if(isNaN(strings) || !strings.match(/^\d/g))
+	else if(isNaN(strings))
 		error('Input must be a whole number.', 'strings')
-	else if(Number(strings) > 16)
+	else if(strings > 16)
 		error('Too many strings for us to display on the fingerboard, friend.', 'strings')
+	else if(strings < 2)
+		error('You\'re going to need more strings on your instrument...', 'strings')
 	else
 		callback(name, strings, id, defaultTuning)
-	
-	
 }
+
 
 
 })(jQuery,jsRoutes.controllers)

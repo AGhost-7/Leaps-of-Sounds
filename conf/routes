@@ -34,6 +34,9 @@ DELETE  /scale                          controllers.Scales.remove(id: Long)
 #GET    /instrument                      controllers.Instruments.
 POST    /instrument                      controllers.Instruments.insert(name: String, strings: Int, tuningName: String, tuningValues: String)
 PUT     /instrument                      controllers.Instruments.update(id: Long, name: String, strings: Int, defaultTuning: Long)
+DELETE  /instrument                      controllers.Instruments.remove(id: Long)
+
+
 # Tunings
 GET    /tuning/of-instrument            controllers.Tunings.ofInstrument(instrument: Long)
 

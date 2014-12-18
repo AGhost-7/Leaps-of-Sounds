@@ -54,7 +54,7 @@ object Instruments extends Controller with RestfulController {
 	
 	def remove(id: Long) = inLogin withDB { (user, con) =>
 		Instrument.remove(id, user)(con)
-		Ok("{}")
+		Ok(Json.obj("id" -> id, "success" -> true))
 	}
 	
 	

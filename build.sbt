@@ -1,6 +1,6 @@
 name := "leaps-play"
 
-version := "0.5"
+version := "0.3"
 
 libraryDependencies ++= Seq(
   jdbc,

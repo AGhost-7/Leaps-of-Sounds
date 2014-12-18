@@ -28,6 +28,7 @@ object Javascripts extends Controller {
 		//	routes.javascript.Instruments.update,
 			routes.javascript.Instruments.insert,
 			routes.javascript.Instruments.update,
+			routes.javascript.Instruments.remove,
       routes.javascript.Tunings.ofInstrument,
       routes.javascript.Scales.list,
       routes.javascript.Scales.insert,

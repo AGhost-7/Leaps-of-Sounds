@@ -34,25 +34,21 @@ object AppForms extends Controller {
 					user => user.isOriginal)
 	)
 
-	def register = Action.secure { implicit request =>
-		future {
+	def register = Action { implicit request =>
+		//future {
 			Ok(views.html.registration(registrationForm))
-		}
+		//}
 	}
 
-	def addUser = Action.secure { implicit request =>
+	def addUser = Action { implicit request =>
 		registrationForm.bindFromRequest.fold(
 			hasErrors => {
-				future {
-					BadRequest(views.html.registration(hasErrors))
-				}
+				BadRequest(views.html.registration(hasErrors))
 			},
 			registratee => {
-				future {
-					registratee.persist
-					Redirect("http://" + request.host)
-						.flashing("successMsg" -> "You have been successfully registered!")
-				}
+				registratee.persist
+				Redirect(request.host)
+					.flashing("successMsg" -> "You have been successfully registered!")
 			})
 	}
 
@@ -68,25 +64,23 @@ object AppForms extends Controller {
 				})
 	)
 
-	def login = Action.secureSync { implicit request =>
+	def login = Action { implicit request =>
 		Ok(views.html.login(loginForm))
 	}
 
-	def beginSession = Action.secure { implicit request =>
+	def beginSession = Action { implicit request =>
 		loginForm.bindFromRequest.fold(
 			hasErrors => {
-				Future.successful(BadRequest(views.html.login(hasErrors)))
+				BadRequest(views.html.login(hasErrors))
 			},
 			user => {
-				future {
-					val token = DB.withTransaction { implicit con =>
-						User.getToken(user.username)
-					}
-					Redirect("http://" + request.host)
-						.withSession("username" -> user.username, 
-								"token" -> token)
-						.flashing("successMsg" -> "You're now logged in!")
+				val token = DB.withTransaction { implicit con =>
+					User.getToken(user.username)
 				}
+				Redirect("http://" + request.host)
+					.withSession("username" -> user.username, 
+							"token" -> token)
+					.flashing("successMsg" -> "You're now logged in!")
 			})
 	}
 }
