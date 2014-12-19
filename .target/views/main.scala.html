@@ -1,4 +1,6 @@
 @(title: String)(content: Html)(implicit session: play.api.mvc.Session) 
+@import play.api.Play.current
+@import play.api.Play
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,16 +47,31 @@
 			max-height: 300px;
 		}
 	}
-	#shfloot {
-		font-size: 80%;
+	html {
+		position: relative;
+		min-height: 100%;
+	}
+	body{ margin-bottom: 9px; }
+	.footer {
+		padding-top: 9px;
+	  text-align: center;
+	  height: 30px;
+	  background-color: #E6F4F7;
+	}
+	@@media(max-height:400px){
+		.footer { display: none; }
 	}
 	</style>
 	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
 	@* Since JQuery is so heavily used, keep this at the top, just in case... *@
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js'></script>
-	
+	@if(Play.isProd) {
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	} else {
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.js"></script>
+	}
 </head>
 <body>
 	<div class="container">
@@ -102,9 +119,18 @@
 	
 	
 	@content
-   </div>
-	<!-- <div class="container">
-		<p id="shfloot">By Jonathan Boudreau</p>
-	</div> -->
+	</div>
+	
+	<div class="container">
+		<footer class="footer">
+			
+				<p class="small">
+					<a href="https://github.com/AGhost-7/leaps-play">Website Sources</a>
+					
+				</p>
+			
+		</footer>
+	</div>
+	
 </body>
 </html>

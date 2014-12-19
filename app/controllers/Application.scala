@@ -32,29 +32,42 @@ object Application extends Controller with HtmlController {
     	case _ => (some, none)
     }
     
-    val instruments = Instrument.getAll
+    val messages = FlashMessage.getAll.toList
+    
+    val instruments = Instrument.getAll.toList
+    val scales = Scale.getAll.toList
     
     // For now, lets make the guitar the default displaying instrument.
     // Maybe I could make this custimizable eventually.
     val selectedInstrument = instruments.find { _.id == 1 }.get
     
-    val tunings = Tuning.ofInstrument(1)
+    val tunings = Tuning.ofInstrument(1).toList
     val defaultTuning = tunings.find { _.id == selectedInstrument.defaultTuning }.get
     
-    val scalesGroup = groupByUser(Scale.getAll.toList)
-    val tuningsGroup = groupByUser(tunings.toList)
-    val instrumentsGroup = groupByUser(instruments.toList)
-    
-    val messages = FlashMessage.getAll.toList
+    val scalesGroup = groupByUser(scales)
+    val tuningsGroup = groupByUser(tunings)
+    val instrumentsGroup = groupByUser(instruments)
     
     con.close
     
-    Ok(views.html.index(scalesGroup, 
-    		tuningsGroup, 
-    		instrumentsGroup, 
+    user.fold {
+    	// makes no sense to sort if theres no user
+    	Ok(views.html.index(
+    		(Nil, scales), 
+    		(Nil, tunings), 
+    		(Nil, instruments), 
     		selectedInstrument, 
     		defaultTuning, 
     		messages))
+    } { user => 
+    	Ok(views.html.index(
+    		groupByUser(scales), 
+    		groupByUser(tunings), 
+    		groupByUser(instruments), 
+    		selectedInstrument, 
+    		defaultTuning, 
+    		messages))
+    }
   }
 
   def logout = Action { implicit request =>
