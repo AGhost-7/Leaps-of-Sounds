@@ -18,7 +18,7 @@ import models._
 import utils._
 import utils.implicits._
 
-object AppForms extends Controller {
+object AppForms extends Controller  {
 
 	val registrationForm = Form(
 		mapping(
@@ -35,9 +35,7 @@ object AppForms extends Controller {
 	)
 
 	def register = Action { implicit request =>
-		//future {
-			Ok(views.html.registration(registrationForm))
-		//}
+		Ok(views.html.registration(registrationForm))
 	}
 
 	def addUser = Action { implicit request =>

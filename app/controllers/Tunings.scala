@@ -6,8 +6,8 @@ import play.api._
 import play.api.db.DB
 import play.api.Play.current
 import play.api.libs.json.Json
-
 import models._
+import controllers.traits.RestfulController
 
 /**
  * Standard CRUD operations for the Tunings data.

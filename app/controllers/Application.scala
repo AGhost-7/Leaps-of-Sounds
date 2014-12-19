@@ -12,12 +12,13 @@ import anorm._
 import utils.implicits._
 import models._
 import utils._
+import controllers.traits._
 
 /**
  * This routes the primary pages of the application.
  */
 
-object Application extends Controller {
+object Application extends Controller with HtmlController {
 	
   def index = Action { implicit request =>
     implicit val con = DB.getConnection()
@@ -62,36 +63,32 @@ object Application extends Controller {
       .flashing("infoMsg" -> "You have been logged out.")
   }
   
-  def scaleEditor = Action { implicit request =>
+  def scaleEditor = inLogin { (request, user) =>
   	DB.withConnection { implicit con =>
-	  	User.fromSession.map { user => 
-				val scales = Scale.ofUser(user).sortWith { _.name < _.name } 
-				Ok(views.html.scaleEditor(scales))
-	  	}.getOrElse(Unauthorized)
+			val scales = Scale.ofUser(user).sortWith { _.name < _.name } 
+			Ok(views.html.scaleEditor(scales)(request.session))
 	  }
   }
   
-  def instrumentEditor = Action { implicit request =>
-  	User.fromSession.map { implicit user => 
-  		DB.withTransaction { implicit con =>
-  			
-  			// Some of the tunings depend on the default instruments provided,
-  			// so we're going to need all instruments which are readable
-  			// by the user.
-	  		val instruments = Instrument.getAll(con, Some(user))
-	  		
-	  		// The app is going to use a large json object to display its tunings
-	  		// instead.
-	  		val tunings = Tuning.ofUser(user)
-	  		val grouped = tunings.groupBy { _.instrumentId }
-	  		val jsTunings = for((key, values) <- grouped ) yield {
-	  			val jsValues = values.map { _.toJson }
-	  			("" + key, JsArray(jsValues.toSeq))
-	  		}
-	  		
-	  		Ok(views.html.instrumentsEditor(instruments, Json.toJson(jsTunings)))
+  def instrumentEditor = inLogin { (request, user) =>
+		DB.withTransaction { implicit con =>
+			
+			// Some of the tunings depend on the default instruments provided,
+			// so we're going to need all instruments which are readable
+			// by the user.
+  		val instruments = Instrument.getAll(con, Some(user))
+  		
+  		// The app is going to use a large json object to display its tunings
+  		// instead.
+  		val tunings = Tuning.ofUser(user)
+  		val grouped = tunings.groupBy { _.instrumentId }
+  		val jsTunings = for((key, values) <- grouped ) yield {
+  			val jsValues = values.map { _.toJson }
+  			("" + key, JsArray(jsValues.toSeq))
   		}
-  	}.getOrElse(Unauthorized)
+  		
+  		Ok(views.html.instrumentEditor(instruments, Json.toJson(jsTunings))(request.session))
+		}
   }
   
   def tuningEditor = Action { implicit request =>

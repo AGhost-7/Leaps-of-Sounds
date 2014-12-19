@@ -1,4 +1,4 @@
-package controllers
+package controllers.traits
 
 import play.api._
 import play.api.mvc._
@@ -6,7 +6,7 @@ import play.api.db.DB
 import models._
 import java.sql.Connection
 import play.api.Play.current
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 /**
  * This trait defines default the behavior of my REST controllers.
@@ -18,10 +18,9 @@ trait RestfulController extends Controller {
 	 */
 	object inLogin {
 		
-		lazy val notLoggedInResponse = {
-			val obj = Map("errorMessage" -> "You must be logged in.")
-			Unauthorized(Json.toJson(obj))
-		}
+		lazy val notLoggedInResponse = 
+			Unauthorized(Json.obj("errorMessage" -> "You must be logged in."))
+		
 		
 		def apply(func: User => Result) = Action { implicit request =>
 			User.fromSession.map { user =>
@@ -42,19 +41,18 @@ trait RestfulController extends Controller {
 	 * which contains an errorMessage field.
 	 */
 	
-	val invalidInputResponse = {
-		val obj = Map("errorMessage" -> "Your input failed the validation rules.")
-		BadRequest(Json.toJson(obj))
-	}
+	val invalidInputResponse = 
+		BadRequest(Json.obj("errorMessage" -> "Your input failed the validation rules."))
 	
-	def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => play.api.libs.json.JsValue) = {
+	def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => JsValue): SimpleResult = {
 		if(bool){
 			Ok(func)
 		} else {
-			errorMessage.map { msg =>
-				val obj = Map("errorMessage" -> msg)
-				BadRequest(Json.toJson(obj))
-			}.getOrElse(invalidInputResponse)
+			errorMessage.fold { 
+				invalidInputResponse 
+			} { msg => 
+				BadRequest(Json.obj("errorMessage" -> msg))
+			}
 		}
 	}
 	

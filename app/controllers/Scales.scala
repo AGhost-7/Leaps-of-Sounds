@@ -6,8 +6,8 @@ import play.api.libs.json.Json
 import play.api.db.DB
 import play.api.Play.current
 import anorm._
-
 import models.{Scale, User}
+import controllers.traits.RestfulController
 
 /**
  * Standard CRUD operations for Scales data.

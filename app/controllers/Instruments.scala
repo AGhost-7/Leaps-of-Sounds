@@ -3,8 +3,8 @@ package controllers
 import play.api.mvc._
 import models._
 import anorm._
-
 import play.api.libs.json.Json
+import controllers.traits.RestfulController
 
 object Instruments extends Controller with RestfulController {
 
