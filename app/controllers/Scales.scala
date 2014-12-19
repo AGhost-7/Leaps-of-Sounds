@@ -7,12 +7,12 @@ import play.api.db.DB
 import play.api.Play.current
 import anorm._
 import models.{Scale, User}
-import controllers.traits.RestfulController
+import controllers.taxonomy._
 
 /**
  * Standard CRUD operations for Scales data.
  */
-object Scales extends Controller with RestfulController {
+object Scales extends RestfulController {
 
 	def update(id: Long, name: String, values: String) = inLogin withDB { (user, con) =>
 		ifValidated(Scale.validInput(name, values)){

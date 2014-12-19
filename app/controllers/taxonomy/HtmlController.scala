@@ -1,15 +1,15 @@
-package controllers.traits
+package controllers.taxonomy
 
 import play.api.mvc._
 import models._
 
 /**
- * This trait contains utilities for default response pages.
+ * This class contains utilities for default response pages.
  * I could've overriden the globals, but I want to have a 
  * different response(json) for the REST controllers. Action
  * composition also seemed a bit too "global" for my needs.
  */
-trait HtmlController extends Controller {
+abstract class HtmlController extends Controller {
 	
 	object inLogin {
 		

@@ -1,4 +1,4 @@
-package controllers.traits
+package controllers.taxonomy
 
 import play.api._
 import play.api.mvc._
@@ -9,9 +9,9 @@ import play.api.Play.current
 import play.api.libs.json._
 
 /**
- * This trait defines default the behavior of my REST controllers.
+ * This class defines default the behavior of my REST controllers.
  */
-trait RestfulController extends Controller {
+abstract class RestfulController extends Controller {
 	
 	/**
 	 * For when the user must be logged in.

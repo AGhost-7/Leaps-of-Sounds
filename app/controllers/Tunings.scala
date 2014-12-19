@@ -7,12 +7,12 @@ import play.api.db.DB
 import play.api.Play.current
 import play.api.libs.json.Json
 import models._
-import controllers.traits.RestfulController
+
 
 /**
  * Standard CRUD operations for the Tunings data.
  */
-object Tunings extends Controller with RestfulController {
+object Tunings extends taxonomy.RestfulController {
 	
 	def ofInstrument(instrumentId: Long) = Action { implicit request =>
     DB.withTransaction { implicit con => 
@@ -42,7 +42,6 @@ object Tunings extends Controller with RestfulController {
 				Tuning.update(id, name, values, instrumentId, user)(con).toJson
 			}
 		}
-	
 }
 
 

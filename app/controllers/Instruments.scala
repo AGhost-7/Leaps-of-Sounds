@@ -4,9 +4,9 @@ import play.api.mvc._
 import models._
 import anorm._
 import play.api.libs.json.Json
-import controllers.traits.RestfulController
+import controllers.taxonomy._
 
-object Instruments extends Controller with RestfulController {
+object Instruments extends RestfulController {
 
 	/**
 	 * This is a wee bit complicated since the instrument and tuning are 

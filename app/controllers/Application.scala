@@ -9,16 +9,15 @@ import play.api.db.DB
 import play.api.libs.json._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import anorm._
-import utils.implicits._
 import models._
 import utils._
-import controllers.traits._
+import controllers.taxonomy._
 
 /**
  * This routes the primary pages of the application.
  */
 
-object Application extends Controller with HtmlController {
+object Application extends HtmlController {
 	
   def index = Action { implicit request =>
     implicit val con = DB.getConnection()
@@ -93,14 +92,14 @@ object Application extends Controller with HtmlController {
   		
   		// The app is going to use a large json object to display its tunings
   		// instead.
-  		val tunings = Tuning.ofUser(user)
-  		val grouped = tunings.groupBy { _.instrumentId }
-  		val jsTunings = for((key, values) <- grouped ) yield {
+  		val tunings = Tuning.getAll(con, Some(user))
+  		//val grouped = tunings.groupBy { _.instrumentId }
+  		/*val jsTunings = for((key, values) <- grouped ) yield {
   			val jsValues = values.map { _.toJson }
   			("" + key, JsArray(jsValues.toSeq))
-  		}
+  		}*/
   		
-  		Ok(views.html.instrumentEditor(instruments, Json.toJson(jsTunings))(request.session))
+  		Ok(views.html.instrumentEditor(instruments, Json.toJson(tunings))(request.session))
 		}
   }
   

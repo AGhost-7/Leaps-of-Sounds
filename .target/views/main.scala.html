@@ -38,8 +38,8 @@
 		overflow-x: hidden;
 	}
 	.center[class*="span"]{
-	    margin: 0 auto;
-	    float: none;
+			margin: 0 auto;
+			float: none;
 	}
 	/* for smaller devices */
 	@@media all and (max-height: 600px) {
@@ -49,18 +49,30 @@
 	}
 	html {
 		position: relative;
+		/* stretch page so that the footer
+		is always at bottom */
 		min-height: 100%;
 	}
-	body{ margin-bottom: 9px; }
+	body{ margin-bottom: 10px; }
 	.footer {
+		/* Otherwise bottom is useless... */
+		position: absolute;
+		bottom: 0;
 		padding-top: 9px;
-	  text-align: center;
-	  height: 30px;
-	  background-color: #E6F4F7;
+		width: 100%;
+		left:0;
+		text-align: center;
+		height: 30px;
+		background-color: #E6F4F7;
+		
+		color: #90BFD4;
 	}
+	.footer a { color:#90BFD4; }
+	.footer a:hover { color: #0F6387; }
 	@@media(max-height:400px){
 		.footer { display: none; }
 	}
+	
 	</style>
 	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
 	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
@@ -74,49 +86,48 @@
 	}
 </head>
 <body>
-	<div class="container">
-        
+		 
 	<nav class="navbar navbar-inverse" role="navigation">
-		<div class="container-fluid">
+		<div class="container">
 			<div class="navbar-header">
 				<a class="navbar-brand" href='@routes.Application.index()'>Leaps</a>
 				<button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-        </button>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
 			</div>
-			<div class="collapse navbar-collapse" id="main-navbar">     
-         
-	          <ul class="nav navbar-nav navbar-right">
-	            
-	            <li class="dropdown">
-	              <a href="#" class="dropdown-toggle" data-toggle="dropdown">@session.get("username").getOrElse("My Account")<span class="caret"></span></a>
-	              <ul class="dropdown-menu" role="menu">
-	              	@if(session.get("username").isDefined){
-	                	<li><a href="@routes.Application.scaleEditor">My Scales</a></li>
-	                	<!-- <li><a href="#">My Instruments</a></li> -->
-	                	<li class="divider"></li>
-	                	<li><a href="@routes.Application.logout">Logout</a></li>
-	                } else {
-	                	<li><a href="@routes.AppForms.login">Login</a></li>
-	                	<li><a href="@routes.AppForms.register">Register</a></li>
-	                }
-	                
-	              </ul>
-	            </li>
-	          </ul>
-	          
+			<div class="collapse navbar-collapse" id="main-navbar">		 
+				 
+						<ul class="nav navbar-nav navbar-right">
+							
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown">@session.get("username").getOrElse("My Account")<span class="caret"></span></a>
+								<ul class="dropdown-menu" role="menu">
+									@if(session.get("username").isDefined){
+										<li><a href="@routes.Application.scaleEditor">My Scales</a></li>
+										<!-- <li><a href="#">My Instruments</a></li> -->
+										<li class="divider"></li>
+										<li><a href="@routes.Application.logout">Logout</a></li>
+									} else {
+										<li><a href="@routes.AppForms.login">Login</a></li>
+										<li><a href="@routes.AppForms.register">Register</a></li>
+									}
+									
+								</ul>
+							</li>
+						</ul>
+						
 			</div>
 		</div>
 	</nav>
+	<div class="container">
 	
 	<!--[if lt IE 9]>
 	<div class="alert alert-danger">
 		You are using an outdated browser.
 	</div>
 	<![endif]-->
-	
 	
 	@content
 	</div>
@@ -125,7 +136,8 @@
 		<footer class="footer">
 			
 				<p class="small">
-					<a href="https://github.com/AGhost-7/leaps-play">Website Sources</a>
+					<a href="https://github.com/AGhost-7/leaps-play">Website Sources</a> - 
+					<a href="https://twitter.com/JonathanBoudre2">Follow me @@JonathanBoudre2</a>
 					
 				</p>
 			

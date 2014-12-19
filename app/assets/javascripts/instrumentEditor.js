@@ -1,5 +1,13 @@
 (function($, routes){
 
+/* Naming convention:
+add    -> show insert form
+insert -> validates form, ajax, DOM insert
+modify -> show edit form
+update -> validate form, ajax, DOM update
+
+*/
+
 var $inputContainer = $('#input-container')
 
 var inputScene = {
@@ -123,9 +131,7 @@ var instrumentInputTemplate = (function(){
 	return function(args){
 		var $target = args.$tieTo,
 			$input = $init(args)
-			
 		
-		//$target.html('')
 		$target.append($input)
 		
 		var $okBtn = $input.find('#instrument-ok'),
@@ -150,34 +156,69 @@ $('.btn-up-instrument').click(modifyInstrument)
 $('#btn-add-instrument').click(addInstrument)
 $('.btn-rem-instrument').click(removeInstrument)
 $('.btn-show-tunings').click(showTunings)
+$('#btn-tunings-back').click(backTunings)
+$('#btn-add-tuning').click(addTuning)
 
 /**
  * DOM bindings for tables
  */
- 
+
+function TableBinding(){
+	var $all = this.$container || this.$table
+	
+	this.$row = function(){
+		var id = typeof arguments[0] === 'object' ? 
+				arguments[0].id : arguments[0] 
+			
+			return this.$tbody.find('tr[data-id="' + id + '"]')
+	}
+	
+	this.remove = function(){
+		this.$row(arguments[0]).remove()
+	}
+	
+	this.hide = function(callback){
+		$all.hide('blind', {}, 500, callback)
+	}
+	
+	this.show = function(callback){
+		$all.show('blind', {}, 500, callback)
+	}
+	
+	this.load = function(list){
+		var append = this.append
+		list.forEach(function(val){
+			append(val)
+		})
+	}
+	
+	this.display = function(dataName, val){
+		this.$tbody.find('tr').each(function(){
+			var $t = $(this)
+			if($t.data(dataName) === val){
+				$t.removeClass('hidden')
+			} else {
+				$t.addClass('hidden')
+			}
+		})
+	}
+}
+
 var instruments = {
 	$table: $('#instruments-table'),
-	$tbody: $('#instruments-table tbody'),
+	$tbody: $('#instruments-table > tbody'),
 	$init: Handlebars.$load('#instrument-row-template'),
-	$row: function(){
-		var id = typeof arguments[0] === 'object' ? 
-			arguments[0].id : arguments[0] 
-		
-		return this.$tbody.find('tr[data-id="' + id + '"]')
-	},
 	append: function(instrument){
-		var $row = this.$init(instrument)
-		console.log(instrument)
-		console.log('attempting append\n',$row.html())
+		var $row = instrumentRowTemplate(instrument)
 		
-		this.$tbody.append($row)
+		instruments.$tbody.append($row)
 		
 		$row.find('.btn-up-instrument').click(modifyInstrument)
 		$row.find('.btn-rem-instrument').click(removeInstrument)
 		$row.find('.btn-show-tunings').click(showTunings)
 	},
 	update: function(instrument){
-		var $tr = this.$row(instrument)
+		var $tr = instruments.$row(instrument)
 		
 		$tr.data('default-tuning', instrument.defaultTuning)
 		
@@ -185,76 +226,54 @@ var instruments = {
 		$tr.find('td:nth-child(3)').text(instrument.strings)
 	},
 	get: function(id){
-		var $tr = this.$row(id)
+		var $tr = instruments.$row(id)
 		return {
 			id: $tr.data('id'),
 			name: $tr.find('td:nth-child(2)').text(),
 			strings: Number($tr.find('td:nth-child(3)').text()),
 			defaultTuning: $tr.data('default-tuning')
 		}
-	},
-	remove: function(){
-		this.$row(arguments[0]).remove()
-	},
-	hide: function(callback){
-		this.$table.hide('blind', {}, 500, callback)
-	},
-	show: function(callback){
-		this.$table.show('blind', {}, 500, callback)
 	}
 }
 
+TableBinding.apply(instruments)
+
 var tunings = {
+	$container: $('#tunings-container'),
 	$table: $('#tunings-table'),
 	$tbody: $('#tunings-table > tbody'),
 	$init: Handlebars.$load('#tuning-row-template'),
-	$row: function(){
-		var id = typeof arguments[0] === 'object' ? 
-			arguments[0].id : arguments[0] 
-		
-		return this.$tbody.find('tr[data-id="' + id + '"]')
-	},
-	display: function(instrumentId){
-		var $init = this.$init,
-			$tbody = this.$tbody
-			
-		$tbody.html('')
-			
-		userTunings[instrumentId].forEach(function(tuning){
-			console.log(tuning)
-			var $tr = $init(tuning)
-			$tbody.append($tr)
-		})
-		
-		// attach event handlers
-		this.$tbody.find('.btn-up-tuning').click(updateTuning)
-		this.$tbody.find('.btn-rem-tuning').click(removeTuning)
-		
-		this.$table.data('id', instrumentId)
-		
-		//this.$table.data('default-tuning', )
-		
-		this.$table.show('blind')
-	},
-	hide: function(callback){
-		this.$table.hide('blind', {}, 500, callback)
-	},
-	show: function(callback){
-		this.$table.show('blind', {}, 500, callback)
+	valuesView: function(tuning){
+		return tuning
+			.values
+			.split(",")
+			.map(function(val){ return fingerboard.notationFromFreqId(val) })
+			.join(" - ")
 	},
 	append: function(tuning){
-		var $tr = this.$init(tuning)
-		this.$tbody.append($tr)
+		
+		tuning.notation = tunings.valuesView(tuning)
+		
+		var $tr = tunings.$init(tuning)
+		tunings.$tbody.append($tr)
 		
 		$tr.find('.btn-up-tuning').click(updateTuning)
 		$tr.find('.btn-rem-tuning').click(removeTuning)
 	},
 	update: function(tuning){
-		var $tr = this.$row(tuning)
+		var $tr = tunings.$row(tuning)
 		
+		$tr.data('instrument-id', tuning.instrumentId)
+		$tr.data('values', tuning.values)
+		$tr.find('td:nth-child(2)').text(tuning.name)
+		$tr.find('td:nth-child(3)').text(tunings.valuesView(tuning))
 		
 	}
+	
 }
+
+TableBinding.apply(tunings)
+tunings.load(userTunings)
 
 /**
  * Event Handlers
@@ -331,18 +350,27 @@ function withValidTuning(callback){
 		$inputContainer.find('#input-tuning-name-label').append(html)
 	}
 }
+
 function showTunings(){
 	var $t = $(this),
 		$tr = $t.parent().parent(),
 		id = $tr.data('id')
 	
 	instruments.hide(function(){
-		tunings.display(id)
+		tunings.display('instrument-id',id)
+		tunings.show()
 	})
 	
 }
-function addTuning(){
 
+function backTunings(){
+	tunings.hide(function(){
+		instruments.show()
+	})
+}
+
+function addTuning(){
+alert('Add!')
 }
 
 function cancelTuning(){
