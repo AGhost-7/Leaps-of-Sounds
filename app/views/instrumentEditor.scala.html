@@ -4,7 +4,7 @@
 
 @main("Instruments Editor") {
 	<style>
-	.btn-default {
+	.btn-circular {
 		border-radius: 10px;
 	}
 	.btn-circle {
@@ -17,6 +17,7 @@
 		line-height: 1.00;
 		border-radius: 12px;
 	}
+
 	</style>
 	
 	<div id="input-container" style="display:none">
@@ -30,10 +31,15 @@
 	</div>
 	
 	<div style="display:none" id="tunings-container">
-		<button class="btn btn-default btn-sm" id="btn-tunings-back">
-			<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-			&nbsp;Back
-		</button>
+		
+		<div class="col-sm-12">
+			<br>
+			<button class="btn btn-default btn-sm btn-circular" id="btn-tunings-back">
+				<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+				&nbsp;Back
+			</button>
+			<br>
+		</div>
 		
 		<table class="table" id="tunings-table" >
 			<thead>
@@ -50,9 +56,6 @@
 			</tbody>
 		</table>
 	</div>
-	
-
-	
 	
 	<table class="table" id="instruments-table">
 		<thead>
@@ -82,7 +85,7 @@
 				<td>@instrument.name</td>
 				<td>@instrument.strings</td>
 				<td>
-					<button class="btn btn-sm btn-default btn-show-tunings">Tunings</button>
+					<button class="btn btn-sm btn-default btn-circular btn-show-tunings">Tunings</button>
 				</td>
 			</tr>
 		}
@@ -130,7 +133,7 @@
 				<td>{{name}}</td>
 				<td>{{strings}}</td>
 				<td>
-					<button class="btn btn-sm btn-default">Tunings</button>
+					<button class="btn btn-sm btn-default btn-circular">Tunings</button>
 				</td>
 			</tr>
 		{{/with}}
@@ -151,8 +154,8 @@
 		<input type="hidden" value={{id}} id="input-id" />
 		<input type="hidden" value={{defaultTuning}} id="input-default-tuning"/>
 		<div>
-			<button class="btn btn-sm btn-default" id="instrument-ok">Ok</button>
-			<button class="btn btn-sm btn-default" id="instrument-cancel">Cancel</button>
+			<button class="btn btn-sm btn-default btn-circular" id="instrument-ok">Ok</button>
+			<button class="btn btn-sm btn-default btn-circular" id="instrument-cancel">Cancel</button>
 		</div>
 		
 	</script>
@@ -160,7 +163,7 @@
 	<script id="tuning-input-template" type="text/x-handlebars-template">
 		<div class="form-group">
 			<label id="input-tuning-name-label">Name</label>
-			<input type="text" id="input-tuning-name" class="form-control">
+			<input type="text" id="input-tuning-name" class="form-control" value={{name}}>
 		</div>
 		
 		<div class="form-group">
@@ -174,8 +177,8 @@
 		
 		<div class="col-sm-12" style="padding-left: 0px;">
 			
-			<button class="btn btn-default btn-sm" id="input-tuning-ok">Ok</button>
-			<button class="btn btn-default btn-sm" id="input-tuning-cancel">Cancel</button>
+			<button class="btn btn-default btn-sm btn-circular" id="input-tuning-ok">Ok</button>
+			<button class="btn btn-default btn-sm btn-circular" id="input-tuning-cancel">Cancel</button>
 			
 		</div>
 		

@@ -11,6 +11,7 @@ update -> validate form, ajax, DOM update
 var $inputContainer = $('#input-container')
 
 var inputScene = {
+	$contentContainer: $('body > .container'),
 	empty: function(){
 		$inputContainer.hide('blind', {}, 500, function(){
 			$inputContainer.html('')
@@ -19,6 +20,10 @@ var inputScene = {
 	swap: function(htmlGenerator, postShow){
 		// I want this to handle cases where there is no
 		// data in there as well
+		//var width = inputScene.$contentContainer.css('width')
+		//$inputContainer.css('width', width)
+		
+		console.log($inputContainer.css('width'))
 		if($inputContainer.css('display') === 'none'){
 			htmlGenerator()
 			$inputContainer.show('blind', {}, 500, postShow)
@@ -89,6 +94,8 @@ var tuningValuesTemplate = (function(){
 	}
 })()
 
+
+
 var tuningInputTemplate = (function(){
 	var $init = Handlebars.$load('#tuning-input-template')
 	
@@ -97,7 +104,7 @@ var tuningInputTemplate = (function(){
 		var 
 			i = args.strings
 			tuning = [],
-			$input = $init({})
+			$input = $init(args)
 		
 		args.$tieTo.append($input)
 		
@@ -275,6 +282,9 @@ var tunings = {
 TableBinding.apply(tunings)
 tunings.load(userTunings)
 
+
+
+
 /**
  * Event Handlers
  */
@@ -357,39 +367,101 @@ function showTunings(){
 		id = $tr.data('id')
 	
 	instruments.hide(function(){
-		tunings.display('instrument-id',id)
+		tunings.display('instrument-id', id)
 		tunings.show()
 	})
 	
+	instruments.selectedId = id
 }
 
 function backTunings(){
+	inputScene.empty()
 	tunings.hide(function(){
 		instruments.show()
 	})
 }
 
 function addTuning(){
-alert('Add!')
-}
-
-function cancelTuning(){
-
+	
+	var strings = instruments
+			.get(instruments.selectedId)
+			.strings	
+	
+	var withAjax = function(name, values){
+	
+		routes.Tunings.insert(name, values, instruments.selectedId).ajax({
+			success: function(tuning){
+				tunings.append(tuning)
+				inputScene.empty()
+			},
+			error: onServerError
+		})
+	}
+	
+	$canvas.height(strings * 55)
+	
+	inputScene.swap(function(){
+		
+		tuningInputTemplate({
+			strings: strings,
+			$tieTo: $inputContainer,
+			onOk:function(){
+				withValidTuning(withAjax)
+			},
+			onCancel: function(){
+				inputScene.empty()
+			}
+		})
+	}, function(){ $canvas.trigger('resize') })
+	
 }
 
 function updateTuning(){
+	var $tr = $(this).parent().parent()
+	
+	tunings.selectedId = $tr.data('id')
+		
+	var strings = instruments
+			.get(instruments.selectedId)
+			.strings
+	
+	
+	fingerboard.set({
+		strings: strings,
+		interval:{
+			tuning: $tr.data('values')
+		}
+	})
+	
+	var withAjax = function(name, values){
+		routes.Tunings.update(tunings.selectedId, name, values, instruments.selectedId).ajax({
+			success: function(tuning){
+				tunings.update(tuning)
+			},
+			error: onServerError
+		})
+	}
+	
+	$canvas.height(strings * 55)
+	
+	inputScene.swap(function(){
+		tuningInputTemplate({
+			name: $tr.find('td:nth-child(2)').text(),
+			strings: strings,
+			$tieTo: $inputContainer,
+			onOk:function(){
+				withValidTuning(withAjax)
+			},
+			onCancel: function(){
+				inputScene.empty()
+			}
+		})
+		
+	}, function(){ $canvas.trigger('resize') })
 
 }
-
-function insertTuning(){
-
-}
-
 function removeTuning(){
-
 }
-
-
 
 /**
  * Event Handlers: Instruments
@@ -460,7 +532,7 @@ function insertInstrument(){
 					instruments.append(inst)
 					
 					// add the tuning
-					tunings[inst.id] = [tuning]
+					tunings.append(tuning)
 					
 					inputScene.empty()
 					

@@ -37,10 +37,10 @@
 (function(Fingerboard, Clonify, Polymorphy) {
 
 function Square (x1, y1, x2, y2) {
-	this.x1 = x1 ? x1 : -1;
-	this.y1 = y1 ? y1 : -1;
-	this.x2 = x2 ? x2 : -1;
-	this.y2 = y2 ? y2 : -1;
+	this.x1 = x1 ? x1 : -1
+	this.y1 = y1 ? y1 : -1
+	this.x2 = x2 ? x2 : -1
+	this.y2 = y2 ? y2 : -1
 }
 
 // Is it inside the quare?
@@ -151,7 +151,7 @@ var Note = Polymorphy.extends({
 		this.dimension = new Square()
 		this.interval = new Interval()
 	}
-});
+})
 
 // Returns the public interface. This is lazy loaded.
 Note.prototype.public = function(events){
@@ -200,15 +200,15 @@ Note.prototype.public = function(events){
 
 Fingerboard.Model = function(args, events) {
 	// Array containing notes
-	var fingerboard;
+	var fingerboard
 	
 	var defaultNotation = 
-		['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+		['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
 
 	this.settings = settings = {
 		notation: defaultNotation,
 		selectors: {}
-	};
+	}
 	
 	// Argument processing helpers
 	
@@ -216,53 +216,55 @@ Fingerboard.Model = function(args, events) {
 		if(typeof arr === 'string') {
 			// smells like Json
 			if(arr[0] === '[') 
-				return JSON.parse(arr);
+				return JSON.parse(arr)
 			// could be CSV
 			else if(arr.indexOf(",") !== -1) 
 				return arr.split(",").map(function(val) {
+					if(isNaN(val)) 
+						throw 'Invalid array input.'
 					return Number(val)
-				});
+				})
 			// Otherwise throw an exception since I have no idea
 			// what you're trying to say.
-			throw 'Cannot process array argument ' + arr;
+			throw 'Cannot process array argument ' + arr
 		} 
 		
-		return arr;
-	};
+		return arr
+	}
 	
 	// Standard Accessors
 	
 	this.getNoteFor = getNoteFor = function(fret, string) {
 		return fingerboard[fret][string-1]
-	};
+	}
 	
 	this.frets = function() {
 		return fingerboard.length
-	};
+	}
 	
 	this.strings = strings = function () {
 		return fingerboard[0].length
-	};
+	}
 	
 	// Traversing functions
 	
 	this.find = find = function(traversor) {
-		var result = undefined;
+		var result = undefined
 		this.forEach(function(fret, string, value) {
 			if(traversor(fret, string, value) === true) {
-				result = value;
-				return false;
+				result = value
+				return false
 			}
-		});
-		return result;
-	};
+		})
+		return result
+	}
 	
 	this.forEach = forEach = function (traversor) {
 		for(var fret = 0; fret < fingerboard.length; fret++) 
 			for(var string = 1; string <= fingerboard[0].length; string++)
 				if(traversor(fret, string, getNoteFor(fret, string)) === false) 
-					return;
-	};
+					return
+	}
 	
 	// Do I even use this?
 	
@@ -277,22 +279,35 @@ Fingerboard.Model = function(args, events) {
 					note.selector = ''
 			})
 		}
-	};
+	}
 	
 	// Construction Functions
 	
 	var fill = function(frets, strings) {
-		if(!frets) frets = fingerboard.length - 1 || 15;
-		if(!strings) strings = fingerboard[0].length || 6;
 		
-		fingerboard = [];
+		if(frets === undefined) 
+			frets = fingerboard.length - 1 || 15
+		if(strings === undefined) 
+			strings = fingerboard[0].length || 6
+		
+		if(typeof frets !== 'number')
+			throw 'Frets property is not a number.'
+		if(typeof strings !== 'number')
+			throw 'Strings property is not a number.'
+		
+		if(frets < 1)
+			throw 'Not enough frets.'
+		if(strings < 1)
+			throw 'Not enough strings.'
+		
+		fingerboard = []
 
 		for(var fret = 0; fret <= frets; fret++) {
-			fingerboard[fret] = [];
+			fingerboard[fret] = []
 			for(var string = 1; string <= strings; string++)
-				fingerboard[fret][string-1] = new Note(fret, string, this);
+				fingerboard[fret][string-1] = new Note(fret, string, this)
 		}
-	};
+	}
 	
 	var buildInterval = function(args) {
 		var 
@@ -304,7 +319,7 @@ Fingerboard.Model = function(args, events) {
 			intervalValue = 1,
 			index = 0,
 			intervals = [],
-			scaleLength = notation.length || args.scaleLength;
+			scaleLength = notation.length || args.scaleLength
 		
 		// Use a default value if its possible
 		if(!tuning) {
@@ -312,11 +327,11 @@ Fingerboard.Model = function(args, events) {
 				&& strings() === 6) {
 				
 				var note = function(notation, index) {
-					return index * 12 + defaultNotation.indexOf(notation);
-				};
-				tuning = [note('E', 2),note('A', 2),note('D', 3),note('G', 3),note('B', 3),note('E', 4)];
+					return index * 12 + defaultNotation.indexOf(notation)
+				}
+				tuning = [note('E', 2),note('A', 2),note('D', 3),note('G', 3),note('B', 3),note('E', 4)]
 			} else {
-				throw 'Interval needs more arguments.';
+				throw 'Interval needs more arguments.'
 			}
 		}
 		
@@ -328,39 +343,39 @@ Fingerboard.Model = function(args, events) {
 				index: index,
 				freqId: (i + 1),
 				notation: notation[intervalValue - 1] || undefined
-			});
+			})
 
 			if(intervalValue >= scaleLength) {
-				intervalValue = 1;
-				index++;
+				intervalValue = 1
+				index++
 			}
-			else intervalValue++;
+			else intervalValue++
 		}
-		//console.log('tuning is:',tuning);
-		tuning = tuning.reverse();
+		//console.log('tuning is:',tuning)
+		tuning = tuning.reverse()
 
 
 		forEach(function(fret, string, note) {
-			note.interval = intervals[tuning[string - 1] + fret];
-		});
+			note.interval = intervals[tuning[string - 1] + fret]
+		})
 
-		settings.tuning = tuning;
-		settings.notation = notation;
-		settings.scaleLength = scaleLength;
-	};
+		settings.tuning = tuning
+		settings.notation = notation
+		settings.scaleLength = scaleLength
+	}
 	
 	var buildRootedValue = function(root) {
-		//console.log("rooting");
+		//console.log("rooting")
 		var map,
-			scaleLength = settings.scaleLength;
+			scaleLength = settings.scaleLength
 
 		forEach(function(fret, string, note){
-			note.interval.shift = note.interval.value - root + 1;
+			note.interval.shift = note.interval.value - root + 1
 			if(note.interval.shift < 1) 
 				note.interval.shift += scaleLength
 		})
-		settings.root = root;
-	};
+		settings.root = root
+	}
 	
 	/*args = {
 	  values: Array<Number, Number>,
@@ -372,15 +387,15 @@ Fingerboard.Model = function(args, events) {
 			spacings = (args && asJSArray(args.values)) || settings.scale,
 			scaleLength = settings.scaleLength,
 			sc, degree,
-			scale = [];
+			scale = []
 	  
 		if((args && args.root) || !settings.root){
 			buildRootedValue((args && args.root) || settings.root || 1)
 		}
 
 		spacings.forEach(function(val, i) {
-			scale[val] = i + 1;
-		});
+			scale[val] = i + 1
+		})
 
 		// Now we set the values (1st, 2nd, 3rd, etc of the scale).
 		forEach(function(fret, string, note){
@@ -390,9 +405,9 @@ Fingerboard.Model = function(args, events) {
 				// The note could have information from the previous
 				// scale, so we need to clear that.
 				note.interval.degree = undefined
-		});
+		})
 	  
-		settings.scale = spacings;
+		settings.scale = spacings
 		
 		if(args && args.select)
 			select('scale')
@@ -401,53 +416,53 @@ Fingerboard.Model = function(args, events) {
 	this.set = set = function(args) {
 		if(args.selectors) 
 			for(var key in args.selectors)
-				settings.selectors[key] = args.selectors[key];
+				settings.selectors[key] = args.selectors[key]
 		
 		if(args.strings || args.frets) 
-			fill(args.frets, args.strings);
+			fill(args.frets, args.strings)
 
 		if(args.interval) 
-			buildInterval(args.interval);
+			buildInterval(args.interval)
 
 		if(args.scale)
-			buildScale(args.scale);
+			buildScale(args.scale)
 
 		// Rebuild the scale even if its just a change to the
 		// interval data.
 		if(args.interval && !args.scale){
 			// Force rebuilding the rooted value.
-			buildRootedValue(settings.root);
-			buildScale();
-			select('scale');
+			buildRootedValue(settings.root)
+			buildScale()
+			select('scale')
 		}
 
 		// broadcast change to all listeners.
-		events.broadcast('modelchange', function() { return Clonify(args) });
+		events.broadcast('modelchange', function() { return Clonify(args) })
 
-	};
+	}
 	
 	this.notationFromFreqId = function(id) {
-		var ln = settings.notation.length;
+		var ln = settings.notation.length
 		return settings.notation[id % ln] + "" + 
 			Math.floor(id / ln) 
-	};
+	}
 	
 	this.get = get = function() {
 		if(arguments.length === 1) {
-			return Clonify(settings[arguments[0]]);
+			return Clonify(settings[arguments[0]])
 		} else {
-			var cln = {};
+			var cln = {}
 			for(var i = 0; i< arguments.length; i++) 
-				cln[arguments[i]] = Clonify(settings[arguments[i]]);
+				cln[arguments[i]] = Clonify(settings[arguments[i]])
 			
-			return cln;
+			return cln
 		}
-	};
+	}
 	
 	// Object Construction/Parsing Args
-	if(args) set(args);
-	else fill();
+	if(args) set(args)
+	else fill()
 }
 
-})(Fingerboard, Fingerboard.Clonify, Fingerboard.Polymorphy);
+})(Fingerboard, Fingerboard.Clonify, Fingerboard.Polymorphy)
 

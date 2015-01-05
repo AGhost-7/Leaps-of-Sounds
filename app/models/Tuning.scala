@@ -55,7 +55,7 @@ object Tuning extends CompWithUserRef[Tuning] {
 	
 	def update(id: Long, name: String, values: String, instrumentId: Long, user: User)(implicit con: Connection) = {
 		SQL("""
-			UPDATE TABLE "scales"
+			UPDATE "scales"
 			SET name = {name}, values = {values}
 			WHERE id = {id} AND user_id = {user}
 		""")
