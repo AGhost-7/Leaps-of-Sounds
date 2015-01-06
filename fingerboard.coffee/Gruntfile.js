@@ -1,18 +1,36 @@
 module.exports = function(grunt) {
 	
 	var 
-		files = [
-			'src/constructor.js',
-			'src/utils/*.js',
-			'src/models/*.js',
-			'src/views/*.js'
+		sourceFiles = [
+			'src/index.coffee',
+			'src/utils/*.coffee',
+			'src/model/*.coffee',
+			//'src/models/index.coffee',
+			'src/views/*.coffee'
 		],
-		concatOptions = {
-			separator: ";\n"
+		coffeeOptions = {
+			sourceMap: true,
+			bare: false,
+			join: true
+			
 		}
 		
 	grunt.initConfig({
-		concat: {
+		coffee: {
+			default: {
+				options: coffeeOptions,
+				files:{
+					'dist/fingerboard.js': sourceFiles
+				}
+			},
+			play: {
+				options: coffeeOptions,
+				files: {
+					'../public/javascripts/fingerboard.js': sourceFiles
+				}
+			}
+		},
+		/*concat: {
 			default: {
 				files: {
 					'dist/fingerboard.js': files
@@ -25,7 +43,7 @@ module.exports = function(grunt) {
 				},
 				options: concatOptions
 			}
-		},
+		},*/
 		uglify: {
 			default: {
 				files: {
@@ -41,11 +59,11 @@ module.exports = function(grunt) {
 		watch:{
 			default:{
 				files: ['src/**/*.js'],
-				tasks: ['concat']
+				tasks: ['coffee']
 			},
 			play:{
 				files: ['src/**/*.js'],
-				tasks: ['concat:play']
+				tasks: ['coffee:play']
 			}
 			
 		}
@@ -57,7 +75,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-coffee');
 	
-	grunt.registerTask('default', ['concat', 'uglify']);
+	grunt.registerTask('default', ['coffee:default', 'uglify:default']);
 	grunt.registerTask('play', ['concat:play', 'uglify:play']);
+	
 	//grunt.registerTask('local-testing', [''])
 };
