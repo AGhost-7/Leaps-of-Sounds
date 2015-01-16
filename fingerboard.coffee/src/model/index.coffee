@@ -18,8 +18,8 @@ class Model
 		@root = 1
 		@tuning = [28,33,38,43,47,52]
 		@scale = undefined
-		@scaleLength = defaultNotation.length
-		@strings = tuning.length
+		@scaleLength = @notation.length
+		@strings = @tuning.length
 		@frets = 16
 		# And finally we build the whole thing by using the set
 		# method which will parse all of the arguments properly.
@@ -30,9 +30,9 @@ class Model
 	fill: ->
 		@notes = []
 		for fret in [0..@frets]
-			notes[fret] = []
+			@notes[fret] = []
 			for string in [1..@strings]
-				notes[fret][string-1] = new Note(fret, string)
+				@notes[fret][string-1] = new Note(fret, string)
 				
 				
 	# This will handle the rebuilding of the interval-related data, but unlike 
@@ -57,9 +57,12 @@ class Model
 				freqId: i + 1,
 				notation: @notation[intervalValue - 1]
 		
-		# using the generated data, I can
+		# wierd scopage
+		tuning = @tuning
+		
+		# I can now slap it on the notes
 		@forEach (note, fret, string) ->
-			note.interval = intervals[@tuning[string-1] + fret]
+			note.interval = intervals[tuning[string - 1] + fret]
 	
 	
 	# This will set up the shifted interval value for building the scale.
@@ -89,7 +92,10 @@ class Model
 		
 		# We dont need to look into it more than that, we're going to have to fill
 		# it with new notes.
-		@fill() if args.strings != undefined || args.frets != undefined
+		if args.strings != undefined || args.frets != undefined || !@notes[0][0]
+			@fill() 
+		
+		console.log(@notes)
 		
 		if args.interval != undefined
 			a = interval
@@ -138,9 +144,9 @@ class Model
 	###
 	
 	forEach: (traversor) ->
-		for fretArr, fret in notes
+		for fretArr, fret in @notes
 			for note, string in fretArr
-				if traversor(note, fret, string) == false
+				if traversor(note, fret, string+1) == false
 					return
 	
 	find: (traversor) ->

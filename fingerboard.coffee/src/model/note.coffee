@@ -54,7 +54,11 @@ class Interval
 		
 class Square
 	
-	constructor: (@x1, @y1, @x2, @y2) ->
+	constructor: ->
+		@x1 = -1
+		@y1 = -1
+		@x2 = -1 
+		@y2 = -1
 	
 	isPointWithinBounds: (x, y) ->
 		x > @x1 && x < @x2 && @y1 
@@ -72,11 +76,13 @@ class Square
 class Note
 	constructor: (@fret, @string) ->
 		@selector = ''
-		@dimension = new Square
+		@dimension = new Square()
 		@interval = new Interval
 
 	public: (events) ->
 		if(@__public__ == undefined)
+			intl = @interval
+			console.log(new Interval)
 			@__public__ = new PublicInterface(events, @, [
 				'frets', 
 				'strings', 
@@ -90,7 +96,8 @@ class Note
 				value: @interval.public(events) },
 				'selector'
 			])
-			
+			@__public__.toString = ->
+				JSON.stringify(@)
 			
 		@__public__
 		

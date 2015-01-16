@@ -58,12 +58,19 @@ module.exports = function(grunt) {
 		},
 		watch:{
 			default:{
-				files: ['src/**/*.js'],
-				tasks: ['coffee']
+				files: sourceFiles,
+				tasks: ['coffee:default'],
+				options: {
+					atBegin: true,
+					spawn: false
+				}
 			},
 			play:{
-				files: ['src/**/*.js'],
-				tasks: ['coffee:play']
+				files: sourceFiles,
+				tasks: ['coffee:play'],
+				options: {
+					atBegin: true
+				}
 			}
 			
 		}
@@ -78,5 +85,4 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', ['coffee:default', 'uglify:default']);
 	grunt.registerTask('play', ['concat:play', 'uglify:play']);
 	
-	//grunt.registerTask('local-testing', [''])
 };

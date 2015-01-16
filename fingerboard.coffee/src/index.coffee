@@ -31,11 +31,14 @@ class Fingerboard
 		@[key] = events[key] for key of events
 		
 		model = new Model(args, events)
-		view = new View(args, $canvas, model, events)
+		#view = new View(args, $canvas, model, events)
 		
 		# the rest of the public functions are going to be mainly exposing
 		# the model part.
 		
-		@tuning = ->
+		@forEach = (traversor) ->
+			model.forEach (note, fret, string) ->
+				console.log(note)
+				traversor(note.public(events), fret, string)
 			
 window.Fingerboard = Fingerboard
