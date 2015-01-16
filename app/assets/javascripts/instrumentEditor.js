@@ -102,15 +102,15 @@ var tuningInputTemplate = (function(){
 	return function(args){
 		
 		var 
-			i = args.strings
+			i = args.strings - 1
 			tuning = [],
 			$input = $init(args)
 		
 		args.$tieTo.append($input)
 		
 		var $target = $('#tuning-dropdown-loc')
-			
-		while(i > 0){
+	
+		while(i >= 0){
 			tuningValuesTemplate($target, i--)
 			tuning.push(0)
 		}
