@@ -26,7 +26,7 @@ object Tunings extends taxonomy.RestfulController {
 	
 	def remove(id: Long) = inLogin withDB { (user, con) =>
 		Tuning.remove(id, user)(con)
-		Ok("{}")
+		Ok(Json.obj("id" -> id, "success" -> true))
 	}
 	
 	def insert(name: String, values: String, instrumentId: Long) = 

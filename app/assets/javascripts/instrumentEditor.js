@@ -23,7 +23,7 @@ var inputScene = {
 		//var width = inputScene.$contentContainer.css('width')
 		//$inputContainer.css('width', width)
 		
-		console.log($inputContainer.css('width'))
+		//console.log($inputContainer.css('width'))
 		if($inputContainer.css('display') === 'none'){
 			htmlGenerator()
 			$inputContainer.show('blind', {}, 500, postShow)
@@ -155,6 +155,8 @@ var instrumentInputTemplate = (function(){
 	}
 })()
 
+
+
 /**
  * Initialization
  */
@@ -170,7 +172,13 @@ $('#btn-add-tuning').click(addTuning)
  * DOM bindings for tables
  */
 
+// "Abstract class". Definition of append method is 
+// delegated to whatever inherits from TableBinding.
 function TableBinding(){
+
+	// If there's no container wrapping the table, then
+	// the element used by the hide and show methods is
+	// going to be the table itself.
 	var $all = this.$container || this.$table
 	
 	this.$row = function(){
@@ -216,7 +224,7 @@ var instruments = {
 	$tbody: $('#instruments-table > tbody'),
 	$init: Handlebars.$load('#instrument-row-template'),
 	append: function(instrument){
-		var $row = instrumentRowTemplate(instrument)
+		var $row = instruments.$init(instrument)
 		
 		instruments.$tbody.append($row)
 		
@@ -243,6 +251,7 @@ var instruments = {
 	}
 }
 
+// instruments binding inherits from TableBinding constructor.
 TableBinding.apply(instruments)
 
 var tunings = {
@@ -274,15 +283,14 @@ var tunings = {
 		$tr.data('values', tuning.values)
 		$tr.find('td:nth-child(2)').text(tuning.name)
 		$tr.find('td:nth-child(3)').text(tunings.valuesView(tuning))
-		
 	}
-	
 }
 
+// tunings binding inherits from TableBinding constructor.
 TableBinding.apply(tunings)
+
+
 tunings.load(userTunings)
-
-
 
 
 /**
@@ -355,7 +363,7 @@ function withValidTuning(callback){
 	} else {
 		var html = 
 			'<small class="text-danger bad-input">' + 
-				'&nbsp&nbsp;&nbsp;Your tuning\'s name is using illegal characters.'
+				'&nbsp&nbsp;&nbsp;Your tuning\'s name is either using illegal characters, or is too short.' + 
 			'</small>' 
 		$inputContainer.find('#input-tuning-name-label').append(html)
 	}
@@ -437,6 +445,7 @@ function updateTuning(){
 		routes.Tunings.update(tunings.selectedId, name, values, instruments.selectedId).ajax({
 			success: function(tuning){
 				tunings.update(tuning)
+				inputScene.empty()
 			},
 			error: onServerError
 		})
@@ -460,7 +469,16 @@ function updateTuning(){
 	}, function(){ $canvas.trigger('resize') })
 
 }
+
 function removeTuning(){
+	var id = $(this).parent().parent().data('id')
+	console.log('instrument id', id)
+	routes.Tunings.remove(id).ajax({
+		success: function(response){
+			tunings.remove(response.id)
+		},
+		error: onServerError
+	})
 }
 
 /**
@@ -505,7 +523,6 @@ function removeInstrument(){
 
 function updateInstrument(){
 	withValidInstrument(function(name, strings, id, defaultTuning){
-		
 		routes.Instruments.update(id, name, strings, defaultTuning).ajax({
 			success: function(instrument){
 				instruments.update(instrument)
@@ -526,16 +543,10 @@ function insertInstrument(){
 			routes.Instruments.insert(name, strings, tuningName, tuning).ajax({
 				success: function(response){
 				
-					var inst = response.instrument,
-						tuning = response.tuning
-					// just add the instrument to the row
-					instruments.append(inst)
-					
-					// add the tuning
-					tunings.append(tuning)
+					instruments.append(response.instrument)
+					tunings.append(response.tuning)
 					
 					inputScene.empty()
-					
 				},
 				error: onServerError
 			})

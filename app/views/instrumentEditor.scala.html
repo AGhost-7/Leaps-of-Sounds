@@ -119,7 +119,7 @@
 	</script>
 	
 	<script id="instrument-row-template" type="text/x-handlebars-template">
-		{{#with instrument}}
+		
 		
 			<tr data-id={{id}} data-default-tuning={{defaultTuning}}>
 				<td>
@@ -133,10 +133,10 @@
 				<td>{{name}}</td>
 				<td>{{strings}}</td>
 				<td>
-					<button class="btn btn-sm btn-default btn-circular">Tunings</button>
+					<button class="btn btn-sm btn-default btn-circular btn-show-tunings">Tunings</button>
 				</td>
 			</tr>
-		{{/with}}
+		
 	</script>
 	
 	<script id="instrument-input-template" type="text/x-handlebars-template">
@@ -148,7 +148,11 @@
 		
 		<div class="form-group">
 			<label id="strings-header">Number of strings</label>
+			{{#if isUpdate}}
+			<input type="text" id="input-strings" class="form-control" value={{strings}} disabled>
+			{{else}}
 			<input type="text" id="input-strings" class="form-control" value={{strings}} >
+			{{/if}}
 		</div>
 		
 		<input type="hidden" value={{id}} id="input-id" />

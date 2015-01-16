@@ -16,7 +16,7 @@ abstract class RestfulController extends Controller {
 	/**
 	 * For when the user must be logged in.
 	 */
-	object inLogin {
+	protected object inLogin {
 		
 		lazy val notLoggedInResponse = 
 			Unauthorized(Json.obj("errorMessage" -> "You must be logged in."))
@@ -41,17 +41,19 @@ abstract class RestfulController extends Controller {
 	 * which contains an errorMessage field.
 	 */
 	
-	val invalidInputResponse = 
-		BadRequest(Json.obj("errorMessage" -> "Your input failed the validation rules."))
+	protected val invalidInputResponse = 
+		BadRequest(Json.obj(
+			"success" -> false,
+			"errorMessage" -> "Your input failed the validation rules."))
 	
-	def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => JsValue): SimpleResult = {
+	protected def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => JsValue): SimpleResult = {
 		if(bool){
 			Ok(func)
 		} else {
 			errorMessage.fold { 
 				invalidInputResponse 
 			} { msg => 
-				BadRequest(Json.obj("errorMessage" -> msg))
+				BadRequest(Json.obj("success" -> false, "errorMessage" -> msg))
 			}
 		}
 	}

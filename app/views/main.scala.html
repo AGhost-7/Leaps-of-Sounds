@@ -106,7 +106,7 @@
 								<ul class="dropdown-menu" role="menu">
 									@if(session.get("username").isDefined){
 										<li><a href="@routes.Application.scaleEditor">My Scales</a></li>
-										<!-- <li><a href="#">My Instruments</a></li> -->
+										<li><a href="@routes.Application.instrumentEditor">My Instruments</a></li>
 										<li class="divider"></li>
 										<li><a href="@routes.Application.logout">Logout</a></li>
 									} else {
