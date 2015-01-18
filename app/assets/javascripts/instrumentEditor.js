@@ -8,6 +8,7 @@ update -> validate form, ajax, DOM update
 
 */
 
+
 var $inputContainer = $('#input-container')
 
 var inputScene = {
@@ -433,11 +434,15 @@ function updateTuning(){
 			.get(instruments.selectedId)
 			.strings
 	
+	console.log(
+		$tr.data('values').split(',').map(function(val) { return Number(val) })
+		)
 	
 	fingerboard.set({
 		strings: strings,
 		interval:{
-			tuning: $tr.data('values')
+			tuning: $tr.data('values').split(',').map(function(val) { return Number(val) })
+			
 		}
 	})
 	
@@ -472,7 +477,6 @@ function updateTuning(){
 
 function removeTuning(){
 	var id = $(this).parent().parent().data('id')
-	console.log('instrument id', id)
 	routes.Tunings.remove(id).ajax({
 		success: function(response){
 			tunings.remove(response.id)
@@ -522,10 +526,50 @@ function removeInstrument(){
 }
 
 function updateInstrument(){
+
+	function resize(ls, newLength) {
+		var newLs = [],
+			i = 0
+		
+		while(newLength > i){
+			if(newLs.length < ls.length)
+				newLs.push(ls[i])
+			else
+				newLs.push(0)
+				
+			i++
+		}
+		
+		return newLs
+	}
+
 	withValidInstrument(function(name, strings, id, defaultTuning){
 		routes.Instruments.update(id, name, strings, defaultTuning).ajax({
 			success: function(instrument){
 				instruments.update(instrument)
+				
+				// got to update the tunings
+				tunings
+					.$tbody
+					.find('tr')
+					.each(function(){
+						var $tr = $(this)
+						if($tr.data('instrument-id') == id){
+							var vals = $tr
+								.data('values')
+								.split(',')
+								.map(function(val){ return Number(val) })
+							var newValues = resize(vals, strings)
+							$tr.data('values', newValues.join(','))
+							// also going to need to update the data the user
+							// actually sees.
+							var valView = newValues
+								.map(function(val){ return fingerboard.notationFromFreqId(val) })
+								.join(" - ")
+							$tr.find('td:nth-child(3)').text(valView)
+						}
+					})
+				
 				inputScene.empty()
 			},
 			error: onServerError

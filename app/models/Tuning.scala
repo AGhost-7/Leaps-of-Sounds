@@ -6,6 +6,7 @@ import anorm._
 import play.api.mvc._
 import play.api.db.DB
 import java.sql.Connection
+import scala.annotation.tailrec
 
 case class Tuning(
 		id: Long,
@@ -14,11 +15,35 @@ case class Tuning(
 		user: Option[Int],
 		instrumentId: Long) extends JsonAble {
   def toJson = Tuning.toJson(this)
+  
+  /**
+   * Takes the current Tuning object and creates a new Tuning with a values of
+   * a different length. Optional fill argument will specify what the value will
+   * be if we're increasing the number of strings on the tuning.
+   */
+  def toValuesOfLength(length: Int, fill: Int = 0) = {
+  	@tailrec
+  	def resize(values: List[Int], push: Int, accu: List[Int] = Nil): List[Int] = 
+  		if(push == 0) accu
+  		else values match {
+  			// we still have some elements left in the list, so we keep in taking
+  			// from it and put it in the new list.
+  			case v :: ls => resize(ls, push - 1, accu :+ v)
+  			// There are no more elements left in the list, so we use the filler
+  			// value instead.
+  			case _ => resize(Nil, push - 1, accu :+ fill)
+  		}
+  	
+  	val vals = values.split(",").map { _.toInt }.toList
+  	
+  	val newVal = resize(vals, length)
+  	
+  	Tuning(id, name, newVal.mkString(","), user, instrumentId)
+  }
 }
 
 object Tuning extends CompWithUserRef[Tuning] {
   
-
   implicit val parser = Json.writes[Tuning]
   
   val tableName = "tunings"
@@ -54,8 +79,8 @@ object Tuning extends CompWithUserRef[Tuning] {
 	}
 	
 	def update(id: Long, name: String, values: String, instrumentId: Long, user: User)(implicit con: Connection) = {
-		SQL("""
-			UPDATE "scales"
+		val result = SQL("""
+			UPDATE "tunings"
 			SET name = {name}, values = {values}
 			WHERE id = {id} AND user_id = {user}
 		""")
@@ -65,12 +90,12 @@ object Tuning extends CompWithUserRef[Tuning] {
 					"user" -> user.id)
 			.executeUpdate
 			
-		Tuning(id, name, values,Some(user.id), instrumentId)
+		println(s"data: name = $name, values = $values, id = $id, user_id = ${user.id}\n result = $result")
+		Tuning(id, name, values, Some(user.id), instrumentId)
 	}
 
 	def ofInstrument(instrumentId: Long)
   	(implicit con: Connection, 
-    		request: Request[AnyContent],
     		user: Option[User]) = 
     		user.fold {
 					SQL("""

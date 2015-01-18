@@ -48,10 +48,10 @@ $(function() {
 		$canvas.trigger('resize')
 	})*/
 	
-	var fingerboard = new Fingerboard($canvas, loadArgs);
+	var fingerboard = new Fingerboard($canvas, loadArgs)
     
 	// Change the selector to blue and play the sound when clicked on
-	var lastNote;
+	//var lastNote = null
 	/*fingerboard.noteclick(function(note) {
 		if(lastNote) {
 			var slct;
@@ -80,8 +80,8 @@ $(function() {
 	var $p = $('#last-selected');
 	fingerboard.notehover(function(note) {
 		$p.text('note : ' + 
-			note.interval.notation + note.interval.index);
-	});
+			note.interval.notation + note.interval.index)
+	})
     
 	
 		
@@ -93,12 +93,12 @@ $(function() {
 		var $btn = $(btnSelector);
 		
 		$(liSelector).find('a').click(function(ev) {
-				var $t = $(ev.target);
-				callback($t);
+				var $t = $(ev.target)
+				callback($t)
 				$btn[0].innerHTML = $t.text() + ' &nbsp;<span class="caret"></span>';
-				ev.preventDefault();
-		});
-	};
+				ev.preventDefault()
+		})
+	}
 	
 	// ----------------------------------------------------
 	// Dropdown: scale
@@ -109,8 +109,8 @@ $(function() {
 							values: $t.attr('value'),
 							select: true
 					}
-			});
-	});
+			})
+	})
 	
 	// ----------------------------------------------------
 	// Dropdown: root
@@ -123,8 +123,8 @@ $(function() {
 						root: root,
 						select: true
 					}
-			});
-	});
+			})
+	})
 	
 	// ----------------------------------------------------
 	// Dropdown: tuning
@@ -132,23 +132,23 @@ $(function() {
 	var $tuningButton = $('#tuning-button');
 	
 	var tuningOnClick = function(ev){
-	var $t = $(ev.target);
+		var $t = $(ev.target);
 
-	fingerboard.set({
+		fingerboard.set({
 			interval:{
 				tuning: $t.attr('value')
 			}
-		});
+		})
 	
-			$tuningButton[0].innerHTML = $t.text() + 
-				' &nbsp;<span class="caret"></span>';
-			ev.preventDefault();  
-	};
+		$tuningButton[0].innerHTML = $t.text() + 
+			' &nbsp;<span class="caret"></span>';
+		ev.preventDefault()
+	}
 	
 	var tooltipProps = {
 		placement: 'right',
 		container: 'body'
-	};
+	}
 	
 	var tuningValuesToTitle = function(val){
 		return val
@@ -168,15 +168,15 @@ $(function() {
 					tuningValuesToTitle($tuningElem.attr('value')));
 		})
 		.click(tuningOnClick)
-		.tooltip(tooltipProps);
+		.tooltip(tooltipProps)
     
     // ----------------------------------------------------
     // Dropdown: instrument
     
     onaclick('#instrument-button', '#instrument-selector', function($t) {
-			var name = $t.text();
-			var strings = $t.attr('value');
-			var id = $t.attr('data-id');
+			var name = $t.text()
+			var strings = $t.attr('value')
+			var id = $t.attr('data-id')
 			//console.log(jsRoutes);
 			jsRoutes.controllers.Tunings.ofInstrument(id).ajax({
 			/*	url:(function(){
@@ -191,7 +191,7 @@ $(function() {
 					// First, reset the button to simply display "Tuning" like when
 					// the page initially loads.
 					$('#tuning-button')[0].innerHTML = 
-						'Tuning &nbsp;<span class="caret"></span>';
+						'Tuning &nbsp;<span class="caret"></span>'
 					
 					// Now we change the list items to the ones corresponding to
 					// the selected instrument.
@@ -209,11 +209,11 @@ $(function() {
 							title: tuningValuesToTitle(tuning.values)
 						});
 						$ul.append(
-								$('<li></li>').append($a));
+								$('<li></li>').append($a))
 					});
 					
 					// Annnd now we activate Bootstrap's tooltip.
-					$ul.find('a').tooltip(tooltipProps);
+					$ul.find('a').tooltip(tooltipProps)
 					
 					// And then we need to update the fingerboard's data as
 					// there may be a different number of strings.
@@ -228,8 +228,8 @@ $(function() {
 					});
 				},
 				error:function(){
-					alert("Error fetching data from server.");
+					alert("Error fetching data from server.")
 				}
-			});
-    });
-});
+			})
+    })
+})

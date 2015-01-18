@@ -148,11 +148,7 @@
 		
 		<div class="form-group">
 			<label id="strings-header">Number of strings</label>
-			{{#if isUpdate}}
-			<input type="text" id="input-strings" class="form-control" value={{strings}} disabled>
-			{{else}}
 			<input type="text" id="input-strings" class="form-control" value={{strings}} >
-			{{/if}}
 		</div>
 		
 		<input type="hidden" value={{id}} id="input-id" />
@@ -217,7 +213,6 @@
 	</script>
 	
 	<!-- Non-Global Javascript -->
-	
 	@if(Play.isProd){
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>

@@ -94,7 +94,18 @@ trait CompWithUserRef [A <: JsonAble] {
 		 	.on("id" -> id,
 		 			"user" -> user.id)
 		 	.executeUpdate
-		 
+	
+	/**
+	 * Generic Scalar SQL select.
+	 */
+	def ofId(id: Long)(implicit con: Connection) = 
+		SQL(s"""
+			SELECT * FROM "$tableName"
+			WHERE id = {id}
+		""")
+			.on("id" -> id)()
+			.map(fromRow)
+			.head
 }
 
 
