@@ -1,4 +1,4 @@
-# 
+
 class Fingerboard
 	constructor: ($canvas, args) ->
 		events = do ->
@@ -31,12 +31,15 @@ class Fingerboard
 		@[key] = events[key] for key of events
 		
 		model = new Model(args, events)
-		view = new View(args, $canvas, model, events)
+		#view = new View(args, $canvas, model, events)
 		
 		# the rest of the public functions are going to be mainly exposing
 		# the model part.
 		
-		@tuning = ->
+		@forEach = (traversor) ->
+			model.forEach (note, fret, string) ->
+				console.log(note)
+				traversor(note.public(events), fret, string)
 			
 window.Fingerboard = Fingerboard
 ###
@@ -109,9 +112,9 @@ class Model
 	fill: ->
 		@notes = []
 		for fret in [0..@frets]
-			notes[fret] = []
+			@notes[fret] = []
 			for string in [1..@strings]
-				notes[fret][string-1] = new Note(fret, string)
+				@notes[fret][string-1] = new Note(fret, string)
 				
 				
 	# This will handle the rebuilding of the interval-related data, but unlike 
@@ -136,9 +139,12 @@ class Model
 				freqId: i + 1,
 				notation: @notation[intervalValue - 1]
 		
-		# using the generated data, I can
+		# wierd scopage
+		tuning = @tuning
+		
+		# I can now slap it on the notes
 		@forEach (note, fret, string) ->
-			note.interval = intervals[@tuning[string-1] + fret]
+			note.interval = intervals[tuning[string - 1] + fret]
 	
 	
 	# This will set up the shifted interval value for building the scale.
@@ -168,7 +174,10 @@ class Model
 		
 		# We dont need to look into it more than that, we're going to have to fill
 		# it with new notes.
-		@fill() if args.strings != undefined || args.frets != undefined
+		if args.strings != undefined || args.frets != undefined || !@notes[0][0]
+			@fill() 
+		
+		console.log(@notes)
 		
 		if args.interval != undefined
 			a = interval
@@ -217,9 +226,9 @@ class Model
 	###
 	
 	forEach: (traversor) ->
-		for fretArr, fret in notes
+		for fretArr, fret in @notes
 			for note, string in fretArr
-				if traversor(note, fret, string) == false
+				if traversor(note, fret, string+1) == false
 					return
 	
 	find: (traversor) ->
@@ -287,7 +296,11 @@ class Interval
 		
 class Square
 	
-	constructor: (@x1, @y1, @x2, @y2) ->
+	constructor: ->
+		@x1 = -1
+		@y1 = -1
+		@x2 = -1 
+		@y2 = -1
 	
 	isPointWithinBounds: (x, y) ->
 		x > @x1 && x < @x2 && @y1 
@@ -306,10 +319,12 @@ class Note
 	constructor: (@fret, @string) ->
 		@selector = ''
 		@dimension = new Square()
-		@interval = new Interval()
+		@interval = new Interval
 
 	public: (events) ->
 		if(@__public__ == undefined)
+			intl = @interval
+			console.log(new Interval)
 			@__public__ = new PublicInterface(events, @, [
 				'frets', 
 				'strings', 

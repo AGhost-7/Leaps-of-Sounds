@@ -290,11 +290,18 @@ Fingerboard.Model = function(args, events) {
 		if(strings === undefined) 
 			strings = fingerboard[0].length || 6
 		
-		if(typeof frets !== 'number')
-			throw 'Frets property is not a number.'
-		if(typeof strings !== 'number')
-			throw 'Strings property is not a number.'
-		
+		if(typeof frets !== 'number'){
+			if(isNaN(frets))
+				throw 'Frets property is not a number.'
+			else
+				frets = Number(frets)
+		}
+		if(typeof strings !== 'number') {
+			if(isNaN(strings))
+				throw 'Strings property is not a number.'
+			else
+				strings = Number(strings)
+		}
 		if(frets < 1)
 			throw 'Not enough frets.'
 		if(strings < 1)
