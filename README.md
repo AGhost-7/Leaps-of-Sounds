@@ -1,9 +1,6 @@
 Leaps
 =====
 
-Uh... College project.
-
-
 ###Milestones
 
 ####0.3
