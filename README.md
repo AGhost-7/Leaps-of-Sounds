@@ -13,8 +13,8 @@ Uh... College project.
   * &#x2713; User-defined scales
 	
 ###0.4
- * User-defined instruments
- * User-defined tunings
+ * &#x2713; User-defined instruments
+ * &#x2713; User-defined tunings
 
 
 ###0.6
