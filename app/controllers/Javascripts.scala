@@ -19,9 +19,21 @@ object Javascripts extends Controller {
 	def at(file: String) = 
 		if(Play.isProd) controllers.Assets.at("/public/javascripts", file + ".min.js")
 		else controllers.Assets.at("/public/javascripts", file + ".js")
-		
 	
-		
+	private def withExt(uri: String): String = 
+		if(Play.isProd) uri + ".min.js"
+		else uri + ".js"
+	
+	lazy val lib = new {
+
+		val jquery =  withExt("https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery")
+		val jqueryui = withExt("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui")
+		val angular = withExt("https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular")
+		val bootstrap = withExt("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap")
+		val handlebars = withExt("https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars")
+			
+	}
+	
 	def router = Action { implicit request =>
     import routes.javascript._
     Ok(Routes.javascriptRouter("jsRoutes")(
@@ -37,7 +49,10 @@ object Javascripts extends Controller {
       routes.javascript.Scales.insert,
       routes.javascript.Scales.remove,
       routes.javascript.Scales.all,
-      routes.javascript.Scales.update
+      routes.javascript.Scales.update,
+      routes.javascript.Users.login,
+      routes.javascript.Users.register,
+      routes.javascript.Users.logout
       ))
       .as("text/javascript")
   }

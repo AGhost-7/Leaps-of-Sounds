@@ -1,5 +1,7 @@
 package models
 
+import scalikejdbc.WrappedResultSet
+
 case class Scale(id : Long, name: String, values: String, user: Option[Int]) extends JsonAble {
 	def toJson = Scale.toJson(this)
 }
@@ -19,7 +21,18 @@ object Scale extends CompWithUserRef[Scale] {
   
   implicit val parser = Json.writes[Scale]
   
-  def fromRow(row: anorm.SqlRow) = Scale(row[Long]("id"), row[String]("name"), row[String]("values"), row[Option[Int]]("user_id"))
+  def fromRow(row: Row) = Scale(
+		row[Long]("id"), 
+		row[String]("name"), 
+		row[String]("values"), 
+		row[Option[Int]]("user_id"))
+		
+	def fromRS(rs: scalikejdbc.WrappedResultSet): Scale = 
+		Scale(
+			rs.long("id"), 
+			rs.string("name"), 
+			rs.string("values"), 
+			rs.intOpt("user_id"))
   
   /**
    * Verifies if name and values is valid.

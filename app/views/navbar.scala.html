@@ -1,0 +1,37 @@
+@* navbar Template File *@
+@()
+
+<nav ng-app="navbar" class="navbar navbar-inverse" role="navigation">
+
+	<div class="container-fluid" ng-controller="MainController">
+		<inner-nav></inner-nav>
+	</div>
+
+
+  <div class="modal fade">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Modal title</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <label>Username</label>
+            <input type="text" class="form-control" ng-model="username"/>
+
+            <label>Password</label>
+            <input type="password" class="form-control" ng-model="password"/>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" ng-click="login()">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</nav>

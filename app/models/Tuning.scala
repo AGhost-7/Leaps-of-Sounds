@@ -7,6 +7,7 @@ import play.api.mvc._
 import play.api.db.DB
 import java.sql.Connection
 import scala.annotation.tailrec
+import scalikejdbc.WrappedResultSet
 
 case class Tuning(
 		id: Long,
@@ -48,13 +49,20 @@ object Tuning extends CompWithUserRef[Tuning] {
   
   val tableName = "tunings"
 
-  def fromRow(row: SqlRow) = 
+  def fromRow(row: Row) = 
   	Tuning(row[Long]("id"), 
   			row[String]("name"), 
   			row[String]("values"), 
   			row[Option[Int]]("user_id"), 
   			row[Int]("instrument"))
-  
+  			
+  def fromRS(rs: scalikejdbc.WrappedResultSet): Tuning = 
+  	Tuning(
+  		rs.long("id"),
+  		rs.string("name"),
+  		rs.string("values"),
+  		rs.intOpt("user_id"),
+  		rs.int("instrument"))
   
 	val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
 	val valuesConstraint = """^\d+([,]\d+)+$""".r

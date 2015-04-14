@@ -4,6 +4,7 @@ import play.api._
 import play.api.libs.json.Json
 import anorm._
 import java.sql.Connection
+import scalikejdbc.WrappedResultSet
 
 /**
  * Simple type for bounds. Didn't use duck typing since its reflective AFAIK.
@@ -25,12 +26,64 @@ trait CompWithUserRef [A <: JsonAble] {
 	
 	def tableName: String
 	
-	def fromRow(row: SqlRow): A
+	def fromRow(row: Row): A
+	
+	def fromRS(rs: scalikejdbc.WrappedResultSet): A
 	
 	// ----------------
 	// Concrete Members
 	
 	def toJson(obj: A) = Json.toJson(obj)
+	
+	object async {
+		
+		import scalikejdbc._
+		import scalikejdbc.async._
+		import scala.concurrent.Future
+		import play.api.libs.concurrent.Execution.Implicits._
+		import utils.sql._
+		
+		private implicit val mapper = fromRS _
+		
+		def countForUser(user: User)(implicit ses: AsyncDBSession): Future[Int] = 
+			SQL(s"""SELECT count(*) As Cnt FROM "$tableName" WHERE user_id = ?""")
+				.bind(user.id)
+				.map { _.int("Cnt") }
+				.single
+				.future
+				.map { _.get }
+				
+		def ofPageForUser(page: Int, user: User)(implicit ses: AsyncDBSession): Future[List[A]] =
+			SQL(s"""
+				SELECT * FROM "$tableName"
+				WHERE user_id = ?
+				LIMIT ?, 10
+			""")
+				.bind(user.id, (page - 1) * 10)
+				.as[A]
+				.list
+				.future
+				
+		def all(implicit ses: AsyncDBSession, userOpt: Option[User]): Future[List[A]] = 
+			userOpt.fold { 
+				SQL(s"""
+					SELECT * FROM "$tableName" 
+					WHERE user_id IS NULL
+				""")
+			} { user => 
+				SQL(s"""
+					SELECT * FROM "$tableName" 
+					WHERE user_id = ? OR user_id IS NULL
+				""").bind(user.id)
+			}.as[A].list.future
+			
+		def allOfUser(user: User)(implicit ses: AsyncDBSession): Future[List[A]] =
+			SQL(s"""SELECT * FROM "$tableName" WHERE user_id = ?""")
+				.bind(user.id)
+				.as[A]
+				.list
+				.future
+	}
 	
 	def countForUser(user: User)(implicit con: Connection) =
 		SQL(s"""
@@ -53,9 +106,7 @@ trait CompWithUserRef [A <: JsonAble] {
 	def pageAsJson(page: Int, user: User)(implicit con: Connection) =
 		Json.toJson(ofPageForUser(page, user))
 	
-	/**
-	 * Returns all scales that the user should be able to read.
-	 */
+	/** Returns all scales that the user should be able to read. */
 	def getAll(implicit con: Connection, user: Option[User]) = 
   	user.fold(
   		SQL(s"""
@@ -71,9 +122,7 @@ trait CompWithUserRef [A <: JsonAble] {
   			.on("user" -> user.id)()
   	).map(fromRow)
   
-  /**
-   * Returns only the user defined rows
-   */
+  /** Returns only the user defined rows */
   def ofUser(user: User)(implicit con: Connection) = 
   	SQL(s"""
   		SELECT * FROM "$tableName"
@@ -82,9 +131,7 @@ trait CompWithUserRef [A <: JsonAble] {
 	  	.on("user" -> user.id)()
 	  	.map(fromRow)
 	 
-	 /**
-	  * Generic removal method for single entry.
-	  */
+	 /** Generic removal method for single entry. */
 	 def remove(id: Long, user: User)(implicit con: Connection) =
 		 SQL(s"""
 				DELETE FROM "$tableName"
@@ -95,9 +142,7 @@ trait CompWithUserRef [A <: JsonAble] {
 		 			"user" -> user.id)
 		 	.executeUpdate
 	
-	/**
-	 * Generic Scalar SQL select.
-	 */
+	/** Generic Scalar SQL select. */
 	def ofId(id: Long)(implicit con: Connection) = 
 		SQL(s"""
 			SELECT * FROM "$tableName"

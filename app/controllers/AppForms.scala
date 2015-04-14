@@ -16,7 +16,7 @@ import anorm._
 // project imports
 import models._
 import utils._
-import utils.implicits._
+//import utils.implicits._
 
 object AppForms extends Controller  {
 

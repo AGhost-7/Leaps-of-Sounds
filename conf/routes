@@ -22,6 +22,11 @@ GET     /instrument-editor             controllers.Application.instrumentEditor
 # RESTful stuff
 # ~~~~~~~~~~~~~
 
+# Users
+POST    /user/login                     controllers.Users.login
+POST    /user/register                  controllers.Users.register
+GET     /user/logout                    controllers.Users.logout
+
 # Scales
 GET     /scale/all                      controllers.Scales.all
 GET     /scale                          controllers.Scales.list(set: Int)
@@ -54,13 +59,12 @@ DELETE /tuning                          controllers.Tunings.remove(id: Long)
 
 GET	    /assets/javascripts/router      controllers.Javascripts.router
 
-#GET     /assets/remote/*file            controllers.Javascripts.remote(file)
-
 # Extension is automatically added so that when in production these will
 # be minified, while still remaining easy to debug on dev.
 GET     /assets/javascripts/*file       controllers.Javascripts.at(file)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                   controllers.Assets.at(path="/public", file)
+
 
 

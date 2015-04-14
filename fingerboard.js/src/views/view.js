@@ -63,7 +63,7 @@ Fingerboard.View = function(args, $canvas, model, events) {
 		
 		// radius for circles :D
 		var radius = (heightRatio > openWidth ? 
-			openWidth / 4 : heightRatio / 4),
+				openWidth / 4 : heightRatio / 4),
 			helperRadius = radius * 2 / 3;
 		
 		var drawSelector = (args.display && args.display.selector) ||

@@ -17,12 +17,20 @@ object Instrument extends CompWithUserRef[Instrument] {
   val tableName = "instruments"
   val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
   
-  def fromRow(row: SqlRow) = 
+  def fromRow(row: Row) = 
   	Instrument(row[Int]("id"), 
   			row[String]("name"), 
   			row[Int]("strings"), 
   			row[Long]("default_tuning"), 
   			row[Option[Int]]("user_id"))  
+  			
+  def fromRS(rs: scalikejdbc.WrappedResultSet): Instrument =
+  	Instrument(
+  			rs.int("id"), 
+  			rs.string("name"), 
+  			rs.int("strings"), 
+  			rs.long("default_tuning"), 
+  			rs.intOpt("user_id"))
   
   def validInput(name: String, strings: Int) =
   	strings < 16 && nameConstraint.findFirstIn(name).isDefined
