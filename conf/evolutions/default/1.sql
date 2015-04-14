@@ -1,5 +1,5 @@
 
--- Create tables with proper references and shit. ~AGhost
+-- Create tables with proper references and stuff. ~AGhost
 
 # --- !Ups
 
