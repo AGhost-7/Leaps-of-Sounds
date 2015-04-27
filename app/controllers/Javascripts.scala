@@ -24,7 +24,7 @@ object Javascripts extends Controller {
 		if(Play.isProd) uri + ".min.js"
 		else uri + ".js"
 	
-	lazy val lib = new {
+	val lib = new {
 
 		val jquery =  withExt("https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery")
 		val jqueryui = withExt("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui")

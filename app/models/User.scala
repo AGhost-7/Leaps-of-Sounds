@@ -8,6 +8,7 @@ import play.api.db.DB
 import anorm._
 import play.api.Play.current
 import org.mindrot.jbcrypt.BCrypt
+import scalikejdbc.async.AsyncDBSession
 
 import scala.concurrent._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -26,43 +27,7 @@ case class Registratee(
 	username: String,
 	password: String,
 	password2: String,
-	email: String) {
-
-	/**
-	 * Returns true if the user is using an email and username which isn't
-	 * already taken.
-	 */
-	def isOriginal =
-		DB.withConnection { implicit con =>
-			SQL("""
-        SELECT COUNT(*) AS Count FROM users 
-        WHERE email = {email} OR username = {username}
-        """)
-				.on("email" -> email, "username" -> username)
-				.apply()
-				.head[Long]("Count") == 0L
-		}
-
-	def persist {
-		persist(username, password, email)
-	}
-
-	private def persist(username: String, password: String, email: String) {
-		val salt = BCrypt.gensalt
-		val hashed = BCrypt.hashpw(password, salt)
-		DB.withConnection { implicit con =>
-			SQL("""
-          INSERT INTO users(username, password, email) 
-          VALUES ({username}, {password}, {email})
-        """)
-				.on("username" -> username,
-					"password" -> hashed,
-					"email" -> email)
-				.execute
-		}
-	}
-
-}
+	email: String)
 
 case class LoginUser(username: String, password: String)
 
@@ -71,12 +36,7 @@ sealed trait MaybeUser
 case class User(id: Int, username: String, password: String) extends MaybeUser
 case class FailedAuth(error: String) extends MaybeUser
 
-
-
 object User {
-	
-	def fromRS(rs: scalikejdbc.WrappedResultSet): User = 
-			User(rs.int("id"), rs.string("username"), rs.string("password"))
 			
 	object async {
 		
@@ -84,24 +44,27 @@ object User {
 		import scalikejdbc.async._
 		import scala.concurrent.Future
 		import utils.sql._
-		
-		implicit val mapper = (rs: WrappedResultSet) => 
+
+		private def db = AsyncDB.sharedSession
+		type Con = AsyncDBSession
+
+		private implicit val mapper = (rs: WrappedResultSet) =>
 			User(rs.int("id"), rs.string("username"), rs.string("password"))
-			
-		def ofUsername(name: String)(implicit ses: AsyncDBSession): Future[Option[User]] = 
+
+		def ofUsername(name: String)(implicit ses: Con = db): Future[Option[User]] =
 			sql"SELECT * FROM users WHERE username = $name"
 				.as[User]
 				.single
 				.future
 		
-		def authenticate(username: String, password: String)(implicit ses: AsyncDBSession): Future[MaybeUser] =
+		def authenticate(username: String, password: String)(implicit ses: Con = db): Future[MaybeUser] =
 			ofUsername(username).map { 
 					case None => FailedAuth("User name not found.")
-					case uOpt @ Some(usr @ User(_, _, pw)) if(BCrypt.checkpw(password, pw)) => usr
+					case Some(usr @ User(_, _, pw)) if(BCrypt.checkpw(password, pw)) => usr
 					case _ => FailedAuth("Password is incorrect.")
 				}
 				
-		def fromSession(implicit ses: AsyncDBSession, req: Request[AnyContent]): Future[Option[User]] = 
+		def fromSession(implicit req: Request[AnyContent], ses: Con = db): Future[Option[User]] =
 			req.session.get("token").map { token =>
 				sql"""
 					SELECT * FROM users 
@@ -109,54 +72,74 @@ object User {
 						ON tokens.user_id = users.id 
 					WHERE tokens.token = $token
 				"""
-					.map(fromRS)
+					.as[User]
 					.single
 					.future
 					
 			}.getOrElse(Future.successful(None))
 			
-		def mkToken(userId: Int)(implicit ses: AsyncDBSession): Future[String] = {
+		def mkToken(userId: Int)(implicit ses: Con = db): Future[String] = {
 			val uid = java.util.UUID.randomUUID.toString
 			sql"SELECT * FROM begin_session($userId::Int, $uid::Char(37))"
 					.execute.future.map{ _ => uid }
 		}
 			
-		def rmToken(tkn: String)(implicit ses: AsyncDBSession) : Future[Int] = 
+		def rmToken(tkn: String)(implicit ses: Con = db) : Future[Int] =
 			sql"DELETE FROM tokens WHERE token = $tkn".update.future
-		
+
+		def notUnique(name: String, email: String)(implicit ses: Con = db): Future[Option[String]] = {
+			sql"SELECT * FROM users WHERE username = $name OR email = $email"
+				.map { rs =>
+					if(rs.string("username") == name) "username"
+					else "email"
+				}
+				.single
+				.future
+		}
+
 		def findValidationError(
 				name: String, 
 				password: String, 
 				password2: String,
-				email: String)(implicit ses: AsyncDBSession): Future[Option[String]] = {
-			ofUsername(name).map {
-				case Some(user) => Some("User name is already taken")
-				case None => 
-					if(name.length < 6) 
-						Some("Minimum user name length is 6 characters.")
-					else if(password != password2) 
-						Some("Passords do not match")
-					else if(password.length < 6) 
-						Some("Password must have a minimum lenght of 6 characters.")
-					else if(!name.matches("[A-z0-9_-]+")) 
-						Some("User name contains illegal characters.")
-					else if(!email.matches(".+@.+[.].+"))
-						Some("Email is invalid.")
-					else 
-						None
+				email: String)(implicit ses: Con = db): Future[Option[String]] = {
+
+			val error = {
+				if(name.length < 6)
+					Some("Minimum user name length is 6 characters.")
+				else if(password != password2)
+					Some("Passords do not match")
+				else if(password.length < 6)
+					Some("Password must have a minimum lenght of 6 characters.")
+				else if(!name.matches("[A-z0-9_-]+"))
+					Some("User name contains illegal characters.")
+				else if(!email.matches(".+@.+[.].+"))
+					Some("Email is invalid.")
+				else
+					None
 			}
+
+			if(error.isEmpty)
+				notUnique(name, email).map {
+					case Some("username") => Some("User name is already taken")
+					case Some("email") => Some("Email is already taken")
+					case None => None
+				}
+			else
+				Future.successful(error)
 		}
 		
-		def create(name: String, password: String, email: String)(implicit ses: AsyncDBSession): Future[User] = {
+		def create(name: String, password: String, email: String)(implicit ses: Con = db): Future[User] = {
+			val salt = BCrypt.gensalt
+			val hashed = BCrypt.hashpw(password, salt)
 			val update = 
-				sql"INSERT INTO users(username, password, email) VALUES ($name, $password, $email)"
+				sql"INSERT INTO users(username, password, email) VALUES ($name, $hashed, $email)"
 					.update.future
 			update.map{ i => User(i, name, password) }
 		}
 		
 	}// async end
 	
-	def authenticate(username: String, password: String)(implicit con: Connection) =
+	def authenticate(username: String, password: String)(implicit con: Connection): Boolean =
 		ofUsername(username) match {
 			case result if (result.length == 0) => false
 			case result if (!BCrypt.checkpw(password, result.head[String]("password"))) =>

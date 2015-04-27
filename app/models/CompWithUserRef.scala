@@ -63,7 +63,8 @@ trait CompWithUserRef [A <: JsonAble] {
 				.as[A]
 				.list
 				.future
-				
+
+		/** Returns all scales that the user should be able to read. */
 		def all(implicit ses: AsyncDBSession, userOpt: Option[User]): Future[List[A]] = 
 			userOpt.fold { 
 				SQL(s"""
@@ -76,7 +77,8 @@ trait CompWithUserRef [A <: JsonAble] {
 					WHERE user_id = ? OR user_id IS NULL
 				""").bind(user.id)
 			}.as[A].list.future
-			
+
+		/** Returns only the user defined rows */
 		def allOfUser(user: User)(implicit ses: AsyncDBSession): Future[List[A]] =
 			SQL(s"""SELECT * FROM "$tableName" WHERE user_id = ?""")
 				.bind(user.id)
