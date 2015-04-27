@@ -75,15 +75,15 @@
 	}
 	
 	</style>
-	<link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
-	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
+	<link rel="shortcut icon" href='@routes.Assets.versioned("images/favicon.ico")'>
+	<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/bootstrap.min.css")'>
 	<script src='@routes.Javascripts.router'></script>
 	
 	<script>var leaps = {}</script>
 	<script src="@Javascripts.lib.jquery"></script>
 	<script src="@Javascripts.lib.bootstrap"></script>
-	<script src="@Javascripts.lib.angular"></script>
-	<script src="@routes.Javascripts.at("login")"></script>
+	@*<script src="@Javascripts.lib.angular"></script>*@
+	@*<script src='@routes.Javascripts.versioned("login")'></script> *@
 
 </head>
 <body>

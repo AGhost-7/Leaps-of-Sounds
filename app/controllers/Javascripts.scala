@@ -17,8 +17,8 @@ object Javascripts extends Controller {
 	 * Assets are automatically minified on production.
 	 */
 	def at(file: String) = 
-		if(Play.isProd) controllers.Assets.at("/public/javascripts", file + ".min.js")
-		else controllers.Assets.at("/public/javascripts", file + ".js")
+		/*if(Play.isProd)*/ controllers.Assets.at("/public/javascripts", file + ".min.js")
+		//else controllers.Assets.at("/public/javascripts", file + ".js")
 	
 	private def withExt(uri: String): String = 
 		if(Play.isProd) uri + ".min.js"

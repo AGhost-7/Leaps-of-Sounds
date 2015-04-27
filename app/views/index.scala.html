@@ -107,7 +107,7 @@
 
 <div class="jumbotron">
 	<!--[if lt IE 9]>
-		<script src='@routes.Assets.at("polyfills/flashcanvas/flashcanvas.js")'></script>
+		<script src='@routes.Assets.versioned("polyfills/flashcanvas/flashcanvas.js")'></script>
 	<![endif]-->
 	
 	<!-- displays the note that you're hovered on -->
@@ -134,10 +134,10 @@
 	</script>
 	
 	<!-- Custom Libs -->
-	<script src='@routes.Javascripts.at("fingerboard")'></script>
+	<script src='@routes.Assets.versioned("javascripts/fingerboard.js")'></script>
 	<script src='@routes.Javascripts.router'></script>
 	<!-- Main -->
-	<script async src='@routes.Javascripts.at("index")'></script>
+	<script async src='@routes.Assets.versioned("javascripts/index.js")'></script>
 </div>
 
 }

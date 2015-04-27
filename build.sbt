@@ -18,4 +18,4 @@ libraryDependencies ++= Seq(
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb, PlayScala)
 
-//play.Project.playScalaSettings
+pipelineStages := Seq(uglify, digest, gzip)
