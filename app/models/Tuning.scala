@@ -15,7 +15,8 @@ case class Tuning(
 		values: String, 
 		user: Option[Int],
 		instrumentId: Long) extends JsonAble {
-  def toJson = Tuning.toJson(this)
+
+  def toJson = Json.toJson(this)(Tuning.jsFormat)
   
   /**
    * Takes the current Tuning object and creates a new Tuning with a values of
@@ -45,7 +46,7 @@ case class Tuning(
 
 object Tuning extends CompWithUserRef[Tuning] {
   
-  implicit val parser = Json.writes[Tuning]
+  implicit val jsFormat = Json.format[Tuning]
   
   val tableName = "tunings"
 
