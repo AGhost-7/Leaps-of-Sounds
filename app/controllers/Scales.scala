@@ -14,6 +14,7 @@ import scalikejdbc._
 
 
 
+
 /** Standard CRUD operations for Scales data. */
 object Scales extends AsyncRestfulController {
 
@@ -51,6 +52,7 @@ object Scales extends AsyncRestfulController {
 			}
 		}
 	}
+
 
 	def list(set: Int) = inLogin { user =>
 		Scale.async.ofPageForUser(set, user).map { ls =>
