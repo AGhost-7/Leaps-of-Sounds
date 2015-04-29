@@ -1,9 +1,11 @@
 package models
 
-import scalikejdbc.WrappedResultSet
+import play.api.libs.json.Json
 
-case class Scale(id : Long, name: String, values: String, user: Option[Int]) extends JsonAble {
-	def toJson = Scale.toJson(this)
+case class Scale(id : Long, name: String, values: String, user: Option[Int])
+		extends JsonAble {
+
+	def toJson = Json.toJson(this)(Scale.jsFormat)
 }
 
 object Scale extends CompWithUserRef[Scale] {
@@ -19,20 +21,28 @@ object Scale extends CompWithUserRef[Scale] {
   val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
   val valuesConstraint = "^((1[0-2]|[0-9])([,](1[0-2]|[0-9]))+)$".r
   
-  implicit val parser = Json.writes[Scale]
+  implicit val jsFormat = Json.format[Scale]
   
   def fromRow(row: Row) = Scale(
 		row[Long]("id"), 
 		row[String]("name"), 
 		row[String]("values"), 
 		row[Option[Int]]("user_id"))
-		
-	def fromRS(rs: scalikejdbc.WrappedResultSet): Scale = 
-		Scale(
-			rs.long("id"), 
-			rs.string("name"), 
-			rs.string("values"), 
-			rs.intOpt("user_id"))
+
+	object async extends AsyncCompWithUserRef[Scale] {
+
+		def tableName = Scale.tableName
+
+		def fromRS(rs: scalikejdbc.WrappedResultSet): Scale =
+			Scale(
+				rs.long("id"),
+				rs.string("name"),
+				rs.string("values"),
+				rs.intOpt("user_id"))
+
+
+	}
+
   
   /**
    * Verifies if name and values is valid.

@@ -16,7 +16,7 @@ import java.sql.Connection
 
 import utils._
 
-
+import play.api.libs.json._
 
 /**
  * Various classes for the user entity
@@ -33,22 +33,27 @@ case class LoginUser(username: String, password: String)
 
 sealed trait MaybeUser
 
-case class User(id: Int, username: String, password: String) extends MaybeUser
+case class User(id: Int, username: String, password: String)
+		extends MaybeUser
+		with JsonAble {
+	def toJson = Json.toJson(this)(User.jsFormat)
+}
 case class FailedAuth(error: String) extends MaybeUser
 
 object User {
-			
-	object async {
+
+	implicit val jsFormat = Json.format[User]
+
+	object async extends AsyncModelComp[User] {
 		
 		import scalikejdbc._
 		import scalikejdbc.async._
 		import scala.concurrent.Future
 		import utils.sql._
 
-		private def db = AsyncDB.sharedSession
-		type Con = AsyncDBSession
+		val tableName = "users"
 
-		private implicit val mapper = (rs: WrappedResultSet) =>
+		def fromRS(rs: WrappedResultSet): User =
 			User(rs.int("id"), rs.string("username"), rs.string("password"))
 
 		def ofUsername(name: String)(implicit ses: Con = db): Future[Option[User]] =

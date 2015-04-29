@@ -10,9 +10,11 @@ import scala.concurrent.Future
 
 abstract class AsyncRestfulController extends Controller {
 	
-	protected implicit val con = AsyncDB.sharedSession
+
 	protected implicit val executionContext = 
 		play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+	protected implicit def db = AsyncDB.sharedSession
 		
 	protected object inLogin {
 		
@@ -36,23 +38,31 @@ abstract class AsyncRestfulController extends Controller {
 	}
 	
 	
-	protected val invalidInputResponse = 
-		BadRequest(Json.obj(
+	protected val invalidInputResponse = {
+		val js = Json.obj(
 			"success" -> false,
-			"errorMessage" -> "Your input failed the validation rules."))
-	
-	protected def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => JsValue): Result = {
+			"errorMessage" -> "Your input failed the validation rules.")
+		Future.successful(BadRequest(js))
+	}
+
+	protected def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => Future[Result]): Future[Result] = {
 		if(bool){
-			Ok(func)
+			func
 		} else {
 			errorMessage.fold { 
 				invalidInputResponse 
 			} { msg => 
-				BadRequest(Json.obj("success" -> false, "errorMessage" -> msg))
+				Future.successful(
+					BadRequest(Json.obj("success" -> false, "errorMessage" -> msg)))
 			}
 		}
 	}
 	
-	
+	protected def scalarUpdate(ft: Future[Int]): Future[Result] = {
+		ft.map {
+			case 0 => BadRequest(Json.obj("error" -> "Entry does not exist"))
+			case 1 => Ok("{}").withHeaders("Content-Type" -> "application/json")
+		}
+	}
 	
 }

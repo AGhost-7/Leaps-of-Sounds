@@ -8,11 +8,11 @@ import play.api.Play.current
 import java.sql.Connection
 
 case class Instrument(id: Long, name: String, strings: Int, defaultTuning: Long, user: Option[Int]) extends JsonAble {
-  def toJson = Instrument.toJson(this)
+  def toJson = Json.toJson(this)(Instrument.jsFormat)
 }
 
 object Instrument extends CompWithUserRef[Instrument] {
-  implicit val parser = Json.writes[Instrument]
+  implicit val jsFormat = Json.format[Instrument]
   
   val tableName = "instruments"
   val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
@@ -23,20 +23,25 @@ object Instrument extends CompWithUserRef[Instrument] {
   			row[Int]("strings"), 
   			row[Long]("default_tuning"), 
   			row[Option[Int]]("user_id"))  
-  			
-  def fromRS(rs: scalikejdbc.WrappedResultSet): Instrument =
-  	Instrument(
-  			rs.int("id"), 
-  			rs.string("name"), 
-  			rs.int("strings"), 
-  			rs.long("default_tuning"), 
-  			rs.intOpt("user_id"))
+
+	object async extends AsyncCompWithUserRef[Instrument] {
+		val tableName = Instrument.tableName
+
+		def fromRS(rs: scalikejdbc.WrappedResultSet): Instrument =
+			Instrument(
+				rs.int("id"),
+				rs.string("name"),
+				rs.int("strings"),
+				rs.long("default_tuning"),
+				rs.intOpt("user_id"))
+
+	}
   
   def validInput(name: String, strings: Int) =
   	strings < 16 && nameConstraint.findFirstIn(name).isDefined
-  
+
   def update(id: Long, name: String, strings: Int, defaultTuning: Long, user: User)(implicit con: Connection) = {
-  	
+
   	val instrument = Instrument.ofId(id)
   	
   	// You should only be able to change the instrument if it is user defined.
