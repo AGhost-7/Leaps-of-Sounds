@@ -18,8 +18,6 @@ import taxonomy._
  */
 object Tunings extends AsyncRestfulController {
 
-
-
 	def ofInstrument(instrumentId: Long) = Action.async { implicit request =>
 		for {
 			userOpt <- User.async.fromSession
@@ -40,13 +38,13 @@ object Tunings extends AsyncRestfulController {
 	}
 
 	def remove(id: Long) = inLogin { user =>
-		sql"""SELECT * """
-		.update
-		.future
-		.map {
-			case 0 => BadRequest(Json.obj("error" -> "Tuning does not exist"))
-			case 1 => Ok(Json.obj("id" -> id, "success" -> true))
-		}
+		sql"""DELETE FROM tunings WHERE id = $id AND user_id = ${user.id}"""
+			.update
+			.future
+			.map {
+				case 0 => BadRequest(Json.obj("error" -> "Tuning does not exist"))
+				case 1 => Ok(Json.obj("id" -> id, "success" -> true))
+			}
 	}
 
 	def insert(name: String, values: String, instrumentId: Long) = inLogin { user =>
