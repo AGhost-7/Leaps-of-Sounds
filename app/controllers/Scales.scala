@@ -45,11 +45,11 @@ object Scales extends AsyncRestfulController {
 				VALUES ($name, $values, ${user.id})
 				RETURNING id
 				"""
-			.updateAndReturnGeneratedKey()
-			.future
-			.map { i =>
-				Ok(Scale(i, name, values, Some(user.id)).toJson)
-			}
+				.updateAndReturnGeneratedKey()
+				.future
+				.map { i =>
+					Ok(Scale(i, name, values, Some(user.id)).toJson)
+				}
 		}
 	}
 

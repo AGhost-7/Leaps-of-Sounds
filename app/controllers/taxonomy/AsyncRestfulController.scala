@@ -18,7 +18,7 @@ abstract class AsyncRestfulController extends Controller {
 		
 	protected object inLogin {
 		
-		lazy val notLoggedInResponse: Result = 
+		val notLoggedInResponse: Result =
 			Unauthorized(Json.obj("errorMessage" -> "You must be logged in."))
 			
 		/*def apply(whenLoggedIn: User => Result): Action[AnyContent] = Action.async { implicit req =>

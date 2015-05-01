@@ -44,9 +44,11 @@ case class Tuning(
   }
 }
 
-object Tuning extends CompWithUserRef[Tuning] {
+object Tuning extends CompWithUserRef[Tuning] { self =>
   
   implicit val jsFormat = Json.format[Tuning]
+
+
   
   val tableName = "tunings"
 
@@ -57,13 +59,21 @@ object Tuning extends CompWithUserRef[Tuning] {
   			row[Option[Int]]("user_id"), 
   			row[Int]("instrument"))
   			
-  def fromRS(rs: scalikejdbc.WrappedResultSet): Tuning = 
-  	Tuning(
-  		rs.long("id"),
-  		rs.string("name"),
-  		rs.string("values"),
-  		rs.intOpt("user_id"),
-  		rs.int("instrument"))
+
+
+	object async extends AsyncModelComp[Tuning] {
+
+		def tableName = self.tableName
+
+		def fromRS(rs: scalikejdbc.WrappedResultSet): Tuning =
+			Tuning(
+				rs.long("id"),
+				rs.string("name"),
+				rs.string("values"),
+				rs.intOpt("user_id"),
+				rs.int("instrument"))
+
+	}
   
 	val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
 	val valuesConstraint = """^\d+([,]\d+)+$""".r

@@ -5,20 +5,79 @@ import models._
 import anorm._
 import play.api.libs.json.Json
 import controllers.taxonomy._
+import scalikejdbc._
+import scalikejdbc.async._
 
-object Instruments extends RestfulController {
+object Instruments extends AsyncRestfulController {
 
 	/**
 	 * This is a wee bit complicated since the instrument and tuning are 
 	 * cross-dependant.
 	 */
+	def insert(name: String, strings: Int, tuningName: String, tuningValues: String) =
+		inLogin { user =>
+			ifValidated(Instrument.validInput(name, strings)
+					&& Tuning.validInput(tuningName, tuningValues)) {
+					sql"""
+						SELECT * FROM insert_instrument(
+		 				$name, $strings, ${user.id}, $tuningName, $tuningValues)
+			 			"""
+					.map { rs =>
+						val instrumentId = rs.long("id_one")
+						val tuningId = rs.long("id_two")
+						val instrument =
+							Instrument(instrumentId,
+								name, strings, tuningId, Some(user.id))
+						val tuning = Tuning(tuningId,
+							tuningName, tuningValues, Some(user.id), instrumentId)
+
+						Ok(Json.obj("tuning" -> tuning, "instrument" -> instrument))
+
+					}.single.future.map { _.get }
+			}
+		}
+
+	def update(id: Long, name: String, strings: Int, defaultTuning: Long) =
+		inLogin { user =>
+			ifValidated(Instrument.validInput(name, strings)){
+				sql"""
+					UPDATE instruments
+		 			SET name = $name, strings = $strings, default_tuning = $defaultTuning
+		 			WHERE id = $id AND user_id = ${user.id}
+					"""
+					.update
+					.future
+					.map {
+						case 0 =>
+							BadRequest(Json.obj("" -> ""))
+						case 1 =>
+							Ok(Instrument(id, name, strings, defaultTuning, Some(user.id)).toJson)
+					}
+			}
+		}
+
+	def remove(id: Long) = inLogin { user =>
+		sql"""
+			DELETE FROM instruments
+			WHERE id = $id AND user_id = ${user.id}
+			"""
+			.update
+			.future
+			.map {
+				case 0 =>
+					BadRequest(Json.obj("" -> ""))
+				case 1 =>
+					Ok(Json.obj("id" -> id, "success" -> true))
+			}
+	}
+	/*
 	def insert(name: String, strings: Int, tuningName: String, tuningValues: String) = 
 		inLogin withDB { (user, con) =>
 			ifValidated(Instrument.validInput(name, strings) 
 					&& Tuning.validInput(tuningName, tuningValues)) {
 				
 				// Calling stored function
-				val row = SQL("""
+				val row = SQL(
 					SELECT * 
 					FROM insert_instrument(
 						{inst_name},
@@ -44,7 +103,7 @@ object Instruments extends RestfulController {
 				Json.obj("tuning" -> tuning.toJson, "instrument" -> instrument.toJson)
 			}
 		}
-	
+
 	def update(id: Long, name: String, strings: Int, defaultTuning: Long) = 
 		inLogin withDB { (user, con) => 
 			ifValidated(Instrument.validInput(name, strings)) {
@@ -57,5 +116,5 @@ object Instruments extends RestfulController {
 		Ok(Json.obj("id" -> id, "success" -> true))
 	}
 	
-	
+	*/
 }
