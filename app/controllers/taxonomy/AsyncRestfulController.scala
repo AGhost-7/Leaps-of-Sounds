@@ -8,14 +8,12 @@ import play.api.libs.json._
 
 import scala.concurrent.Future
 
-abstract class AsyncRestfulController extends Controller {
+/**
+ * This class defines default the behavior of my REST controllers.
+ */
+abstract class AsyncRestfulController extends AsyncController {
 	
 
-	protected implicit val executionContext = 
-		play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-	protected implicit def db = AsyncDB.sharedSession
-		
 	protected object inLogin {
 		
 		val notLoggedInResponse: Result =
@@ -57,11 +55,18 @@ abstract class AsyncRestfulController extends Controller {
 			}
 		}
 	}
-	
-	protected def scalarUpdate(ft: Future[Int]): Future[Result] = {
+
+	def scalarUpdate(ft: Future[Int]): Future[Result] = {
 		ft.map {
 			case 0 => BadRequest(Json.obj("error" -> "Entry does not exist"))
 			case 1 => Ok("{}").withHeaders("Content-Type" -> "application/json")
+		}
+	}
+
+	def scalarUpdate(ft: Future[Int], onSuccess: => JsonAble) = {
+		ft.map {
+			case 0 => BadRequest(Json.obj("error" -> "Entry does not exist"))
+			case 1 => Ok(onSuccess.toJson)
 		}
 	}
 	

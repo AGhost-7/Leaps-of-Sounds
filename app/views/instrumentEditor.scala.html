@@ -1,4 +1,4 @@
-@(instruments: Stream[Instrument], tunings: play.api.libs.json.JsValue)(implicit session: play.api.mvc.Session)
+@(instruments: Traversable[Instrument], tunings: play.api.libs.json.JsValue)(implicit session: play.api.mvc.Session)
 @import play.api.Play.current
 @import play.api.Play
 @import controllers.Javascripts

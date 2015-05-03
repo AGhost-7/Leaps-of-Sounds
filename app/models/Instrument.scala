@@ -6,6 +6,7 @@ import play.api.mvc._
 import play.api.db.DB
 import play.api.Play.current
 import java.sql.Connection
+import scala.concurrent.Future
 
 case class Instrument(id: Long, name: String, strings: Int, defaultTuning: Long, user: Option[Int]) extends JsonAble {
   def toJson = Json.toJson(this)(Instrument.jsFormat)
@@ -25,6 +26,9 @@ object Instrument extends CompWithUserRef[Instrument] {
   			row[Option[Int]]("user_id"))  
 
 	object async extends AsyncCompWithUserRef[Instrument] {
+		import scalikejdbc._
+		import scalikejdbc.async._
+
 		val tableName = Instrument.tableName
 
 		def fromRS(rs: scalikejdbc.WrappedResultSet): Instrument =
@@ -34,6 +38,27 @@ object Instrument extends CompWithUserRef[Instrument] {
 				rs.int("strings"),
 				rs.long("default_tuning"),
 				rs.intOpt("user_id"))
+
+		def insert(name: String, strings: Int, tuningName: String, tuningValues: String, user: User): Future[(Long, Long)] =
+			sql"""
+				SELECT * FROM insert_instrument(
+		 		$name, $strings, ${user.id}, $tuningName, $tuningValues)
+			 	"""
+				.map { rs =>
+					(rs.long("id_one"), rs.long("id_two"))
+				}
+				.single
+				.future
+				.map { _.get }
+
+		def update(id: Long, name: String, strings: Int, defaultTuning: Long, user: User): Future[Int] =
+			sql"""
+				UPDATE instruments
+		 		SET name = $name, strings = $strings, default_tuning = $defaultTuning
+		 		WHERE id = $id AND user_id = ${user.id}
+				"""
+				.update
+				.future
 
 	}
   

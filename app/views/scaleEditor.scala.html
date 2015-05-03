@@ -1,4 +1,4 @@
-@(scales: Stream[Scale])(implicit session: play.api.mvc.Session)
+@(scales: Traversable[Scale])(implicit session: play.api.mvc.Session)
 @import models.Scale.intervals
 @import play.api.Play.current
 @import play.api.Play

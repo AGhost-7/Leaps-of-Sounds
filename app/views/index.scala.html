@@ -1,6 +1,6 @@
-@(scales: (List[Scale], List[Scale]), 
-	tunings: (List[Tuning], List[Tuning]),
-	instruments: (List[Instrument], List[Instrument]), 
+@(scales: (Seq[Scale], Seq[Scale]),
+	tunings: (Seq[Tuning], Seq[Tuning]),
+	instruments: (Seq[Instrument], Seq[Instrument]),
 	selectedInstrument: Instrument,
 	defaultTuning: Tuning,
 	messages: List[FlashMessage])(implicit session: play.api.mvc.Session)

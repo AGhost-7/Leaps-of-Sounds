@@ -13,24 +13,12 @@ import scalikejdbc.async._
 import scalikejdbc._
 
 
-
-
 /** Standard CRUD operations for Scales data. */
 object Scales extends AsyncRestfulController {
 
 	def update(id: Long, name: String, values: String) = inLogin { user =>
 		ifValidated(Scale.validInput(name, values)) {
-			sql"""
-				UPDATE scales
-				SET name = $name, values = $values
-				WHERE user_id = ${user.id}
-					AND id = $id"""
-				.update
-				.future
-				.map {
-					case 1 => Ok(Scale(id, name, values, Some(user.id)).toJson)
-					case 0 => BadRequest(Json.obj("error" -> "Scale doesn't exist"))
-				}
+			scalarUpdate(Scale.async.update(id, name, values, user))
 		}
 	}
 
@@ -40,19 +28,14 @@ object Scales extends AsyncRestfulController {
 
 	def insert(name: String, values: String) = inLogin { user =>
 		ifValidated(Scale.validInput(name, values)) {
-			sql"""
-				INSERT INTO scales("name", "values", user_id)
-				VALUES ($name, $values, ${user.id})
-				RETURNING id
-				"""
-				.updateAndReturnGeneratedKey()
-				.future
+			Scale
+				.async
+				.insert(name, values, user)
 				.map { i =>
 					Ok(Scale(i, name, values, Some(user.id)).toJson)
 				}
 		}
 	}
-
 
 	def list(set: Int) = inLogin { user =>
 		Scale.async.ofPageForUser(set, user).map { ls =>

@@ -31,6 +31,9 @@ object Scale extends CompWithUserRef[Scale] {
 
 	object async extends AsyncCompWithUserRef[Scale] {
 
+		import scalikejdbc._
+		import scalikejdbc.async._
+
 		def tableName = Scale.tableName
 
 		def fromRS(rs: scalikejdbc.WrappedResultSet): Scale =
@@ -40,6 +43,24 @@ object Scale extends CompWithUserRef[Scale] {
 				rs.string("values"),
 				rs.intOpt("user_id"))
 
+		def update(id: Long, name: String, values: String, user: User): Future[Int] =
+			sql"""
+				UPDATE scales
+				SET name = $name, values = $values
+				WHERE user_id = ${user.id}
+					AND id = $id
+				"""
+				.update
+				.future
+
+		def insert(name: String, values: String, user: User): Future[Long] =
+			sql"""
+				INSERT INTO scales("name", "values", user_id)
+				VALUES ($name, $values, ${user.id})
+				RETURNING id
+				"""
+				.updateAndReturnGeneratedKey()
+				.future
 
 	}
 

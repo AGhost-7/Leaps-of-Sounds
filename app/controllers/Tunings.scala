@@ -21,41 +21,19 @@ object Tunings extends AsyncRestfulController {
 	def ofInstrument(instrumentId: Long) = Action.async { implicit request =>
 		for {
 			userOpt <- User.async.fromSession
-			tunings <- userOpt.fold {
-						sql"""
-							SELECT * FROM tunings
-							WHERE instrument = $instrumentId
-			 					AND user_id IS NULL
-							"""
-					} { user =>
-						sql"""
-							SELECT * FROM tunings
-							WHERE instrument = $instrumentId
-								AND (user_id = ${user.id} OR user_id IS NULL)
-							"""
-					}.as[Tuning].list.future
+			tunings <- Tuning.async.ofInstrument(instrumentId)(userOpt)
 		} yield Ok(Json.toJson(tunings))
 	}
 
 	def remove(id: Long) = inLogin { user =>
-		sql"""DELETE FROM tunings WHERE id = $id AND user_id = ${user.id}"""
-			.update
-			.future
-			.map {
-				case 0 => BadRequest(Json.obj("error" -> "Tuning does not exist"))
-				case 1 => Ok(Json.obj("id" -> id, "success" -> true))
-			}
+		scalarUpdate(Tuning.async.remove(id, user))
 	}
 
 	def insert(name: String, values: String, instrumentId: Long) = inLogin { user =>
 		ifValidated(Tuning.validInput(name, values)) {
-			sql"""
-				INSERT INTO tunings(name, values, instrument)
-				VALUES ($name, $values, $instrumentId)
-				RETURNING id
-			"""
-				.updateAndReturnGeneratedKey()
-				.future
+			Tuning
+				.async
+				.insert(name, values, instrumentId, user)
 				.map { id =>
 					Ok(Tuning(id, name, values, Some(user.id), instrumentId).toJson)
 				}
@@ -65,13 +43,9 @@ object Tunings extends AsyncRestfulController {
 	def update(id: Long, name: String, values: String, instrumentId: Long) =
 		inLogin { user =>
 			ifValidated(Tuning.validInput(name, values)) {
-				sql"""
-					UPDATE tunings
-					SET name = $name, values = $values
-					WHERE user_id = ${user.id} AND id = $id
-				"""
-					.update()
-					.future
+				Tuning
+					.async
+					.update(id, name, values, instrumentId, user)
 					.map {
 						case 1 =>
 							Ok(Tuning(id, name, values, Some(user.id), instrumentId).toJson)

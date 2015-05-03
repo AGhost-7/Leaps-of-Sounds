@@ -8,14 +8,12 @@ import java.sql.Connection
 import play.api.Play.current
 import play.api.libs.json._
 
-/**
- * This class defines default the behavior of my REST controllers.
- */
+
 abstract class RestfulController extends Controller {
 	
 	/**
 	 * For when the user must be logged in.
-	 */
+
 	protected object inLogin {
 		
 		lazy val notLoggedInResponse = 
@@ -33,7 +31,7 @@ abstract class RestfulController extends Controller {
 				func(user,con)
 			}
 		}
-	}
+	}*/
 	
 	/**
 	 * If validated, returns a Json string of the inserted data using the function. 

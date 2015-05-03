@@ -18,7 +18,19 @@ object Instruments extends AsyncRestfulController {
 		inLogin { user =>
 			ifValidated(Instrument.validInput(name, strings)
 					&& Tuning.validInput(tuningName, tuningValues)) {
-					sql"""
+				Instrument
+					.async
+					.insert(name, strings, tuningName, tuningValues, user)
+					.map {
+						case (instrumentId, tuningId) =>
+							val instrument =
+								Instrument(instrumentId,
+									name, strings, tuningId, Some(user.id))
+							val tuning = Tuning(tuningId,
+								tuningName, tuningValues, Some(user.id), instrumentId)
+							Ok(Json.obj("tuning" -> tuning, "instrument" -> instrument))
+					}
+				/*	sql"""
 						SELECT * FROM insert_instrument(
 		 				$name, $strings, ${user.id}, $tuningName, $tuningValues)
 			 			"""
@@ -33,43 +45,21 @@ object Instruments extends AsyncRestfulController {
 
 						Ok(Json.obj("tuning" -> tuning, "instrument" -> instrument))
 
-					}.single.future.map { _.get }
+					}.single.future.map { _.get }*/
 			}
 		}
 
 	def update(id: Long, name: String, strings: Int, defaultTuning: Long) =
 		inLogin { user =>
 			ifValidated(Instrument.validInput(name, strings)){
-				sql"""
-					UPDATE instruments
-		 			SET name = $name, strings = $strings, default_tuning = $defaultTuning
-		 			WHERE id = $id AND user_id = ${user.id}
-					"""
-					.update
-					.future
-					.map {
-						case 0 =>
-							BadRequest(Json.obj("" -> ""))
-						case 1 =>
-							Ok(Instrument(id, name, strings, defaultTuning, Some(user.id)).toJson)
-					}
+				scalarUpdate(Instrument.async.update(id, name, strings, defaultTuning, user))
 			}
 		}
 
 	def remove(id: Long) = inLogin { user =>
-		sql"""
-			DELETE FROM instruments
-			WHERE id = $id AND user_id = ${user.id}
-			"""
-			.update
-			.future
-			.map {
-				case 0 =>
-					BadRequest(Json.obj("" -> ""))
-				case 1 =>
-					Ok(Json.obj("id" -> id, "success" -> true))
-			}
+		scalarUpdate(Instrument.async.remove(id, user))
 	}
+
 	/*
 	def insert(name: String, strings: Int, tuningName: String, tuningValues: String) = 
 		inLogin withDB { (user, con) =>

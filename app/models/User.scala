@@ -11,7 +11,6 @@ import org.mindrot.jbcrypt.BCrypt
 import scalikejdbc.async.AsyncDBSession
 
 import scala.concurrent._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import java.sql.Connection
 
 import utils._
@@ -143,7 +142,7 @@ object User {
 		}
 		
 	}// async end
-	
+	/*
 	def authenticate(username: String, password: String)(implicit con: Connection): Boolean =
 		ofUsername(username) match {
 			case result if (result.length == 0) => false
@@ -187,7 +186,7 @@ object User {
 					
 		uid
 	}
-	
+	*/
 }
 
 

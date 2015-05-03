@@ -7,7 +7,9 @@ import play.api.mvc._
 import play.api.db.DB
 import java.sql.Connection
 import scala.annotation.tailrec
-import scalikejdbc.WrappedResultSet
+
+import utils.sql._
+import scala.concurrent.Future
 
 case class Tuning(
 		id: Long,
@@ -61,7 +63,10 @@ object Tuning extends CompWithUserRef[Tuning] { self =>
   			
 
 
-	object async extends AsyncModelComp[Tuning] {
+	object async extends AsyncCompWithUserRef[Tuning] {
+
+		import scalikejdbc._
+		import scalikejdbc.async._
 
 		def tableName = self.tableName
 
@@ -72,6 +77,40 @@ object Tuning extends CompWithUserRef[Tuning] { self =>
 				rs.string("values"),
 				rs.intOpt("user_id"),
 				rs.int("instrument"))
+
+		def ofInstrument(instrument: Long)(implicit userOpt: Option[User]): Future[Seq[Tuning]] =
+			userOpt.fold {
+				sql"""
+					SELECT * FROM tunings
+					WHERE instrument = ${instrument}
+		 				AND user_id IS NULL
+					"""
+			} { user =>
+				sql"""
+					SELECT * FROM tunings
+		 			WHERE instrument = ${instrument}
+					AND (user_id IS NULL OR user_id = ${user.id})
+		 		"""
+			}.as[Tuning].list.future()(db)
+
+
+		def insert(name: String, values: String, instrumentId: Long, user: User): Future[Long] =
+			sql"""
+				INSERT INTO tunings(name, values, instrument)
+				VALUES ($name, $values, $instrumentId)
+				RETURNING id
+			"""
+				.updateAndReturnGeneratedKey()
+				.future
+
+		def update(id: Long, name: String, values: String, instrumentId: Long, user: User): Future[Int] =
+			sql"""
+					UPDATE tunings
+					SET name = $name, values = $values
+					WHERE user_id = ${user.id} AND id = $id
+				"""
+				.update()
+				.future
 
 	}
   

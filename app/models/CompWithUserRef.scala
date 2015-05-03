@@ -60,7 +60,7 @@ trait CompWithUserRef [A <: JsonAble] {
   	).map(fromRow)
   
   /** Returns only the user defined rows */
-  def ofUser(user: User)(implicit con: Connection) = 
+  def ofUser(user: User)(implicit con: Connection): Stream[A] =
   	SQL(s"""
   		SELECT * FROM "$tableName"
   		WHERE user_id = {user}
