@@ -87,10 +87,6 @@ object Application extends AsyncHtmlController {
 		}
 	}
 
-	//def tuningEditor = inLogin { (userOpt, req) =>
-
-	//}
-
 
 /*
   def index = Action { implicit request =>

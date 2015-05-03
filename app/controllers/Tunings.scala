@@ -55,35 +55,6 @@ object Tunings extends AsyncRestfulController {
 			}
 		}
 
-	/*
-	def ofInstrument(instrumentId: Long) = Action { implicit request =>
-    DB.withTransaction { implicit con => 
-	    implicit val user = User.fromSession
-	    
-	    val tunings = Tuning.ofInstrument(instrumentId)
-	    
-	    Ok(Json.toJson(tunings))
-    }
-  }
-	
-	def remove(id: Long) = inLogin withDB { (user, con) =>
-		Tuning.remove(id, user)(con)
-		Ok(Json.obj("id" -> id, "success" -> true))
-	}
-	
-	def insert(name: String, values: String, instrumentId: Long) = 
-		inLogin withDB { (user, con) =>
-			ifValidated(Tuning.validInput(name, values)) {
-				Tuning.insert(name, values, instrumentId, user)(con).toJson
-			}
-		}
-	
-	def update(id: Long, name: String, values: String, instrumentId: Long) = 
-		inLogin withDB { (user, con) =>
-			ifValidated(Tuning.validInput(name, values)){
-				Tuning.update(id, name, values, instrumentId, user)(con).toJson
-			}
-		}*/
 }
 
 

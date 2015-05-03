@@ -46,7 +46,7 @@ case class Tuning(
   }
 }
 
-object Tuning extends CompWithUserRef[Tuning] { self =>
+object Tuning extends { self =>
   
   implicit val jsFormat = Json.format[Tuning]
 
@@ -54,12 +54,7 @@ object Tuning extends CompWithUserRef[Tuning] { self =>
   
   val tableName = "tunings"
 
-  def fromRow(row: Row) = 
-  	Tuning(row[Long]("id"), 
-  			row[String]("name"), 
-  			row[String]("values"), 
-  			row[Option[Int]]("user_id"), 
-  			row[Int]("instrument"))
+
   			
 
 
@@ -121,55 +116,6 @@ object Tuning extends CompWithUserRef[Tuning] { self =>
 		(nameConstraint.findFirstMatchIn(name).isDefined
 				&& valuesConstraint.findFirstMatchIn(values).isDefined)
 	
-		
-	def insert(name: String, values: String, instrumentId: Long, user: User)(implicit con: Connection) = {
-		val id = SQL("""
-			INSERT INTO "tunings"(name, values, instrument, user_id)
-			VALUES ({name}, {values}, {instrument}, {user})
-		""")
-			.on("name" -> name,
-					"values" -> values,
-					"instrument" -> instrumentId,
-					"user" -> user.id)
-			.executeInsert()
-		
-		Tuning(id.get, name, values, Some(user.id), instrumentId)
-	}
-	
-	def update(id: Long, name: String, values: String, instrumentId: Long, user: User)(implicit con: Connection) = {
-		val result = SQL("""
-			UPDATE "tunings"
-			SET name = {name}, values = {values}
-			WHERE id = {id} AND user_id = {user}
-		""")
-			.on("id" -> id,
-					"name" -> name,
-					"values" -> values,
-					"user" -> user.id)
-			.executeUpdate
-			
-		println(s"data: name = $name, values = $values, id = $id, user_id = ${user.id}\n result = $result")
-		Tuning(id, name, values, Some(user.id), instrumentId)
-	}
 
-	def ofInstrument(instrumentId: Long)
-  	(implicit con: Connection, 
-    		user: Option[User]) = 
-    		user.fold {
-					SQL("""
-						SELECT * FROM tunings 
-						WHERE instrument = {instrument} 
-							AND user_id IS NULL
-					""")
-						.on("instrument" -> instrumentId)()
-				} { user => 
-					SQL("""
-						SELECT * FROM tunings
-						WHERE instrument = {instrument}
-							AND (user_id = {user} OR user_id IS NULL)
-					""")
-						.on("instrument" -> instrumentId,
-								"user" -> user.id)()
-				}.map(fromRow)
 	
 }
