@@ -3,8 +3,8 @@
 @import play.api.Play.current
 @import play.api.Play
 
-@main("My Scales") {
-	
+@main("My Scales", app = Some("scaleEditor")) {
+	<div ng-controller="ScaleCtrl">
 	<style>
 	.scrollblock-left {
 		/* Show the scrollbar only if you have to */
@@ -12,7 +12,7 @@
 		/* Dont show the vertical scrollbar */
 		overflow-y: hidden;
 		height: 70px;
-		/* so that it doesn't auto-break the line 
+		/* so that it doesn't auto-break the line
 			 when it reaches max width */
 		white-space: nowrap;
 	}
@@ -20,110 +20,92 @@
 		width: 100px;
 		/* So that each div doesn't break the line */
 		display: inline-block;
+		margin-right: 7px;
 	}
 	</style>
-	
-	<h4 id="name-header">Name</h3>
-	
+
+	<h4>
+		Name
+		<small class="text-danger bad-input" ng-show="errorName">
+			&nbsp;&nbsp;&nbsp;{{errorName}}
+		</small>
+	</h3>
+
 	<div class="form-group">
-		<input class="form-control" type="text" id="scale-name-editor"/>
+		<input class="form-control" type="text" ng-model="scaleName"/>
 	</div>
-	
-	<h4 id="values-header">Scale Values</h3>
-	
+
+	<h4>
+		Scale Values
+		<small class="text-danger bad-input" ng-show="errorValues">
+			&nbsp;&nbsp;&nbsp;{{errorValues}}
+		</small>
+	</h3>
+
 	<div class="scrollblock-left" id="scale-value-editor">
-	
-		<div class="scrollblock-element">
-			<select class="form-control">
-				<option></option>
-				@for(i <- 1 to 12) {
-					<option value="@i">@intervals(""+ i)</option>
-				}
+		<div class="scrollblock-element"
+				ng-repeat="selectedI in selectedIntervals track by $index">
+
+			<select ng-model="selectedI"  class="form-control"
+					ng-options="interval.name for interval in intervals track by interval.id"
+					ng-click="memberSelected(selectedI, $index)">
 			</select>
+
 		</div>
-		
 	</div>
-	
+
 	<br/>
 	<div class="input-group">
-		<button class="btn btn-success btn-sm" id="btn-add">Add</button>
-		<button class="btn btn-default btn-sm hide" id="btn-cancel">Cancel</button>&nbsp;
-		<button class="btn btn-default btn-sm hide" id="btn-update">Update</button>
+		<button class="btn btn-success btn-sm" ng-show="mode == 'add'"
+				ng-click="addClicked()">
+			Add
+		</button>
+		<button class="btn btn-default btn-sm" ng-show="mode == 'update'"
+				ng-click="resetForm()">
+			Cancel
+		</button>&nbsp;
+		<button class="btn btn-default btn-sm" ng-show="mode == 'update'"
+				ng-click="updateClicked()">
+			Update
+		</button>
 	</div>
-	
+
 	<br/>
-	
+
 	<table class="table">
 		<thead>
 			<tr>
 				<th>Name</th>
 				<th>Values</th>
 				<th></th>
-			</tr>	
+			</tr>
 		</thead>
-		
-		<tbody id="scales-list">
-			@scales.map { scale =>
-				<tr data-values="@scale.values" data-id="@scale.id">
-					<td>@scale.name</td>
-					@* Convert to human readable notation, since I'm using integer 
-					 * notation to do computations on the data in javascript *@
-					<td>
-						@scale.values.split(",").map { v => @intervals(v) }.mkString(" - ")
-					</td>
-					<td>
-						<button class="btn btn-default btn-sm row-modify">Modify</button>
-						<button class="btn btn-default btn-sm row-delete">Delete</button>
-					</td>
-				</tr>
-			}
+
+		<tbody>
+			<tr ng-repeat="scale in scales">
+				<td>{{scale.name}}</td>
+				<td>{{scale.values | interval}}</td>
+				<td>
+					<button class="btn btn-default btn-sm"
+							ng-click="modifyScale(scale)">Modify</button>
+					<button class="btn btn-default btn-sm"
+							ng-click="deleteScale(scale.id)">Delete</button>
+				</td>
+			</tr>
 		</tbody>
 	</table>
-	
-	<!-- Templates -->
-	
-	<script id="row-template" type="text/x-handlebars-template">
-	
-	<tr data-id={{id}} data-values={{values}}>
-		<td>{{name}}</td>
-		<td>{{prettyValues}}</td>
-		<td>
-			<button class="btn btn-default btn-sm row-modify">Modify</button>
-			<button class="btn btn-default btn-sm row-delete">Delete</button>
-		</td>
-	</tr>
+	</div> <!-- End Controller -->
 
-	</script>
-	
-	<script id="values-input-template" type="text/x-handlebars-template">
-	
-	<div class="scrollblock-element">
-		<select class="form-control">
-			<option></option>
-			
-			{{#each this.options}}
-			
-			{{#if selected}}
-			<option value={{key}} selected>{{value}}</option>
-			{{else}}
-			<option value={{key}}>{{value}}</option>
-			{{/if}}
-			
-			{{/each}}
 
-		</select>
-	</div>
-	
-	</script>
-	
 	<!-- Non-Global Javascript -->
-	
+
 	@if(Play.isProd){
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
 	} else {
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
 	}
-	
+	<script src="@controllers.Javascripts.lib.angular"></script>
+
 	<script src="@routes.Javascripts.router"></script>
 	<script>
 		var CONST = {
@@ -133,17 +115,5 @@
 		}
 	</script>
 	<script src="@routes.Assets.versioned("javascripts/scaleEditor.js")"></script>
-	
+
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -29,7 +29,7 @@ GET     /user/logout                    controllers.Users.logout
 
 # Scales
 GET     /scale/all                      controllers.Scales.all
-GET     /scale                          controllers.Scales.list(set: Int)
+GET     /scale                          controllers.Scales.list
 POST    /scale                          controllers.Scales.insert(name, values)
 PUT     /scale                          controllers.Scales.update(id: Long, name, values)
 DELETE  /scale                          controllers.Scales.remove(id: Long)

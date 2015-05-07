@@ -4,6 +4,8 @@ import play.api.mvc._
 import scalikejdbc._
 import scalikejdbc.async._
 import play.api.libs.json._
+import utils._
+
 //import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import scala.concurrent.Future
@@ -12,30 +14,23 @@ import scala.concurrent.Future
  * This class defines default the behavior of my REST controllers.
  */
 abstract class AsyncRestfulController extends AsyncController {
-	
+
 
 	protected object inLogin {
-		
+
 		val notLoggedInResponse: Result =
 			Unauthorized(Json.obj("errorMessage" -> "You must be logged in."))
-			
-		/*def apply(whenLoggedIn: User => Result): Action[AnyContent] = Action.async { implicit req =>
-			User.async.fromSession.map {
-				case Some(user) => whenLoggedIn(user)
-				case None => notLoggedInResponse
-			}
-		}*/
-		
+
 		def apply(whenLoggedIn: User => Future[Result]): Action[AnyContent] = Action.async { implicit req =>
 			User.async.fromSession.flatMap {
 				case Some(user) => whenLoggedIn(user)
 				case None => Future.successful(notLoggedInResponse)
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	protected val invalidInputResponse = {
 		val js = Json.obj(
 			"success" -> false,
@@ -43,13 +38,22 @@ abstract class AsyncRestfulController extends AsyncController {
 		Future.successful(BadRequest(js))
 	}
 
+	import utils.validation._
+
+	protected def ifValidated(vl: ModelValidation)(func: => Future[Result]): Future[Result] = {
+			vl match {
+				case MSuccess => func
+				case err => Future.successful(BadRequest(err.toJson))
+			}
+	}
+
 	protected def ifValidated(bool: Boolean, errorMessage: Option[String] = None)(func: => Future[Result]): Future[Result] = {
 		if(bool){
 			func
 		} else {
-			errorMessage.fold { 
-				invalidInputResponse 
-			} { msg => 
+			errorMessage.fold {
+				invalidInputResponse
+			} { msg =>
 				Future.successful(
 					BadRequest(Json.obj("success" -> false, "errorMessage" -> msg)))
 			}
@@ -69,5 +73,5 @@ abstract class AsyncRestfulController extends AsyncController {
 			case 1 => Ok(onSuccess.toJson)
 		}
 	}
-	
+
 }

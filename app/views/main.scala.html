@@ -1,4 +1,4 @@
-@(title: String)(content: Html)(implicit session: play.api.mvc.Session) 
+@(title: String, app: Option[String] = None)(content: Html)(implicit session: play.api.mvc.Session)
 @import play.api.Play.current
 @import play.api.Play
 @import controllers.Javascripts
@@ -86,7 +86,10 @@
 	@*<script src='@routes.Javascripts.versioned("login")'></script> *@
 
 </head>
-<body>
+@app match {
+	case Some(name) => { <body ng-app="@name"> }
+	case None => { <body> }
+}
 	<nav class="navbar navbar-inverse" role="navigation">
 		<div class="container">
 			<div class="navbar-header">

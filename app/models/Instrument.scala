@@ -14,8 +14,6 @@ object Instrument {
   
   val tableName = "instruments"
   val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
-  
-
 
 	object async extends AsyncCompWithUserRef[Instrument] {
 		import scalikejdbc._

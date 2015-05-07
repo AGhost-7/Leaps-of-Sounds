@@ -32,13 +32,13 @@ object Scales extends AsyncRestfulController {
 				.async
 				.insert(name, values, user)
 				.map { i =>
-					Ok(Scale(i, name, values, Some(user.id)).toJson)
+					Ok(Scale(i, name, utils.Csv.sort(values), Some(user.id)).toJson)
 				}
 		}
 	}
 
-	def list(set: Int) = inLogin { user =>
-		Scale.async.ofPageForUser(set, user).map { ls =>
+	def list = inLogin { user =>
+		Scale.async.allOfUser(user).map { ls =>
 			Ok(Json.toJson(ls))
 		}
 	}
@@ -51,24 +51,3 @@ object Scales extends AsyncRestfulController {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

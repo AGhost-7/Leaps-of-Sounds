@@ -20,10 +20,9 @@ case class Tuning(
 
   def toJson = Json.toJson(this)(Tuning.jsFormat)
   
-  /**
-   * Takes the current Tuning object and creates a new Tuning with a values of
-   * a different length. Optional fill argument will specify what the value will
-   * be if we're increasing the number of strings on the tuning.
+  /** Takes the current Tuning object and creates a new Tuning with a values of
+   *  a different length. Optional fill argument will specify what the value will
+   *  be if we're increasing the number of strings on the tuning.
    */
   def toValuesOfLength(length: Int, fill: Int = 0) = {
   	@tailrec

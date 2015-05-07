@@ -1,6 +1,8 @@
 package models
 
 import play.api.libs.json.Json
+import utils.validation._
+import utils._
 
 case class Scale(id : Long, name: String, values: String, user: Option[Int])
 		extends JsonAble {
@@ -10,18 +12,18 @@ case class Scale(id : Long, name: String, values: String, user: Option[Int])
 
 object Scale {
 
-	import play.api.Play.current
+	//import play.api.Play.current
 
   import scala.concurrent._
   import play.api.libs.json.Json
-  
+
   val tableName = "scales"
-  	
+
   val nameConstraint = """^[A-z1-9\s()_-]{3,}$""".r
   val valuesConstraint = "^((1[0-2]|[0-9])([,](1[0-2]|[0-9]))+)$".r
-  
+
   implicit val jsFormat = Json.format[Scale]
-  
+
 
 
 	object async extends AsyncCompWithUserRef[Scale] {
@@ -41,7 +43,7 @@ object Scale {
 		def update(id: Long, name: String, values: String, user: User): Future[Int] =
 			sql"""
 				UPDATE scales
-				SET name = $name, values = $values
+				SET name = $name, values = ${Csv.sort(values)}
 				WHERE user_id = ${user.id}
 					AND id = $id
 				"""
@@ -51,7 +53,7 @@ object Scale {
 		def insert(name: String, values: String, user: User): Future[Long] =
 			sql"""
 				INSERT INTO scales("name", "values", user_id)
-				VALUES ($name, $values, ${user.id})
+				VALUES ($name, ${Csv.sort(values)}, ${user.id})
 				RETURNING id
 				"""
 				.updateAndReturnGeneratedKey()
@@ -59,27 +61,24 @@ object Scale {
 
 	}
 
-  
-  /**
-   * Verifies if name and values is valid.
-   */
-  def validInput(name: String, values: String) = {
-
-  	if(nameConstraint.findFirstIn(name) != None
-  			&& valuesConstraint.findFirstIn(values) != None) 
-  		values
-				.split(",")
-				.map { _.toInt }
-				.toSeq
-				.foldLeft((0, true)) { case ((last, valid), e) => 
-					if(!valid) (e, false)  
-					else if(last < e) (e, true)
-					else (e, false)
-				}._2
-  	else false
+  /** Verifies if name and values is valid. */
+  def validInput(name: String, values: String): ModelValidation = {
+		if(nameConstraint.findFirstIn(name).isEmpty) {
+			MFailed("Name does not follow constraints.", "name", name)
+		} else if(valuesConstraint.findFirstIn(values).isEmpty) {
+			MFailed("Scale is invalid", "values", values)
+		} else {
+			val nums = values.split(",").map { _.toInt }
+			if(nums.length < 3){
+				MFailed("You need at least 3 values in your scale", "values", values)
+			} else if(!nums.groupBy(identity).forall { case (v, arr) => arr.length == 1 }) {
+				MFailed("You cannot have duplicate values in your scale.", "values", values)
+			} else {
+				MSuccess
+			}
+		}
 	}
 
-  
   val intervals = Map(
 		  "1" -> "1",
 			"2" -> "2b",
@@ -92,10 +91,10 @@ object Scale {
 			"9" -> "b6",
 			"10" -> "6",
 			"11" -> "b7",
-			"12" -> "7"		
+			"12" -> "7"
 		 )
-	
+
 	val jsIntervals = Json.toJson(intervals).toString
-	
-	
+
+
 }
