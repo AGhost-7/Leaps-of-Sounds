@@ -52,7 +52,8 @@ object Javascripts extends Controller {
       routes.javascript.Scales.update,
       routes.javascript.Users.login,
       routes.javascript.Users.register,
-      routes.javascript.Users.logout
+      routes.javascript.Users.logout,
+			routes.javascript.Application.indexJson
       ))
       .as("text/javascript")
   }

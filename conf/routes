@@ -8,14 +8,16 @@
 
 GET     /                               controllers.Application.index
 
-#GET     /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
+GET     /json                           controllers.Application.indexJson
+
+#GET    /tuning/of-instrument           controllers.Application.getTuningsOfInstrument(name)
 POST    /registration-finalize          controllers.AppForms.addUser
 GET     /registration                   controllers.AppForms.register
 POST    /login-finalize                 controllers.AppForms.beginSession
 GET     /login                          controllers.AppForms.login
 GET     /logout                         controllers.Application.logout
 GET     /scale-editor                   controllers.Application.scaleEditor
-GET     /instrument-editor             controllers.Application.instrumentEditor
+GET     /instrument-editor              controllers.Application.instrumentEditor
 
 
 # ~~~~~~~~~~~~~
@@ -35,7 +37,6 @@ PUT     /scale                          controllers.Scales.update(id: Long, name
 DELETE  /scale                          controllers.Scales.remove(id: Long)
 
 # Instruments
-
 #GET    /instrument                      controllers.Instruments.
 POST    /instrument                      controllers.Instruments.insert(name: String, strings: Int, tuningName: String, tuningValues: String)
 PUT     /instrument                      controllers.Instruments.update(id: Long, name: String, strings: Int, defaultTuning: Long)

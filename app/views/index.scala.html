@@ -1,12 +1,7 @@
-@(scales: (Seq[Scale], Seq[Scale]),
-	tunings: (Seq[Tuning], Seq[Tuning]),
-	instruments: (Seq[Instrument], Seq[Instrument]),
-	selectedInstrument: Instrument,
-	defaultTuning: Tuning,
-	messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
-	
-@main("Leaps!") {
+@(messages: List[FlashMessage])(implicit session: play.api.mvc.Session)
 
+@main("Leaps!", app = Some("index")) {
+<div ng-controller="MainCtrl">
 @* Print the flash messages that were sent by the registration, etc. *@
 @for(message <- messages) {
 	<div class="alert alert-@message.msgClass fade in" role="alert">
@@ -18,87 +13,92 @@
 }
 
 <div class="panel panel-warning">
-  
-	<div class="panel-body" id="fingerboard-input">
-    
+
+	<div class="panel-body">
+
 		<ul class="nav nav-pills nav-justified">
-			
+
 			<li class="dropdown">
-				<a id="instrument-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
-					Instrument &nbsp;<span class="caret"></span>
-				</a>
-				<ul id="instrument-selector" class="dropdown-menu scrollable-menu" role="menu">
-					@if(instruments._1.length > 0) {
-						<li class="dropdown-header">My Instruments</li>
-						@instruments._1.map { instrument =>
-							<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li>
-						}
-						<li class="dropdown-header">Default Instruments</li>
-					}
-					@instruments._2.map { instrument => 
-						<li><a href="#" value="@instrument.strings" data-id="@instrument.id">@instrument.name</a></li> 
-					}
-				</ul>
+
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+			    Instrument&nbsp;<span class="caret"></span>
+			  </a>
+
+			  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="instrumentsTitles">
+			    <li class="dropdown-header">My Instruments</li>
+			    <li ng-repeat="elem in instruments | userDefined">
+			      <a href="#" ng-click="instrumentSelected(elem)">{{elem.name}}</a>
+			    </li>
+			    <li class="dropdown-header">Default Instruments</li>
+			    <li ng-repeat="elem in instruments | userDefined:false">
+			      <a href=# ng-click="instrumentSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
+			  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="!instrumentsTitles">
+			    <li ng-repeat="elem in instruments">
+			      <a href="#" ng-click="instrumentSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
 			</li>
 
 			<li class="dropdown">
-				<a id="tuning-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 					Tuning &nbsp;<span class="caret"></span>
 				</a>
-				<ul id="tuning-selector" class="dropdown-menu scrollable-menu" role="menu">
-					@if(tunings._1.length > 0) {
-						<li class="dropdown-header">My Tunings</li>
-						@tunings._1.map { tuning => 
-							<li><a href="#" value="@tuning.values">@tuning.name</a></li>
-						}
-						<li class="dropdown-header">Default Tunings</li>
-					}
-					@tunings._2.map { tuning => 
-						<li><a href="#" value="@tuning.values">@tuning.name</a></li> 
-					}
-				</ul>
+
+				<ul class="dropdown-menu scrollable-menu" role="menu" ng-if="tuningsTitles">
+			    <li class="dropdown-header">My Tunings</li>
+			    <li ng-repeat="elem in tunings | userDefined">
+			      <a href="#" ng-click="tuningSelected(elem)">{{elem.name}}</a>
+			    </li>
+			    <li class="dropdown-header">Default Tunings</li>
+			    <li ng-repeat="elem in tunings | userDefined:false">
+			      <a href=# ng-click="tuningSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
+			  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="!tuningsTitles">
+			    <li ng-repeat="elem in tunings">
+			      <a href="#" ng-click="tuningSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
 			</li>
-		
+
 			<li class="dropdown">
 				<a id="scale-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
 					Scale &nbsp;<span class="caret"></span>
 				</a>
-    
-				<ul id="scale-selector" class="dropdown-menu scrollable-menu" role="menu">
-					@if(scales._1.length > 0) {
-						<li class="dropdown-header">My Scales</li>
-						@scales._1.map { scale =>
-							<li><a href="#" value="@scale.values">@scale.name</a></a></li>
-						}
-						<li class="dropdown-header">Default Scales</li>
-					}
-					@{	// Doing it this way to make the html
-						// print in a much more compressed manner.
-						// This is raw Scala code.
-						scales._2.map { scale => 
-							<li><a href="#" value={scale.values}>{scale.name}</a></li>
-						}
-					}
-				</ul>
+
+				<ul class="dropdown-menu scrollable-menu" role="menu" ng-if="scalesTitles">
+			    <li class="dropdown-header">My Scales</li>
+			    <li ng-repeat="elem in scales | userDefined">
+			      <a href="#" ng-click="scaleSelected(elem)">{{elem.name}}</a>
+			    </li>
+			    <li class="dropdown-header">Default Scales</li>
+			    <li ng-repeat="elem in scales | userDefined:false">
+			      <a href="#" ng-click="scaleSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
+			  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="!scalesTitles">
+			    <li ng-repeat="elem in scales">
+			      <a href="#" ng-click="scaleSelected(elem)">{{elem.name}}</a>
+			    </li>
+			  </ul>
+
 			</li>
 
 			<li class="dropdown">
 				<a id="root-button" href="#" class="dropdown-toggle" data-toggle="dropdown">
 					Root &nbsp;<span class="caret"></span>
 				</a>
-				<ul id="root-selector" class="dropdown-menu scrollable-menu" role="menu">
-					<li><a href="#" value=1>C</a></li>
-					<li><a href="#" value=2>Db</a></li>
-					<li><a href="#" value=3>D</a></li>
-					<li><a href="#" value=4>Eb</a></li>
-					<li><a href="#" value=5>E</a></li>
-					<li><a href="#" value=6>F</a></li>
-					<li><a href="#" value=7>Gb</a></li>
-					<li><a href="#" value=8>G</a></li>
-					<li><a href="#" value=9>Ab</a></li>
-					<li><a href="#" value=10>A</a></li>
-					<li><a href="#" value=11>Bb</a></li>
-					<li><a href="#" value=12>B</a></li>
+				<ul class="dropdown-menu scrollable-menu" role="menu">
+					<li ng-repeat="root in roots">
+						<a href="" ng-click="rootSelected($index + 1)">{{root}}</a>
+					</li>
 				</ul>
 			</li>
 		</ul>
@@ -109,35 +109,24 @@
 	<!--[if lt IE 9]>
 		<script src='@routes.Assets.versioned("polyfills/flashcanvas/flashcanvas.js")'></script>
 	<![endif]-->
-	
+
 	<!-- displays the note that you're hovered on -->
-	<p id="last-selected">&nbsp;</p>
+	<p ng-show="!noteHovered">&nbsp;</p>
+
+	<p ng-show="noteHovered">note : {{noteHovered.interval.notation}} {{noteHovered.interval.index}}</p>
+
 	<!-- This is the fingerboard itself.  -->
-	<canvas id="fingerboard" ></canvas>
-	<script>
-	var loadArgs = {
-		strings: @selectedInstrument.strings,
-		frets: 14,
-		selectors : {
-			playing: '#1975FF'
-		},
-		interval: {
-			westernSystem: true,
-			tuning: '@defaultTuning.values'
-		},
-		scale: {
-			values: [1, 3, 5, 6, 8, 10, 12],
-			root: 1,
-			select: true
-		}
-	}
-	</script>
-	
-	<!-- Custom Libs -->
+	<canvas id="fingerboard"></canvas>
+	<script src="@controllers.Javascripts.lib.angular"></script>
 	<script src='@routes.Assets.versioned("javascripts/fingerboard.js")'></script>
 	<script src='@routes.Javascripts.router'></script>
-	<!-- Main -->
-	<script async src='@routes.Assets.versioned("javascripts/index.js")'></script>
-</div>
+	<script>
+	CONST = {
+		intervals: @Html(models.Scale.jsIntervals)
+	}
+	</script>
+	<script src='@routes.Assets.versioned("javascripts/index.js")'></script>
 
+</div>
+</div>
 }

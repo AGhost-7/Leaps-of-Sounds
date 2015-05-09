@@ -1,0 +1,28 @@
+<!-- <li class="dropdown"> -->
+
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    {{title}} fuck off &nbsp;<span class="caret"></span>
+  </a>
+
+
+
+
+  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="userDefined">
+    <li class="dropdown-header">My {{title}}</li>
+    <li ng-repeat="elem in list">
+      <a href="#" ng-click="clickHandler(elem)">{{elem.name}}</a>
+    </li>
+    <li class="dropdown-header">Default {{title}}</li>
+    <li ng-repeat="elem in list">
+      <a href=# ng-click="clickHandler(elem)">{{elem.name}}</a>
+    </li>
+  </ul>
+
+  <ul class="dropdown-menu scrollable-menu" role="menu" ng-if="!userDefined">
+    <li ng-repeat="elem in list">
+      <a href="#" ng-click="clickHandler(elem)">{{elem.name}}</a>
+    </li>
+  </ul>
+
+
+<!-- <li> -->

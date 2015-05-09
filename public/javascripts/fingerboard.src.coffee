@@ -1,47 +1,77 @@
+mkEvents = ->
+  listeners =
+    # Returns the note that the mouse is parked on when the canvas
+    # is clicked.
+    noteclick: [],
+    # Triggers every time that the mouse hovers on a different note.
+    notehover: [],
+    # Whenever a change is done to an element, this event is triggered.
+    # Some of the internal logic won't trigger this event at all.
+    modelchange: []
+  self =
+    broadcast: (event, pass...) ->
+      for listener in listeners[event]
+        listener.apply(undefined, pass)
 
+    on: (event, callback) ->
+      listeners[event].push(callback)
+
+  for key of listeners
+    self[key] = do (key) ->
+      (callback) ->
+        listeners[key].push(callback)
+
+  self
+
+###
+		model:
+			frets : Number
+			strings: Number
+			tuning: Array<Number>
+			interval:
+				notation: Array<String>
+				maxIndex: Number
+			scale:
+				values: Array<Number>
+				root: Number
+			selector: Function (Note) => String
+		view:
+			drawSelector
+			drawString
+			drawFret
+
+
+###
 class Fingerboard
 	constructor: ($canvas, args) ->
-		events = do ->
-			listeners = 
-				# Returns the note that the mouse is parked on when the canvas 
-				# is clicked.
-				noteclick: [],
-				# Triggers every time that the mouse hovers on a different note.
-				notehover: [],
-				# Whenever a change is done to an element, this event is triggered.
-				# Some of the internal logic won't trigger this event at all.
-				modelchange: []
-			
-			self = 
-				broadcast: (event, callback) ->
-					listener(callback()) for listener in listeners[event]
-				
-				on: (event, callback) ->
-					listeners[event].push(callback)
-			
-			# lets make some shortcuts for the various events
-			for key of listeners
-				self[key] = do (key) ->
-					(callback) -> 
-						listeners[key].push(callback)
-			
-			self
-		
-		# And now I gotta expose this at the Fingerboard level...
+		events = mkEvents()
+
+		# And now I gotta expose this at the public level...
 		@[key] = events[key] for key of events
-		
-		model = new Model(args, events)
-		#view = new View(args, $canvas, model, events)
-		
+
+		args = args || {}
+
+		model = new Model(args.model || {}, events)
+
+		view = new View(args.view || {}, $canvas, model, events)
+		view.updateDimensions()
+		view.paint()
+
 		# the rest of the public functions are going to be mainly exposing
 		# the model part.
-		
+
 		@forEach = (traversor) ->
 			model.forEach (note, fret, string) ->
-				console.log(note)
-				traversor(note.public(events), fret, string)
-			
+				traversor(note, fret, string)
+
+		@set = (args) ->
+			if args.view then view.set(args.view)
+			if args.model then model.set(args.model)
+			if args.view && !args.model then view.repaint()
+
+
 window.Fingerboard = Fingerboard
+
 ###
 	Just a little wrapper for the HTML5 canvas 2d context.
 	Method chains! \o/
@@ -50,167 +80,199 @@ window.Fingerboard = Fingerboard
 class ContextWrapper
 	constructor: (context) ->
 		for key of context
-			if typeof context[key] == 'function'
-				@[key] = do(key) ->
-					() ->
-						context[key].apply(context, arguments)
-						@
-			else
-				@[key] = do(key) ->
-					(val) ->
-						context[key] = val
-						@
-	
-	
+			# the warning is a bit annoying...
+			if key != 'webkitImageSmoothingEnabled'
+				if typeof context[key] == 'function'
+					@[key] = do(key) ->
+						() ->
+							context[key].apply(context, arguments)
+							@
+				else
+					@[key] = do(key) ->
+						(val) ->
+							context[key] = val
+							@
+
+
 		@context = context
-		
+
 	begin: ->
 		@context.beginPath()
 		@
-		
+
 	beginAt: (x ,y) ->
 		@context.beginPath()
 		@context.moveTo(x, y)
 		@
-	
+
 	color: (col) ->
-		context.fillStyle = col
+		@context.fillStyle = col
 		@
-	
+
 	get: (key) ->
 		@context[key]
-		
+
 
 ###
 # The Mother of All Models in this project.
 ###
 
+
 class Model
-	
+
 	###
-	# construction functions	
+	# construction functions
 	###
-	
-	constructor: (args) ->
-		# default values...
+
+	###
+		~Options~
+
+		frets : Number
+		strings: Number
+		tuning: Array<Number>
+		interval:
+			notation: Array<String>
+			maxIndex: Number
+		scale:
+			values: Array<Number>
+			root: Number
+		selector: Function (Note) => String
+	###
+	constructor: (args, @events) ->
+		# contains the note objects
 		@notes = [[]]
-		@notation = 
-			['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-		@selectors = {}
+		# notation is used to make the integer notation (interval value) "pretty".
+		# Other information is derived from it as well.
+		@notation = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+		# root of the scale
 		@root = 1
-		@tuning = [28,33,38,43,47,52]
+		# tuning of the instrument, defaults to standard guitar tuning.
+		@tuning = [28, 33, 38, 43, 47, 52]
 		@scale = undefined
+		# the total number of values in the note system. some other systems such
+		# as the Maqam have a different scale length (the octave is divided in 24 parts
+		# instead of 12 for the Maqam).
 		@scaleLength = @notation.length
-		@strings = @tuning.length
+		# number of strings on the instrument.
+		@strings = 6
+		# number of frets on the instrument.
 		@frets = 16
-		# And finally we build the whole thing by using the set
-		# method which will parse all of the arguments properly.
+		# the interval values are generated by repeating 1 to scaleLength a number
+		# of times defined by the maxIndex
+		@maxIndex = 8
+		# And finally we build the whole thing by using the set method which will
+		# parse all of the arguments properly.
 		@set(args)
-		
-	# This will simply fill the notes array with a fresh coat of Note 
-	# instances based on its current state.
+
+	# This will simply fill the notes array with a fresh coat of Note instances
+	# based on its current state.
 	fill: ->
 		@notes = []
 		for fret in [0..@frets]
 			@notes[fret] = []
 			for string in [1..@strings]
 				@notes[fret][string-1] = new Note(fret, string)
-				
-				
-	# This will handle the rebuilding of the interval-related data, but unlike 
+
+	# This will handle the rebuilding of the interval-related data, but unlike
 	# the original this doesn't take care of the arguments parsing.
 	buildInterval: ->
 		if @tuning.length != @strings
 			throw 'Tuning is invalid for the number of strings given.'
-		
-		intervalValue = -1
-		index = 0
-		
-		intervals = [0..@scaleLength * (@maxIndex + 1)]
-			.map (i) ->
-				if intervalValue >= @scaleLength
-					intervalValue = 1
-					index++
-				else
-					intervalValue++
-					
-				value: intervalValue,
-				index: index,
-				freqId: i + 1,
+		ln = (@scaleLength * (@maxIndex + 1)) - 1
+		intervals = [0..ln]
+			.map (i) =>
+				f = i + 1
+				index = Math.floor(i / @scaleLength)
+				intervalValue = f - (index * @scaleLength)
+
+				value: intervalValue
+				index: index
+				freqId: f
 				notation: @notation[intervalValue - 1]
-		
-		# wierd scopage
-		tuning = @tuning
-		
+
 		# I can now slap it on the notes
-		@forEach (note, fret, string) ->
-			note.interval = intervals[tuning[string - 1] + fret]
-	
-	
+		@forEach (note, fret, string) =>
+			#console.log('interval', intervals[@tuning[string - 1] + fret])
+			interval = intervals[@tuning[string - 1] + fret]
+			for key of interval
+				note.interval[key] = interval[key]
+
 	# This will set up the shifted interval value for building the scale.
 	buildRootedValue: ->
-		@forEach (note, fret, string) ->
+		@forEach (note, fret, string) =>
 			note.interval.shift = note.interval.value - @root + 1
 			if note.interval.shift < 1
-				note.interval.shift += scaleLength
-				
+				note.interval.shift += @scaleLength
+
 	buildScale: ->
-		sc = undefined
 		degree = undefined
-		#I will put this call higher up, where the args processing occurs
-		#buildRootedValue
-		
-		@forEach (note, fret, string) ->
-			if degree = scale[note.interval.shift]
+		scale = [1..@scaleLength].map (i) => @scale.indexOf(i) + 1
+
+		@forEach (note, fret, string) =>
+			if degree = scale[note.interval.shift-1]
 				note.interval.degree = degree
 			else
 				note.interval.degree = undefined
-	
+
+	###
+		~Options~
+
+		frets : Number
+		strings: Number
+		tuning: Array<Number>
+		interval:
+			notation: Array<String>
+			maxIndex: Number
+		scale:
+			values: Array<Number>
+			root: Number
+	###
 	set: (args) ->
-		throw 'Oye, forgot something? I need an options object.' if args == undefined
-			
-		@strings = args.strings if args.strings != undefined
-		@frets = args.frets if args.frets != undefined
-		
-		# We dont need to look into it more than that, we're going to have to fill
-		# it with new notes.
-		if args.strings != undefined || args.frets != undefined || !@notes[0][0]
-			@fill() 
-		
-		console.log(@notes)
-		
-		if args.interval != undefined
-			a = interval
-			if a.notation != undefined
-				@notation = a.notation
+		if args == undefined
+			throw 'Oye, forgot something? I need an options object.'
+
+		# start by changing the state of the "settings" on the model.
+
+		if args.strings then @strings = args.strings
+		if args.frets then @frets = args.frets
+		if args.tuning then @tuning = @asJSArray(args.tuning)
+		if args.interval
+			i = args.interval
+			if i.notation
+				@notation = @asJSArray(i.notation)
 				# we can derive the scale length of the note system by taking it
 				# from the number of notation values we have in there.
-				@scaleLength = notation.length
-			@maxIndex = a.maxIndex if a.maxIndex != undefined
-			@tuning = a.tuning if a.tuning != undefined
-			# Since there was a change in the interval data, we call buildInterval
-			@buildInterval()
-		else if @notes[0][0].interval.value == -1
-			# The notes aren't initialized since this is either the initial
-			# construction or there was a call done to fill
-			@buildInterval()
-		
-		if args.scale != undefined
-			a = args.scale
-			@scale = a.scale if a.scale != undefined
-			@root = a.root if a.root != undefined
-			buildScale()
-		else if @scale != undefined && @root != undefined
-			buildScale()
-			
-	###
-	# private static functions
-	###
-	
-	asJSArray = (arr) ->
+				@scaleLength = @notation.length
+			if i.maxIndex then @maxIndex = i.maxIndex
+		if args.scale
+			s = args.scale
+			if s.values then @scale = @asJSArray(s.values)
+			if s.root then @root = s.root
+
+		# Figure out what to rebuild
+
+		# We dont need to look into it more than that, we're going to have to fill
+		# it with new notes.
+		fill = args.strings || args.frets || !@notes[0][0]
+		buildInterval = args.tuning || args.interval || fill
+		buildRootedValue = buildInterval || (args.scale && args.scale.root)
+		buildScale = args.scale || (buildRootedValue && @scale)
+
+		if fill then @fill()
+		if buildInterval then @buildInterval()
+		if buildRootedValue then @buildRootedValue()
+		if buildScale then @buildScale()
+
+		if fill || buildInterval || buildRootedValue || buildScale
+			@events.broadcast('modelchange')
+
+	# this is a helper function to process array arguments. data can be in the
+	# for of a csv or json, as well as a regular array object.
+	asJSArray: (arr) ->
 		if typeof arr == 'string'
+			# smells like JSON
 			if arr[0] == '['
-				JSON.parse(arr) 
+				JSON.parse(arr)
 			else if arr.indexOf(',') != -1
 				arr
 					.split(',')
@@ -218,19 +280,21 @@ class Model
 						if isNaN(val)
 							throw 'Invalid array input.'
 						else Number(val)
+			else
+				throw 'Could not parse array argument'
 		else
 			arr
-			
-	###	
+
+	###
 	# Traversing functions
 	###
-	
+
 	forEach: (traversor) ->
 		for fretArr, fret in @notes
 			for note, string in fretArr
 				if traversor(note, fret, string+1) == false
 					return
-	
+
 	find: (traversor) ->
 		result = undefined
 		@forEach (note, fret, string) ->
@@ -238,109 +302,313 @@ class Model
 				result = note
 				return false
 		result
-		
-		
-class PublicInterface
-	constructor: (events, obj, keys) ->
-		args = {}
-		
-		for key in keys
-			if typeof key == 'object'
-				args[key.name] = key
-			else
-				args[key] =
-					enumerable: true,
-					get: -> S[key],
-					set: (val) ->
-						S[key] = val
-						events.broadcast('modelchange', ->
-							name: key,
-							value: val
-						)
-						
-		Object.defineProperties(@, args)
-	
+
+
+
 class Interval
 	constructor: ->
-		# Absolute value of this note. If two notes
-		# have the same freqId, they would be played
-		# at the exact same frequency.
+		# Absolute value of this note. If two notes have the same freqId, they would
+		# be played at the exact same frequency.
 		@freqId = -1
-		
+
 		# index of the interval value.
 		@index = -1
-		
-		# integer representation of C,Db,D,E,F...
+
+		# integer representation/notation of C,Db,D,E,F... referred to as the
+		# interval value in some comments.
 		@value = -1
-		
+
 		# notational (view) of value (C,Db,D,E,F...)
 		@notation = ''
-		
-		# shift is used to 'push' the interval to where the
-		# tonic should be.
+
+		# shift is used to 'push' the interval to where the tonic should be.
 		@shift = -1
-		
-		# the degree is the displayed value of the shift
-		# integer
-		@degree = ''
-	
-	# define the public interface
-	public: (events) ->
-		if(@__public__ == undefined)
-			@__public__ = new PublicInterface(events, @, [
-				'freqId', 'index', 'notation', 
-				'value',  'shift', 'degree'
-			])
-			
-		@__public__
-		
-class Square
-	
-	constructor: ->
-		@x1 = -1
-		@y1 = -1
-		@x2 = -1 
-		@y2 = -1
-	
-	isPointWithinBounds: (x, y) ->
-		x > @x1 && x < @x2 && @y1 
-	
-	# Define the public interface
-	public: (events) ->
-		if(@__public__ == undefined)
-			@__public__ = new PublicInterface(events, @, [
-				'x1', 'y1', 'x2', 'y2'
-			])
-			
-		@__public__
+
+		# the degree is the displayed value of the shift integer
+		@degree = -1
 
 
 class Note
 	constructor: (@fret, @string) ->
-		@selector = ''
-		@dimension = new Square()
 		@interval = new Interval
 
-	public: (events) ->
-		if(@__public__ == undefined)
-			intl = @interval
-			console.log(new Interval)
-			@__public__ = new PublicInterface(events, @, [
-				'frets', 
-				'strings', 
-				{ name: 'dimension', 
-				enumerable: true, 
-				writable: false, 
-				value: @dimension.public(events) },
-				{ name: 'interval',
-				enumerable: true,
-				writable: false,
-				value: @interval.public(events) },
-				'selector'
-			])
-			@__public__.toString = ->
-				JSON.stringify(@)
-			
-		@__public__
-		
-		
+	log: ->
+		console.log(@)
+
+###
+  Draw thing
+###
+
+class View
+
+  endArc: Math.PI * 2
+
+  constructor: (args, @canvas, @model, @events) ->
+
+    #@canvas = @$canvas[0]
+    @context = new ContextWrapper(@canvas.getContext('2d'))
+
+    # setup the canvas' css settings
+    @canvas.style['user-select'] = 'none'
+    @canvas.style['-webkit-user-select'] = 'none'
+    @canvas.style['-moz-user-select'] = 'none'
+
+    @colors =
+      strings: 'gray'
+      inlays: '#D1A319'
+      frets: 'gray'
+
+    # listen for changes on the canvas, or data
+    #$(window).resize(@repaint)
+    window.addEventListener('resize', @repaint)
+    # this will need to be triggered manually
+    @canvas.addEventListener('resize', @repaint)
+    @events.modelchange(@repaint)
+
+    # setup event services
+    @canvas.addEventListener("click", @onMouseClick)
+    @canvas.addEventListener('mousemove', @onMouseMove)
+
+    @set(args)
+
+  set: (args) ->
+    if args.drawInlay then @drawInlay = args.drawInlay
+    if args.drawSelector then @drawSelector = args.drawSelector
+    if args.drawString then @drawString = args.drawString
+    if args.drawFret then @drawFret = args.drawFret
+    if args.colors
+      c = args.colors
+      if c.strings then @colors.strings = c.strings
+      if c.frets then @colors.frets = c.frets
+      if c.inlays then @colors.inlays = c.inlays
+
+  relativePosition: (e) ->
+    docE = document.documentElement
+    b = @canvas.getBoundingClientRect()
+
+    canvX = b.left - window.pageXOffset - docE.clientLeft
+    canvY = b.top - window.pageYOffset - docE.clientTop
+
+    x: e.pageX - canvX
+    y: e.pageY - canvY
+
+  pinpointNote: (x, y) ->
+    {openFretWidth, fretWidth} = @fretWidths()
+    fret =
+      if x < openFretWidth then 0
+      else Math.floor((x - openFretWidth) / fretWidth) + 1
+
+    heightRatio = @height / @model.strings
+    string = @model.strings - Math.floor(y / heightRatio)
+
+    string: string
+    fret: fret
+
+  onMouseClick: (e) =>
+    {x, y} = @relativePosition(e)
+    {string, fret} = @pinpointNote(x, y)
+
+    note = @model.notes[fret][string - 1]
+
+    @events.broadcast('noteclick', note)
+
+  onMouseMove: (e) =>
+    {x, y} = @relativePosition(e)
+
+    # check if the note cached is still corresponding to the note that the
+    # mouse is on. if mouseHoveredNote note is undefined, we must check.
+    {fret, string} = @pinpointNote(x, y)
+
+    if !@hoveredNote || @hoveredNote.fret != fret || @hoveredNote.string != string
+
+      # its possible that find won't be able to locate anything, in which
+      # case we'll have to wait for the next event to check again.
+      if @model.notes[fret] && @model.notes[fret][string - 1]
+        @hoveredNote = @model.notes[fret][string - 1]
+        @events.broadcast('notehover', @hoveredNote)
+
+  updateDimensions: () ->
+    @width = @canvas.offsetWidth
+    @height = @canvas.offsetHeight
+    @context.get('canvas').height = @height
+    @context.get('canvas').width = @width
+
+  drawInlay: (context, color, x, y, width, height) ->
+    context
+      .beginAt(x - (width / 2), y)
+      .lineTo(x, (y - (height / 2)))
+      .lineTo(x + (width / 2), y)
+      .fillStyle(color)
+      .fill()
+
+  drawSelector: (context, note, x, y, radius) ->
+    if note.interval.degree
+      color = if note.interval.degree == 1 then 'firebrick' else 'gray'
+      context
+        .beginPath()
+        .color(color)
+        .arc(x, y, radius, 0, @endArc)
+        .fill()
+
+  drawString: (context, color, width, stringY, openX) ->
+    context
+      .beginPath()
+      .lineWidth(1)
+      .fillStyle(color)
+      # the string starts after the open fret in this case.
+      .moveTo(openX, stringY)
+      .lineTo(width, stringY)
+      .stroke()
+
+  drawFret: (context, fret, fretStart, height, color) ->
+    if fret == 1
+      context.lineWidth(5)
+    else
+      context.lineWidth(1)
+    # the fret "0" doesnt really exist
+    if fret > 0
+      context
+        .beginPath()
+        .fillStyle(color)
+        .moveTo(fretStart, 0)
+        .lineTo(fretStart, height)
+        .stroke()
+
+  # returns the width of the open fret and of the other frets
+  fretWidths: ->
+    # the open note will be a much smaller rectangle with a "fat" line to
+    # represent the nut of the instrument
+    openFretWidth = @width / (@model.frets * 2)
+    leftover = @width - openFretWidth
+    fretWidth = leftover / (@model.frets - 2)
+
+    openFretWidth: openFretWidth
+    fretWidth: fretWidth
+
+  paint: () ->
+    {openFretWidth, fretWidth} = @fretWidths()
+    heightRatio = @height / @model.strings
+    radius =
+      if heightRatio > openFretWidth then openFretWidth / 4
+      else heightRatio / 4
+    # the string's location is in the center of the "square" of the note
+    stringH  = 0
+    fretStart = 0
+    fretEnd = 0
+    circle = 0
+
+    @model.forEach (note, fret, string) =>
+      # the first fret will just start at pixel 1, otherwise standard logic
+      # applies
+      fretStart = if !fret then 1 else ((fret - 1) * fretWidth) + openFretWidth
+      fretEnd = fretStart + fretWidth - 1
+      # I need to invert the order of the strings since fingerboards are
+      # typically viewed upside down (so that its easy to read the graphic with
+      # the instrument in hand).
+      stringInvert = @model.strings - string + 1
+      #console.log(stringInvert)
+      # the string is located in the middle of the note
+      stringY = ((stringInvert - 1) * heightRatio) + (heightRatio / 2)
+      # inlay is located at the center of the note.
+      inlayX = fretStart + ((if !fret then openFretWidth else fretWidth) / 2)
+
+      # if we're at the open note, just need to draw the instrument's string.
+      if fret == 0
+        @drawString(@context, @colors.strings, @width, stringY, openFretWidth)
+
+      if string == 1
+        @drawFret(@context, fret, fretStart, @height, @colors.frets)
+
+        switch fret
+          when 3, 5, 7, 9
+            @drawInlay(@context, inlayX, @height / 2, radius * 3, radius * 6)
+          when 12
+            @drawInlay(@context, inlayX, @height / 3, radius * 3, radius *6)
+            @drawInlay(@context, inlayX, 2 * (@height / 3), radius * 3, radius *6)
+
+      @drawSelector(@context, note, inlayX, stringY, radius)
+
+  repaint: () =>
+    @updateDimensions()
+    @context
+      .begin()
+      .clearRect(0, 0, @width, @height)
+      .fill()
+    @paint()
+
+Fingerboard.View ?= {}
+endArc = Math.PI * 2
+Fingerboard.View.selectors =
+
+  default: ({tonicColor, elseColor, ratio}) ->
+    ratio ?= 1
+    color = undefined
+    tonicColor ?= 'firebrick'
+    elseColor ?= 'gray'
+
+    (context, note, x, y, radius) ->
+      if note.interval.degree
+        color = if note.interval.degree == 1 then tonicColor else elseColor
+        context
+          .begin()
+          .color(color)
+          .arc(x, y, radius * ratio, 0, endArc)
+          .fill()
+
+  # returns a drawing function which will be a circle with the notation inside
+  notationDots: ({tonicColor, elseColor, textColor, withIndex, ratio, font}) ->
+    ratio ?= 1.4
+    font ?= '600 9px tahoma'
+    tonicColor ?= 'fireBrick'
+    elseColor ?= 'gray'
+    textColor ?= 'white'
+    withIndex ?= true
+
+    color = undefined
+    text = undefined
+
+    (context, note, x, y, radius) ->
+      if note.interval.degree
+        color = if note.interval.degree == 1 then tonicColor else elseColor
+        context
+          .begin()
+          .color(color)
+          .arc(x, y, radius * ratio, 0, endArc)
+          .fill()
+        text =
+          if withIndex
+            note.interval.notation + note.interval.index
+          else
+            note.interval.notation
+        context
+          .begin()
+          .color(textColor)
+          .textAlign('center')
+          .textBaseline('middle')
+          .font(font)
+          .fillText(text, x, y)
+
+  degreeDots: ({tonicColor, elseColor, textColor, ratio, font}) ->
+    ratio ?= 1.2
+    font ?= '600 9px tahoma'
+    tonicColor ?= 'fireBrick'
+    elseColor ?= 'gray'
+    textColor ?= 'white'
+
+    color = undefined
+
+    (context, note, x, y, radius) ->
+      if note.interval.degree
+        color = if note.interval.degree == 1 then tonicColor else elseColor
+        context
+          .begin()
+          .color(color)
+          .arc(x, y, radius * ratio, 0, endArc)
+          .fill()
+        context
+          .begin()
+          .color(textColor)
+          .textAlign('center')
+          .textBaseline('middle')
+          .font(font)
+          .fillText('' + note.interval.degree, x, y)
