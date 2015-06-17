@@ -37,7 +37,7 @@
   };
 
 
-  /*
+  /* Constructor Arguments
   		model:
   			frets : Number
   			strings: Number
@@ -169,7 +169,6 @@
     		scale:
     			values: Array<Number>
     			root: Number
-    		selector: Function (Note) => String
      */
     function Model(args, events) {
       this.events = events;
@@ -539,7 +538,7 @@
     };
 
     View.prototype.drawInlay = function(context, color, x, y, width, height) {
-      return context.beginAt(x - (width / 2), y).lineTo(x, y - (height / 2)).lineTo(x + (width / 2), y).fillStyle(color).fill();
+      return context.color(color).beginPath().moveTo(x - (width / 2), y).lineTo(x, y - (height / 2)).lineTo(x + (width / 2), y).lineTo(x, y + (height / 2)).fill();
     };
 
     View.prototype.drawSelector = function(context, note, x, y, radius) {
@@ -603,11 +602,11 @@
               case 5:
               case 7:
               case 9:
-                _this.drawInlay(_this.context, inlayX, _this.height / 2, radius * 3, radius * 6);
+                _this.drawInlay(_this.context, _this.colors.inlays, inlayX, _this.height / 2, radius * 3, radius * 6);
                 break;
               case 12:
-                _this.drawInlay(_this.context, inlayX, _this.height / 3, radius * 3, radius * 6);
-                _this.drawInlay(_this.context, inlayX, 2 * (_this.height / 3), radius * 3, radius * 6);
+                _this.drawInlay(_this.context, _this.colors.inlays, inlayX, _this.height / 3, radius * 3, radius * 6);
+                _this.drawInlay(_this.context, _this.colors.inlays, inlayX, 2 * (_this.height / 3), radius * 3, radius * 6);
             }
           }
           return _this.drawSelector(_this.context, note, inlayX, stringY, radius);
